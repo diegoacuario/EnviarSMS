@@ -87,7 +87,7 @@ public class DataBase {
     public Company loadCompany() {
         try {
             String sql = "SELECT ID_COMPANY, COMPANY, PHONE, EMAIL, DIRECTION, LATITUD, LONGITUD "
-                    + "FROM COMPANY";
+                    + "FROM company";
 
             rs = s.executeQuery(sql);
 
@@ -108,7 +108,7 @@ public class DataBase {
         ListRolUser listAux = new ListRolUser();
         try {
             String sql = "SELECT ID_ROL_USER, ROL_USER, DESCRIPTION "
-                    + "FROM ROL_USER ";
+                    + "FROM rol_user ";
 
             rs = s.executeQuery(sql);
 
@@ -128,7 +128,7 @@ public class DataBase {
         ListStateCivil listAux = new ListStateCivil();
         try {
             String sql = "SELECT ID_STATE_CIVIL, STATE_CIVIL "
-                    + "FROM STATE_CIVIL ";
+                    + "FROM state_civil ";
 
             rs = s.executeQuery(sql);
 
@@ -148,7 +148,7 @@ public class DataBase {
         ListPerson listAux = new ListPerson();
         try {
             String sql = "SELECT ID_PERSON, NAME, LASTNAME, PHONE, EMAIL, DIRECTION, NUM_HOUSE, TYPE_SANGRE, ID_STATE_CIVIL, CONYUGUE, IMAGE "
-                    + "FROM PERSONS ";
+                    + "FROM persons ";
 
             rs = s.executeQuery(sql);
 
@@ -169,7 +169,7 @@ public class DataBase {
         ListClients listAux = new ListClients();
         try {
             String sql = "SELECT NAME, LASTNAME, PHONE, DIRECTION, SECTOR, CODE, NUM_HOUSE, LATITUD, LONGITUD, REFERENCE "
-                    + "FROM CLIENTS ORDER BY CODE";
+                    + "FROM clients ORDER BY CODE";
 
             rs = s.executeQuery(sql);
 
@@ -190,7 +190,7 @@ public class DataBase {
         ListUser listAux = new ListUser();
         try {
             String sql = "SELECT ID_USER, PASSWORD, ID_ROL_USER, ID_PERSON "
-                    + "FROM USERS ";
+                    + "FROM users ";
 
             rs = s.executeQuery(sql);
 
@@ -210,7 +210,7 @@ public class DataBase {
         ListZona listAux = new ListZona();
         try {
             String sql = "SELECT ID_ZONA, ZONA "
-                    + "FROM ZONAS ";
+                    + "FROM zonas ";
 
             rs = s.executeQuery(sql);
 
@@ -230,7 +230,7 @@ public class DataBase {
         ListMarca listAux = new ListMarca();
         try {
             String sql = "SELECT ID_MARCA_VEHICULO, MARCA_VEHICULO "
-                    + "FROM MARCA_VEHICULO";
+                    + "FROM marca_vehiculo";
 
             rs = s.executeQuery(sql);
 
@@ -250,7 +250,7 @@ public class DataBase {
         ListModelo listAux = new ListModelo();
         try {
             String sql = "SELECT ID_MODELO_VEHICULO, MODELO_VEHICULO "
-                    + "FROM MODELO_VEHICULO";
+                    + "FROM modelo_vehiculo";
 
             rs = s.executeQuery(sql);
 
@@ -270,7 +270,7 @@ public class DataBase {
         ListCodesTaxy listAux = new ListCodesTaxy();
         try {
             String sql = "SELECT ID_CODIGO, ETIQUETA, COLOR "
-                    + "FROM CODES_TAXY";
+                    + "FROM codes_taxy";
 
             rs = s.executeQuery(sql);
 
@@ -291,7 +291,7 @@ public class DataBase {
         try {
             String sql = "SELECT ID_VEHICULO, ID_ZONA, ID_CONDUCTOR, ID_PROPIETARIO, ID_CODIGO, VEHICULO, ID_MODELO_VEHICULO, YEAR, "
                     + "NUM_MOTOR, NUM_CHASIS, REG_MUNICIPAL, SOAT "
-                    + "FROM VEHICULOS ORDER BY VEHICULO";
+                    + "FROM vehiculos ORDER BY VEHICULO";
             rs = s.executeQuery(sql);
 
             while (rs.next()) {
@@ -314,7 +314,7 @@ public class DataBase {
         try {
             String sql = "SELECT TIME, PHONE, CODE, CLIENT, SECTOR, DIRECTION, VEHICULO, "
                     + "MINUTE, TIME_ASIG, ID_VEHICULO, ATRASO, NOTE "
-                    + "FROM ASSIGS ORDER BY DATE, TIME";
+                    + "FROM assigs ORDER BY DATE, TIME";
             rs = s.executeQuery(sql);
 
             while (rs.next()) {
@@ -336,7 +336,7 @@ public class DataBase {
         ListPending listAux = new ListPending();
         try {
             String sql = "SELECT CODE, PHONE, CLIENT, DATE, TIME, NOTE, REMEMBER "
-                    + "FROM PENDING ";
+                    + "FROM pending ";
 
             rs = s.executeQuery(sql);
 
@@ -356,7 +356,7 @@ public class DataBase {
     /* INSERT IN THE DATABASE */
     public void insertClientMap(Client c) {
         try {
-            String sql = "INSERT INTO POSITIONS_CLIENTS (CODE, CLIENT, SECTOR, PHONE, LATITUD, LONGITUD, DATE, TIME) "
+            String sql = "INSERT INTO position_clients (CODE, CLIENT, SECTOR, PHONE, LATITUD, LONGITUD, DATE, TIME) "
                     + "VALUES(" + c.getCode() + ",'" + c.getName() + " " + c.getLastname() + "','" + c.getSector() + "','" + c.getPhone() + "',"
                     + c.getLatitud() + "," + c.getLongitud() + ",DATE(NOW()), TIME(NOW()))";
             System.out.println(sql);
@@ -365,10 +365,231 @@ public class DataBase {
             Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
+    /**
+     *
+     * @param p Persona insertar en la base
+     * @return si se inserto o no, esto lo hace despues de comprobar que la
+     * persona no existe es decir siempre que llegue aqui debe insertar
+     */
+    public boolean insertPerson(Person p) {
+        boolean inserto = true;
+        try {
+            String sql = "INSERT INTO persons (id_person,name,lastname,phone,"
+                    + "email,direction,num_house,type_sangre,id_state_civil,"
+                    + "conyugue,image) VALUES('" + p.getCedula() + "','"
+                    + p.getName() + "','" + p.getLastname() + "','" + p.getPhone()
+                    + "','" + p.getEmail() + "','" + p.getDirection() + "',"
+                    + p.getNumHouse() + ",'" + p.getTypeSangre() + "','"
+                    + p.getStateCivil().getIdStateCivil() + "','" + p.getConyuge()
+                    + "','" + p.getImage() + "')";
+
+            System.out.println(sql);
+            s.executeUpdate(sql);
+        } catch (SQLException ex) {
+            System.err.println(ex);
+            inserto = false;
+        }
+        return inserto;
+    }
+
+    public boolean insertUser(User u) {
+        boolean inserto = true;
+        try {
+            String sql = "INSERT INTO users (id_user,id_rol_user,id_person,"
+                    + "password) VALUES('" + u.getUser() + "','"
+                    + u.getRolUser().getIdRolUser() + "','"
+                    + u.getPerson().getCedula() + "','" + u.getPassword() + "')";
+            System.out.println(sql);
+            s.executeUpdate(sql);
+        } catch (SQLException ex) {
+            System.err.println(ex);
+            inserto = false;
+        }
+        return inserto;
+    }
+
+    public boolean insertClient(Client c) {
+        boolean inserto = true;
+
+        try {
+            String sql = "INSERT INTO clients (name,lastname,phone,"
+                    + "direction,sector,code,num_house,latitud,longitud,"
+                    + "reference) VALUES('" + c.getName() + "',"
+                    + "'" + c.getLastname() + "',"
+                    + "'" + c.getPhone() + "',"
+                    + "'" + c.getDirection() + "',"
+                    + "'" + c.getSector() + "',"
+                    + c.getCode() + ","
+                    + c.getNumHouse() + ","
+                    + c.getLatitud() + ","
+                    + c.getLongitud() + ","
+                    + "'" + c.getReference() + "')";
+
+            System.out.println(sql);
+            s.executeUpdate(sql);
+        } catch (SQLException ex) {
+            System.err.println(ex);
+            inserto = false;
+        }
+        return inserto;
+    }
+
+    public boolean insertLifeAssigns(String id_user, String time, int code,
+            String phone, String id_codigo, int respaldo, String client,
+            String sector, String direction, String destino, int vehiculo, int minute,
+            String id_vehiculo, int atraso, String reference, String note,
+            int tiquete, double latitud, double longitud) {
+        boolean inserto = true;
+        String sql = "";
+        try {
+            sql = "INSERT INTO life_assigns (id_user,date,time,code,"
+                    + "phone,id_codigo,respaldo,client,sector,direction,"
+                    + "destino,vehiculo,minute,id_vehiculo,atraso,reference,"
+                    + "note,tiquete,latitud,longitud) VALUES("
+                    + "'" + id_user + "',Date(Now()),"
+                    + "'" + time + "'," + code + ","
+                    + "'" + phone + "','" + id_codigo + "',"
+                    + respaldo + ",'" + client + "',"
+                    + "'" + sector + "','" + direction + "',"
+                    + "'" + destino + "','" + vehiculo + "',"
+                    + "'" + minute + "','" + id_vehiculo + "',"
+                    + atraso + "," + "'" + reference + "',"
+                    + "'" + note + "'," + tiquete + ","
+                    + latitud + "," + longitud + ")";
+
+            System.out.println(sql);
+            s.executeUpdate(sql);
+        } catch (SQLException ex) {
+            System.err.println(ex);
+            System.err.println(sql);
+            inserto = false;
+        }
+        return inserto;
+    }
+
+    public boolean insertAssigns(String id_user, String time, int code,
+            String phone, String client,
+            String sector, String direction, String destino, int vehiculo, int minute, String time_asig,
+            String id_vehiculo, int atraso, String reference, String note,
+            int tiquete) {
+        boolean inserto = true;
+        String sql = "";
+        try {
+            sql = "INSERT INTO assigs (id_user,date,time,phone,code,client,"
+                    + "sector,direction,destino,vehiculo,minute,time_asig,"
+                    + "id_vehiculo,atraso,reference,note,tiquete) VALUES("
+                    + "'" + id_user + "',Date(Now()),"
+                    + "'" + time + "'," + phone + ","
+                    + "'" + code + "','" + client + "',"
+                    + "'" + sector + "','" + direction + "',"
+                    + "'" + destino + "'," + vehiculo + ","
+                    + "'" + minute + "','" + time_asig + "','" + id_vehiculo + "',"
+                    + atraso + "," + "'" + reference + "',"
+                    + "'" + note + "'," + tiquete + ")";
+
+            System.out.println(sql);
+            s.executeUpdate(sql);
+        } catch (SQLException ex) {
+            System.err.println(ex);
+            System.err.println(sql);
+            inserto = false;
+        }
+        return inserto;
+    }
+
     /* UPDATE IN THE DATABASE */
-    
-    
-    
+    public boolean updatePerson(Person p, String cedula) {
+        boolean actualizo = true;
+        try {
+            String sql = "UPDATE persons  SET id_person='" + p.getCedula() + "',"
+                    + "name='" + p.getName() + "',"
+                    + "lastname='" + p.getLastname() + "',"
+                    + "phone='" + p.getPhone() + "',"
+                    + "email='" + p.getEmail() + "',"
+                    + "direction='" + p.getDirection() + "',"
+                    + "num_house=" + p.getNumHouse() + ","
+                    + "type_sangre='" + p.getTypeSangre() + "',"
+                    + "id_state_civil=" + p.getStateCivil().getIdStateCivil() + ","
+                    + "conyugue='" + p.getConyuge() + "',"
+                    + "image='" + p.getImage() + "' WHERE id_person='"
+                    + cedula + "'";
+
+            System.out.println(sql);
+            s.executeUpdate(sql);
+        } catch (SQLException ex) {
+            System.err.println(ex);
+            actualizo = false;
+        }
+        return actualizo;
+    }
+
+    public boolean updateUser(User user, String id_user) {
+        boolean actualizo = true;
+        try {
+            String sql = "UPDATE users  SET id_user='" + user.getUser() + "',"
+                    + "id_rol_user=" + user.getRolUser().getIdRolUser() + ","
+                    + "id_person='" + user.getPerson().getCedula() + "',"
+                    + "password='" + user.getPassword() + "' WHERE id_user='"
+                    + id_user + "'";
+
+            System.out.println(sql);
+            s.executeUpdate(sql);
+        } catch (SQLException ex) {
+            System.err.println(ex);
+            actualizo = false;
+        }
+        return actualizo;
+    }
+
+    public boolean updateClient(Client client, int code) {
+        boolean actualizo = true;
+        try {
+            String sql = "UPDATE clients  SET name='" + client.getName() + "',"
+                    + "lastname='" + client.getLastname() + "',"
+                    + "phone='" + client.getPhone() + "',"
+                    + "direction='" + client.getDirection() + "',"
+                    + "sector='" + client.getSector() + "',"
+                    + "code=" + client.getCode() + ","
+                    + "num_house=" + client.getNumHouse() + ","
+                    + "latitud=" + client.getLatitud() + ","
+                    + "longitud=" + client.getLongitud() + ","
+                    + "reference='" + client.getReference() + "' WHERE code="
+                    + client.getCode();
+
+            System.out.println(sql);
+            s.executeUpdate(sql);
+        } catch (SQLException ex) {
+            System.err.println(ex);
+            actualizo = false;
+        }
+        return actualizo;
+    }
+
     /* DELETE IN THE DATABASE */
+    public boolean deletePerson(String cedula) {
+        boolean elimino = true;
+        try {
+            String sql = "DELETE FROM persons WHERE id_person='" + cedula + "'";
+            System.out.println(sql);
+            s.executeUpdate(sql);
+        } catch (SQLException ex) {
+            System.err.println(ex);
+            elimino = false;
+        }
+        return elimino;
+    }
+
+    public boolean deleteUser(String user) {
+        boolean elimino = true;
+        try {
+            String sql = "DELETE FROM users WHERE id_user='" + user + "'";
+            System.out.println(sql);
+            s.executeUpdate(sql);
+        } catch (SQLException ex) {
+            System.err.println(ex);
+            elimino = false;
+        }
+        return elimino;
+    }
 }

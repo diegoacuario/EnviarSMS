@@ -65,10 +65,10 @@ public class FrameUser extends javax.swing.JFrame {
     private void delete() {
         int rowSelected = tblUser.getSelectedRow();
         clear();
-        if (Principal.listPerson.deletePerson(tblUser.getValueAt(rowSelected, 0).toString())) {
+        if (Principal.listUser.deleteUser(tblUser.getValueAt(rowSelected, 0).toString())) {
             modelTableUser.removeRow(rowSelected);
         } else {
-            JOptionPane.showMessageDialog(this, "No se pudo eliminar la Persona de la Lista");
+            JOptionPane.showMessageDialog(this, "No se pudo eliminar el usuario");
         }
     }
 
@@ -84,11 +84,16 @@ public class FrameUser extends javax.swing.JFrame {
             User u = new User(txtUser.getText(), strPass, Principal.listRolUser.getRolUserByRol(cbxRolUser.getSelectedItem().toString()),
                     Principal.listPerson.getPersonByPerson(cbxPerson.getSelectedItem().toString()));
 
-            if (Principal.listUser.addNewUser(u)) {
-                JOptionPane.showMessageDialog(this, "La Persona ya Existe en la lista", "ERROR", JOptionPane.ERROR_MESSAGE);
+            int insert = Principal.listUser.addNewUser(u);
+            if (insert == 0) {//si el usuario existe
+                JOptionPane.showMessageDialog(this, "El usuario ya existe.", "ERROR", JOptionPane.ERROR_MESSAGE);
             } else {
-                modelTableUser.addRow(changeToArrayUser(u));
-                clear();
+                if (insert == 1) {
+                    modelTableUser.addRow(changeToArrayUser(u));
+                    clear();
+                } else {
+                    System.out.println("Error insertando usuario");
+                }
             }
         } else {
             JOptionPane.showMessageDialog(this, "Compruebe que los campos Requeridos sean los correctos (Usuario, Contraseña)", "ERROR", JOptionPane.ERROR_MESSAGE);

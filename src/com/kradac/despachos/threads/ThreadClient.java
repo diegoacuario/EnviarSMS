@@ -15,7 +15,7 @@ import com.kradac.despachos.interfaz.Principal;
 public class ThreadClient extends Thread {
 
     public ThreadClient() {
-        System.out.println("Hilo Corriendo");
+        
     }
 
     @Override

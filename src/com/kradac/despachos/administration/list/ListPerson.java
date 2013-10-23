@@ -6,6 +6,9 @@
 package com.kradac.despachos.administration.list;
 
 import com.kradac.despachos.administration.Person;
+import com.kradac.despachos.database.DataBase;
+import com.kradac.despachos.interfaz.Principal;
+import com.kradac.despachos.methods.Functions;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -16,10 +19,12 @@ import javax.swing.JOptionPane;
  */
 public class ListPerson {
     
+    private final DataBase db;
     private List<Person> persons;
 
     public ListPerson() {
         persons = new ArrayList<>();
+        db = new DataBase(Functions.getFileProperties("classes/com/kradac/despachos/configFiles/configsystem.properties"));
     }
 
     /**
@@ -44,23 +49,30 @@ public class ListPerson {
         }
     }
 
-    public boolean addNewPerson(Person person) {
-        boolean existe = false;
+    public int addNewPerson(Person person) {
+        int existe = -1;
         for (Person p : persons) {
             if (p.getCedula().equals(person.getCedula())) {
-                existe = true;
+                existe = 0;
             }
         }
-
-        persons.add(person);
+        if (existe == -1) {
+            if (db.insertPerson(person)) {
+                existe = 1;
+                db.closeConexion();
+                persons.add(person);
+            }
+        }
         return existe;
     }
 
     public boolean deletePerson(String cedula) {
         for (Person p : persons) {
             if (p.getCedula().equals(cedula)) {
-                persons.remove(p);
-                return true;
+                if (db.deletePerson(cedula)) {
+                    persons.remove(p);
+                    return true;
+                }
             }
         }
         return false;
@@ -69,19 +81,20 @@ public class ListPerson {
     public boolean updatePerson(Person person, String cedula) {
         for (Person p : persons) {
             if (p.getCedula().equals(cedula)) {
-                p.setCedula(person.getCedula());
-                p.setName(person.getName());
-                p.setLastname(person.getLastname());
-                p.setEmail(person.getEmail());
-                p.setPhone(person.getPhone());
-                p.setDirection(person.getDirection());
-                p.setNumHouse(person.getNumHouse());
-                p.setTypeSangre(person.getTypeSangre());
-                p.setStateCivil(person.getStateCivil());
-                p.setConyuge(person.getConyuge());
-                p.setImage(person.getImage());
-                
-                return true;
+                if (db.updatePerson(person, cedula)) {
+                    p.setCedula(person.getCedula());
+                    p.setName(person.getName());
+                    p.setLastname(person.getLastname());
+                    p.setEmail(person.getEmail());
+                    p.setPhone(person.getPhone());
+                    p.setDirection(person.getDirection());
+                    p.setNumHouse(person.getNumHouse());
+                    p.setTypeSangre(person.getTypeSangre());
+                    p.setStateCivil(person.getStateCivil());
+                    p.setConyuge(person.getConyuge());
+                    p.setImage(person.getImage());
+                    return true;
+                }
             }
         }
         return false;

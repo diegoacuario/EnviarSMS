@@ -7,6 +7,9 @@
 package com.kradac.despachos.administration.list;
 
 import com.kradac.despachos.administration.User;
+import com.kradac.despachos.database.DataBase;
+import com.kradac.despachos.interfaz.Principal;
+import com.kradac.despachos.methods.Functions;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -16,9 +19,11 @@ import javax.swing.JOptionPane;
  * @author Dalton
  */
 public class ListUser {
+    private DataBase db;
     private List<User> users;
 
     public ListUser() {
+        db = new DataBase(Functions.getFileProperties("classes/com/kradac/despachos/configFiles/configsystem.properties"));
         users = new ArrayList<>();
     }
 
@@ -43,36 +48,46 @@ public class ListUser {
             JOptionPane.showMessageDialog(null, "La Persona Ya Existe");
     }
     
-    public boolean addNewUser(User user) {
-        boolean existe = false;
+    public int addNewUser(User user) {
+
+        int existe = -1;
         for (User u : users) {
             if (u.getUser().equals(user.getUser())) {
-                existe = true;
+                existe = 0;
             }
         }
-
-        users.add(user);
+        if (existe == -1) {
+            if (db.insertUser(user)) {
+                existe = 1;
+                db.closeConexion();
+                users.add(user);
+            }
+        }
         return existe;
     }
-    
-    public void deleteUser(String user) {        
+
+    public boolean deleteUser(String user) {
         for (User u : users) {
             if (u.getUser().equals(user)) {
-                users.remove(u);
-                break;
+                if (db.deleteUser(user)) {
+                    users.remove(u);
+                    return true;
+                }
             }
         }
+        return false;
     }
-    
+
     public boolean updateUser(User user, String nameUser) {
         for (User u : users) {
             if (u.getUser().equals(nameUser)) {
-                u.setUser(nameUser);
-                u.setPerson(user.getPerson());
-                u.setRolUser(user.getRolUser());
-                u.setPassword(user.getPassword());
-                
-                return true;
+                if (db.updateUser(user, nameUser)) {
+                    u.setUser(nameUser);
+                    u.setPerson(user.getPerson());
+                    u.setRolUser(user.getRolUser());
+                    u.setPassword(user.getPassword());
+                    return true;
+                }
             }
         }
         return false;

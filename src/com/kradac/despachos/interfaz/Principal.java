@@ -294,11 +294,11 @@ public class Principal extends javax.swing.JFrame {
                     ByDispatch auxDispatch = new ByDispatch(
                             tblByDispatch.getValueAt(rowSelected, 0).toString(),
                             tblByDispatch.getValueAt(rowSelected, 1).toString(),
-                            Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 2).toString()),
+                            unidad,
                             tblByDispatch.getValueAt(rowSelected, 3).toString(),
                             tblByDispatch.getValueAt(rowSelected, 4).toString(),
                             tblByDispatch.getValueAt(rowSelected, 5).toString(),
-                            unidad,
+                            Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 6).toString()),
                             Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 7).toString()),
                             tblByDispatch.getValueAt(rowSelected, 8).toString(),
                             tblByDispatch.getValueAt(rowSelected, 9).toString(),
@@ -306,6 +306,47 @@ public class Principal extends javax.swing.JFrame {
                             tblByDispatch.getValueAt(rowSelected, 11).toString());
 
                     listByDispatch.addDispatch(auxDispatch);
+                    
+                    Client c = Principal.listClient.getClientByCode(Integer.parseInt((String) tblByDispatch.getValueAt(rowSelected, 2)));
+                    bd.insertLifeAssigns(
+                            userLogin.getUser(),//user
+                            (String) tblByDispatch.getValueAt(rowSelected, 0),//hora
+                            Integer.parseInt((String) tblByDispatch.getValueAt(rowSelected, 2)),//code
+                            (String) tblByDispatch.getValueAt(rowSelected, 1),//telefono
+                            "OCU",
+                            0, (String) tblByDispatch.getValueAt(rowSelected, 3),//Cliente
+                            (String) tblByDispatch.getValueAt(rowSelected, 4),//Sector
+                            (String) tblByDispatch.getValueAt(rowSelected, 5),//Dirección
+                            "",//destino
+                            Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 6) + ""),//vehiculo
+                            Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 7) + ""),//minute
+                            (String) tblByDispatch.getValueAt(rowSelected, 9),//id_vehiculo
+                            Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 10) + ""),//atraso
+                            c.getReference(),
+                            (String) tblByDispatch.getValueAt(rowSelected, 11),//NOTA
+                            1,
+                            0,
+                            0
+                    );
+                    bd.insertAssigns(
+                            userLogin.getUser(),//user
+                            (String) tblByDispatch.getValueAt(rowSelected, 0),//hora
+                            Integer.parseInt((String) tblByDispatch.getValueAt(rowSelected, 2)),//code
+                            (String) tblByDispatch.getValueAt(rowSelected, 1),//telefono                            
+                            (String) tblByDispatch.getValueAt(rowSelected, 3),//Cliente
+                            (String) tblByDispatch.getValueAt(rowSelected, 4),//Sector
+                            (String) tblByDispatch.getValueAt(rowSelected, 5),//Dirección
+                            "",//destino
+                            Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 6) + ""),//vehiculo
+                            Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 7) + ""),//minute
+                            tblByDispatch.getValueAt(rowSelected, 8) + "",//hora asgi
+                            (String) tblByDispatch.getValueAt(rowSelected, 9),//id_vehiculo
+                            Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 10) + ""),//atraso
+                            c.getReference(),
+                            (String) tblByDispatch.getValueAt(rowSelected, 11),//NOTA
+                            1
+                    );
+                    
                     modelTableByDispatch.removeRow(rowSelected);
                     modelTableDispatch.insertRow(0, changeToArrayByDispatch(auxDispatch));
 
@@ -1042,7 +1083,7 @@ public class Principal extends javax.swing.JFrame {
             } else {
                 Client c = listClient.getClientByCode(Integer.parseInt(txtCode.getText()));
                 modelTableByDispatch.insertRow(0, changeToArrayClient(c));
-                bd.insertClientMap(c);
+                //bd.insertClientMap(c);
                 txtCode.setText("");
                 tblByDispatch.setColumnSelectionInterval(6, 6);
                 tblByDispatch.setRowSelectionInterval(0, 0);
@@ -1129,6 +1170,25 @@ public class Principal extends javax.swing.JFrame {
 
                             listVehiculos.setCodeTaxyByEtiqueta(unidad, listCodesTaxy.getCodesTaxyById("ASI"));
                             paintStateTaxy(listVehiculos.getEncabezadosTablaVehiculosArrayList());
+                            bd.insertLifeAssigns(
+                                    userLogin.getUser(),//user
+                                    (String) tblByDispatch.getValueAt(rowSelected, 0),//hora
+                                    Integer.parseInt((String) tblByDispatch.getValueAt(rowSelected, 2)),//code
+                                    (String) tblByDispatch.getValueAt(rowSelected, 1),//telefono
+                                    "ASI", 0,
+                                    "",
+                                    "",
+                                    "",
+                                    "",
+                                    Integer.parseInt((String) tblByDispatch.getValueAt(rowSelected, 6)),//vehiculo
+                                    0,//Integer.parseInt((String) tblByDispatch.getValueAt(rowSelected, 7)),//minute
+                                    (String) tblByDispatch.getValueAt(rowSelected, 9),//id_vehiculo
+                                    0,//Integer.parseInt((String) tblByDispatch.getValueAt(rowSelected, 10)),//atraso
+                                    "",
+                                    "",
+                                    1,
+                                    0, 0
+                            );
                         }
                     } catch (NumberFormatException e) {
                         try {

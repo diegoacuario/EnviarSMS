@@ -89,12 +89,16 @@ public class FramePerson extends javax.swing.JFrame {
             Person p = new Person(txtCedula.getText(), txtName.getText(), txtLastName.getText(), txtPhone.getText(), txtEmail.getText(),
                     txtDirection.getText(), numHouse, txtTypeSangre.getText(),
                     Principal.listStateCivil.getStateCivilByState(cbxStateCivil.getSelectedItem().toString()), txtConyugue.getText(), "");
-
-            if (Principal.listPerson.addNewPerson(p)) {
-                JOptionPane.showMessageDialog(this, "La Persona ya Existe en la lista", "ERROR", JOptionPane.ERROR_MESSAGE);
+            int insert = Principal.listPerson.addNewPerson(p);
+            if (insert == 0) {
+                JOptionPane.showMessageDialog(this, "La persona ya existe.", "ERROR", JOptionPane.ERROR_MESSAGE);
             } else {
-                modelTablePerson.addRow(changeToArrayPerson(p));
-                clear();
+                if (insert == 1) {
+                    modelTablePerson.addRow(changeToArrayPerson(p));
+                    clear();
+                } else {
+                    System.out.println("Error insertando persona");
+                }
             }
         } else {
             JOptionPane.showMessageDialog(this, "Compruebe que los campos Requeridos sean los correctos (Cedula, Nombres, Apellidos)", "ERROR", JOptionPane.ERROR_MESSAGE);
