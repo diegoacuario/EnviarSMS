@@ -6,6 +6,8 @@
 
 package com.kradac.despachos.interfaz;
 
+import com.kradac.despachos.interfaz.requerid.BrowserControl;
+
 /**
  *
  * @author Dalton
@@ -14,6 +16,7 @@ public class Menu extends javax.swing.JFrame {
     private FramePerson fp;
     private FrameUser fu;
     private FrameClients c;
+    private FrameVehiculos fv;
 
     /**
      * Creates new form Menu
@@ -36,6 +39,8 @@ public class Menu extends javax.swing.JFrame {
         btnClient = new javax.swing.JButton();
         btnUser = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
+        btnMap = new javax.swing.JButton();
+        btnMail = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Menu");
@@ -48,6 +53,11 @@ public class Menu extends javax.swing.JFrame {
         btnVehiculos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/auto.png"))); // NOI18N
         btnVehiculos.setToolTipText("Nuevo Vehiculo");
         btnVehiculos.setPreferredSize(new java.awt.Dimension(80, 60));
+        btnVehiculos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnVehiculosActionPerformed(evt);
+            }
+        });
 
         btnClient.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/llamada.png"))); // NOI18N
         btnClient.setToolTipText("Clientes");
@@ -59,6 +69,7 @@ public class Menu extends javax.swing.JFrame {
         });
 
         btnUser.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/Usuarios.png"))); // NOI18N
+        btnUser.setToolTipText("Ingresar Usuarios");
         btnUser.setPreferredSize(new java.awt.Dimension(80, 60));
         btnUser.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -75,6 +86,24 @@ public class Menu extends javax.swing.JFrame {
             }
         });
 
+        btnMap.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/mapa.png"))); // NOI18N
+        btnMap.setToolTipText("Abrir Mapa");
+        btnMap.setPreferredSize(new java.awt.Dimension(80, 60));
+        btnMap.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnMapActionPerformed(evt);
+            }
+        });
+
+        btnMail.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/mailK.png"))); // NOI18N
+        btnMail.setToolTipText("Abrir Correo Electronico");
+        btnMail.setPreferredSize(new java.awt.Dimension(80, 60));
+        btnMail.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnMailActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -86,13 +115,18 @@ public class Menu extends javax.swing.JFrame {
                         .addComponent(jLabel1))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(31, 31, 31)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnMap, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(30, 30, 30)
-                        .addComponent(btnVehiculos, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(29, 29, 29)
-                        .addComponent(btnClient, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(26, 26, 26)
-                        .addComponent(btnUser, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btnVehiculos, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(29, 29, 29)
+                                .addComponent(btnClient, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(26, 26, 26)
+                                .addComponent(btnUser, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(btnMail, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(35, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -102,12 +136,18 @@ public class Menu extends javax.swing.JFrame {
                 .addComponent(jLabel1)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(btnUser, javax.swing.GroupLayout.DEFAULT_SIZE, 61, Short.MAX_VALUE)
-                        .addComponent(btnVehiculos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnClient, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(364, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnMap, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(btnUser, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 62, Short.MAX_VALUE)
+                            .addComponent(btnClient, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnVehiculos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(18, 18, 18)
+                        .addComponent(btnMail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(288, Short.MAX_VALUE))
         );
 
         pack();
@@ -136,6 +176,22 @@ public class Menu extends javax.swing.JFrame {
         fu.setVisible(true);
         fu.setLocationRelativeTo(this);
     }//GEN-LAST:event_btnUserActionPerformed
+
+    private void btnMapActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMapActionPerformed
+        BrowserControl.displayURL("http://localhost/coopserver");
+    }//GEN-LAST:event_btnMapActionPerformed
+
+    private void btnMailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMailActionPerformed
+        BrowserControl.displayURL("http://mail.google.com");
+    }//GEN-LAST:event_btnMailActionPerformed
+
+    private void btnVehiculosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVehiculosActionPerformed
+        if ((fv == null) || (!fv.isDisplayable())) {
+            fv = new FrameVehiculos();
+        }
+        fv.setVisible(true);
+        fv.setLocationRelativeTo(this);
+    }//GEN-LAST:event_btnVehiculosActionPerformed
 
     /**
      * @param args the command line arguments
@@ -174,6 +230,8 @@ public class Menu extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnClient;
+    private javax.swing.JButton btnMail;
+    private javax.swing.JButton btnMap;
     private javax.swing.JButton btnUser;
     private javax.swing.JButton btnVehiculos;
     private javax.swing.JButton jButton1;

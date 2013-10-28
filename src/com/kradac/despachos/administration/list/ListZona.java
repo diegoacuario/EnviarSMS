@@ -16,7 +16,7 @@ import javax.swing.JOptionPane;
  * @author Dalton
  */
 public class ListZona {
-    List<Zona> zonas;
+    private List<Zona> zonas;
 
     public ListZona() {
         zonas = new ArrayList<>();
@@ -24,14 +24,14 @@ public class ListZona {
     
     public void addZona(Zona zona) {
         boolean existe = false;
-        for (Zona z : zonas) {            
+        for (Zona z : getZonas()) {            
             if (z.getIdZona() == zona.getIdZona()) {
                 existe = true;
             }
         }
         
         if (!existe)
-            zonas.add(zona);
+            getZonas().add(zona);
         else {
             JOptionPane.showMessageDialog(null, "No pueden haber dos Zonas con el mismo ID");
             System.exit(0);
@@ -39,11 +39,18 @@ public class ListZona {
     }
     
     public Zona getZonaById(int idZona) {
-        for (Zona z : zonas) {
+        for (Zona z : getZonas()) {
             if (z.getIdZona()== idZona) {
                 return z;
             }
         }
         return null;
+    }
+
+    /**
+     * @return the zonas
+     */
+    public List<Zona> getZonas() {
+        return zonas;
     }
 }

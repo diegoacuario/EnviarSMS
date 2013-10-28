@@ -23,8 +23,9 @@ public class Vehiculo {
     private int regMunicipal;
     private String soat;
     private CodesTaxy codesTaxy;
+    private String image;
 
-    public Vehiculo(String placa, Zona zona, Person conductor, Person propietario, int vehiculo, Modelo modelo, int year, String numMotor, String numChasis, int regMunicipal, String soat, CodesTaxy codesTaxy) {
+    public Vehiculo(String placa, Zona zona, Person conductor, Person propietario, int vehiculo, Modelo modelo, int year, String numMotor, String numChasis, int regMunicipal, String soat, CodesTaxy codesTaxy,String image) {
         this.placa = placa;
         this.zona = zona;
         this.conductor = conductor;
@@ -37,6 +38,7 @@ public class Vehiculo {
         this.regMunicipal = regMunicipal;
         this.soat = soat;
         this.codesTaxy = codesTaxy;
+        this.image = image;
     }
     
     /**
@@ -198,6 +200,14 @@ public class Vehiculo {
      */
     public CodesTaxy getCodesTaxy() {
         return codesTaxy;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     /**

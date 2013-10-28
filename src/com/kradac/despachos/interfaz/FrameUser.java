@@ -128,7 +128,7 @@ public class FrameUser extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Usuarios");
-        setIconImage(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/usuarios.png")).getImage());
+        setIconImage(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/Usuarios.png")).getImage());
         setResizable(false);
 
         tblUser.setModel(new javax.swing.table.DefaultTableModel(

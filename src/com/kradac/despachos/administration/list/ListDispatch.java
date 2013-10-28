@@ -8,6 +8,7 @@ package com.kradac.despachos.administration.list;
 
 import com.kradac.despachos.administration.Dispatch;
 import com.kradac.despachos.interfaz.Principal;
+import com.kradac.despachos.methods.Functions;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +50,33 @@ public class ListDispatch {
         }
     }
     
+    public void loadDispatchByClient(String client){
+        clearTableDispatch();
+        for (Dispatch p : dispatchs) {
+            if (p.getClient().toUpperCase().contains(client.toUpperCase())) {
+                Principal.modelTableDispatch.insertRow(0, changeToArrayDispatch(p));
+            }
+        }
+    }
+    
+    public void loadDispatchByCode(int code){
+        clearTableDispatch();
+        for (Dispatch p : dispatchs) {
+            if (p.getCode() == code) {
+                Principal.modelTableDispatch.insertRow(0, changeToArrayDispatch(p));
+            }
+        }
+    }
+    
+    public void loadDispatchByPhone(String phone){
+        clearTableDispatch();
+        for (Dispatch p : dispatchs) {
+            if (p.getPhone().equals(phone)) {
+                Principal.modelTableDispatch.insertRow(0, changeToArrayDispatch(p));
+            }
+        }
+    }
+    
     public String[] changeToArrayDispatch(Dispatch dispatch) {
         String[] dataDispatch = {
             dispatch.getTime(),
@@ -65,5 +93,32 @@ public class ListDispatch {
             dispatch.getNote()
         };
         return dataDispatch;
+    }
+    
+    public int getDispatchByDayVeh(int vehiculo) {
+        int c = 0;
+        String dateNow = Functions.getDate();
+        for (Dispatch d : dispatchs) {
+            if (vehiculo == d.getVehiculo() && d.getDate().equals(dateNow)) {
+                c++;
+            }
+        }
+        return c;
+    }
+    
+    public Dispatch getDispatchByCPT(int code, String phone, String time, String client) {
+        for (Dispatch d : dispatchs) {
+            if (d.getCode() == code && d.getPhone().equals(phone) && d.getTime().equals(time) && d.getClient().equals(client)) {
+                return d;
+            }
+        }
+        return null;
+    }
+    
+    private void clearTableDispatch() {
+        int n_filas = Principal.tblDispatchs.getRowCount();
+        for (int i = 0; i < n_filas; i++) {
+            Principal.modelTableDispatch.removeRow(0);
+        }
     }
 }

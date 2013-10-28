@@ -7,6 +7,7 @@
 package com.kradac.despachos.administration.list;
 
 import com.kradac.despachos.administration.Pending;
+import com.kradac.despachos.interfaz.requerid.LookPending;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -31,5 +32,14 @@ public class ListPending {
      */
     public List<Pending> getPendings() {
         return pendings;
+    }
+    
+    public void existePending(String date, String time) {
+        for (Pending pending : pendings) {
+            if (pending.getDate().equals(date) && pending.getRemember().equals(time)) {
+                LookPending m = new LookPending(pending.getTime(), pending.getClient());
+                m.start();
+            }
+        }
     }
 }

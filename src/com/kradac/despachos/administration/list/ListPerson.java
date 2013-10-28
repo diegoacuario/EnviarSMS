@@ -8,9 +8,9 @@ package com.kradac.despachos.administration.list;
 import com.kradac.despachos.administration.Person;
 import com.kradac.despachos.database.DataBase;
 import com.kradac.despachos.interfaz.Principal;
-import com.kradac.despachos.methods.Functions;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import javax.swing.JOptionPane;
 
 /**
@@ -22,9 +22,14 @@ public class ListPerson {
     private final DataBase db;
     private List<Person> persons;
 
-    public ListPerson() {
-        persons = new ArrayList<>();
-        db = new DataBase(Functions.getFileProperties("classes/com/kradac/despachos/configFiles/configsystem.properties"));
+    public ListPerson() { //Una ves que ya el Programa este corriendo
+        this.persons = new ArrayList<>();
+        this.db = new DataBase(Principal.fileConfig, Principal.host);
+    }
+
+    public ListPerson(Properties p, int numHost) { //Cuando va a loguearse en el Login
+        this.persons = new ArrayList<>();
+        this.db = new DataBase(p, numHost);
     }
 
     /**

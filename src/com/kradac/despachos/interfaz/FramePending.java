@@ -6,17 +6,71 @@
 
 package com.kradac.despachos.interfaz;
 
+import com.kradac.despachos.administration.Client;
+import com.kradac.despachos.administration.Pending;
+import com.kradac.despachos.database.DataBase;
+import com.kradac.despachos.methods.Functions;
+import java.awt.Toolkit;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import javax.swing.JFormattedTextField;
+import javax.swing.JOptionPane;
+import javax.swing.JSpinner;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.text.DateFormatter;
+import javax.swing.text.DefaultFormatterFactory;
+
 /**
  *
  * @author Dalton
  */
 public class FramePending extends javax.swing.JFrame {
+    private DefaultTableModel modelTablePending;
+    private DataBase bd;
+    SimpleDateFormat formatoHora = new SimpleDateFormat("HH:mm:ss");
 
     /**
      * Creates new form FramePending
      */
     public FramePending() {
         initComponents();
+        bd = new DataBase(Principal.fileConfig, Principal.host);
+        loadComponent();
+    }
+    
+    private void loadComponent() {
+        modelTablePending = (DefaultTableModel) tblPending.getModel();
+        for (Pending p : Principal.listPending.getPendings()) {
+            modelTablePending.addRow(changeToArrayPending(p));
+        }
+        
+        JFormattedTextField textField = ((JSpinner.DefaultEditor) jsTime.getEditor()).getTextField();
+        JFormattedTextField textField2 = ((JSpinner.DefaultEditor) jsRemember.getEditor()).getTextField();
+        
+        DefaultFormatterFactory dff = (DefaultFormatterFactory) textField.getFormatterFactory();
+        DefaultFormatterFactory dff2 = (DefaultFormatterFactory) textField2.getFormatterFactory();
+        
+        DateFormatter formatter = (DateFormatter) dff.getDefaultFormatter();
+        DateFormatter formatter2 = (DateFormatter) dff2.getDefaultFormatter();
+        
+        formatter.setFormat(new SimpleDateFormat("HH:mm:ss"));
+        formatter2.setFormat(new SimpleDateFormat("HH:mm:ss"));
+
+        jsTime.setValue((new GregorianCalendar()).getTime());
+        jsRemember.setValue((new GregorianCalendar().getTime()));
+        txtDate.setText(Functions.getDate());
+    }
+    
+    private String[] changeToArrayPending(Pending p) {
+        String[] dataPending = {
+            p.getCode()+"",
+            p.getDate(),
+            p.getTime(),
+            p.getRemember(),
+            p.getNote()
+        };
+        return dataPending;
     }
 
     /**
@@ -30,7 +84,7 @@ public class FramePending extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        txtCodigo = new javax.swing.JTextField();
+        txtCode = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         txtPhone = new javax.swing.JTextField();
         txtCliente = new javax.swing.JTextField();
@@ -44,8 +98,8 @@ public class FramePending extends javax.swing.JFrame {
         jsTime = new javax.swing.JSpinner();
         jLabel9 = new javax.swing.JLabel();
         jsRemember = new javax.swing.JSpinner();
+        txtDate = new javax.swing.JTextField();
         btnExit = new javax.swing.JButton();
-        btnSearchClient = new javax.swing.JButton();
         btnSave = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblPending = new javax.swing.JTable();
@@ -53,6 +107,7 @@ public class FramePending extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Despachos Pendientes");
+        setIconImage(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/pendientes.png")).getImage());
         setResizable(false);
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Información del cliente"));
@@ -60,24 +115,27 @@ public class FramePending extends javax.swing.JFrame {
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel1.setText("Codigo:");
 
-        txtCodigo.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        txtCodigo.setToolTipText("Ingresar el codigo del cliente a buscar...");
-        txtCodigo.addActionListener(new java.awt.event.ActionListener() {
+        txtCode.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtCode.setToolTipText("Ingresar el codigo del cliente a buscar...");
+        txtCode.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtCodigoActionPerformed(evt);
+                txtCodeActionPerformed(evt);
             }
         });
-        txtCodigo.addFocusListener(new java.awt.event.FocusAdapter() {
+        txtCode.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
-                txtCodigoFocusGained(evt);
+                txtCodeFocusGained(evt);
             }
             public void focusLost(java.awt.event.FocusEvent evt) {
-                txtCodigoFocusLost(evt);
+                txtCodeFocusLost(evt);
             }
         });
-        txtCodigo.addKeyListener(new java.awt.event.KeyAdapter() {
+        txtCode.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtCodigoKeyPressed(evt);
+                txtCodeKeyPressed(evt);
+            }
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtCodeKeyTyped(evt);
             }
         });
 
@@ -99,7 +157,6 @@ public class FramePending extends javax.swing.JFrame {
         txtNote.setLineWrap(true);
         txtNote.setRows(2);
         txtNote.setTabSize(0);
-        txtNote.setText("PENDIENTE:\t ");
         txtNote.setMargin(new java.awt.Insets(3, 3, 3, 3));
         txtNote.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
@@ -123,7 +180,7 @@ public class FramePending extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(txtCodigo, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtCode, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(30, 30, 30)
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -143,7 +200,7 @@ public class FramePending extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(txtCodigo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtCode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4)
                     .addComponent(txtPhone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -180,24 +237,25 @@ public class FramePending extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel7)
-                        .addGap(41, 41, 41)
-                        .addComponent(jsTime, javax.swing.GroupLayout.PREFERRED_SIZE, 107, Short.MAX_VALUE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel9)
-                        .addGap(20, 20, 20)
-                        .addComponent(jsRemember, javax.swing.GroupLayout.PREFERRED_SIZE, 107, Short.MAX_VALUE)))
+                    .addComponent(jLabel7)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel9))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jsRemember, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                    .addComponent(jsTime, javax.swing.GroupLayout.PREFERRED_SIZE, 115, Short.MAX_VALUE)
+                    .addComponent(txtDate))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel3)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(2, 2, 2)
+                        .addComponent(txtDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
                     .addComponent(jsTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -205,7 +263,7 @@ public class FramePending extends javax.swing.JFrame {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel9)
                     .addComponent(jsRemember, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(29, Short.MAX_VALUE))
         );
 
         btnExit.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/cancelar.png"))); // NOI18N
@@ -213,14 +271,6 @@ public class FramePending extends javax.swing.JFrame {
         btnExit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnExitActionPerformed(evt);
-            }
-        });
-
-        btnSearchClient.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/buscar.png"))); // NOI18N
-        btnSearchClient.setText("Buscar Cliente");
-        btnSearchClient.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnSearchClientActionPerformed(evt);
             }
         });
 
@@ -257,6 +307,12 @@ public class FramePending extends javax.swing.JFrame {
         });
         tblPending.setShowVerticalLines(false);
         jScrollPane1.setViewportView(tblPending);
+        if (tblPending.getColumnModel().getColumnCount() > 0) {
+            tblPending.getColumnModel().getColumn(0).setPreferredWidth(25);
+            tblPending.getColumnModel().getColumn(1).setPreferredWidth(25);
+            tblPending.getColumnModel().getColumn(2).setPreferredWidth(25);
+            tblPending.getColumnModel().getColumn(3).setPreferredWidth(25);
+        }
 
         btnDelete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/eliminar.png"))); // NOI18N
         btnDelete.setText("Eliminar");
@@ -285,13 +341,11 @@ public class FramePending extends javax.swing.JFrame {
                                 .addComponent(btnDelete)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(btnExit))
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 702, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(btnSearchClient, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(btnSave)
-                                .addGap(0, 0, Short.MAX_VALUE)))
-                        .addContainerGap())))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 702, Short.MAX_VALUE))
+                        .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnSave)
+                        .addGap(0, 0, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -301,9 +355,7 @@ public class FramePending extends javax.swing.JFrame {
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnSearchClient)
-                    .addComponent(btnSave))
+                .addComponent(btnSave)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -316,24 +368,26 @@ public class FramePending extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void txtCodigoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCodigoActionPerformed
+    private void txtCodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCodeActionPerformed
+        Client c = Principal.listClient.getClientByCode(Integer.parseInt(txtCode.getText()));
+        txtPhone.setText(c.getPhone());
+        txtCliente.setText(c.getName()+" "+c.getLastname());
+    }//GEN-LAST:event_txtCodeActionPerformed
 
-    }//GEN-LAST:event_txtCodigoActionPerformed
-
-    private void txtCodigoFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtCodigoFocusGained
+    private void txtCodeFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtCodeFocusGained
         
-    }//GEN-LAST:event_txtCodigoFocusGained
+    }//GEN-LAST:event_txtCodeFocusGained
 
-    private void txtCodigoFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtCodigoFocusLost
+    private void txtCodeFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtCodeFocusLost
         
-    }//GEN-LAST:event_txtCodigoFocusLost
+    }//GEN-LAST:event_txtCodeFocusLost
 
-    private void txtCodigoKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCodigoKeyPressed
+    private void txtCodeKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCodeKeyPressed
         
-    }//GEN-LAST:event_txtCodigoKeyPressed
+    }//GEN-LAST:event_txtCodeKeyPressed
 
     private void txtNoteFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtNoteFocusLost
-        txtNote.setText(txtNote.getText().toUpperCase());
+        
     }//GEN-LAST:event_txtNoteFocusLost
 
     private void txtNoteKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNoteKeyPressed
@@ -344,17 +398,55 @@ public class FramePending extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_btnExitActionPerformed
 
-    private void btnSearchClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchClientActionPerformed
-        
-    }//GEN-LAST:event_btnSearchClientActionPerformed
-
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-        
+        /*SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
+                pendiente.setFecha(formato.format(jDFecha.getDate()));                
+                SimpleDateFormat formatoHora = new SimpleDateFormat("HH:mm:ss");
+                pendiente.setHora(formatoHora.format(((Date) jSHora.getValue())));
+                pendiente.setRecordar(formatoHora.format(((Date) jSRecordar.getValue())));*/
+        if (!txtCode.getText().equals("")) {
+            Pending p = new Pending(Integer.parseInt(txtCode.getText()), 
+                    txtCliente.getText(), txtPhone.getText(), txtDate.getText(), formatoHora.format((Date) jsTime.getValue()), 
+                    txtNote.getText(), formatoHora.format((Date) jsRemember.getValue()));
+            
+            if (bd.insertPendign(p)) {
+                Principal.listPending.addPending(p);
+                modelTablePending.insertRow(0, changeToArrayPending(p));
+
+
+                txtCode.setText("");
+                txtCliente.setText("");
+                txtPhone.setText("");
+                txtNote.setText("");
+            } else {
+                JOptionPane.showMessageDialog(this, "No se pudo Ingresar Depsacho Pendiente", "ERROR", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Debe ingresar un Codigo de Cliente", "ERROR", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-        
+        int rowSelected = tblPending.getSelectedRow();
+        if (rowSelected == -1) {
+            JOptionPane.showMessageDialog(null, "No ha seleccionado una Fila.");
+        } else {
+            String date = tblPending.getValueAt(rowSelected, 1).toString();
+            String time = tblPending.getValueAt(rowSelected, 2).toString();
+            if (bd.deletePending(date, time)) {
+                modelTablePending.removeRow(rowSelected);
+            } else {
+                JOptionPane.showMessageDialog(null, "No se pudo eliminar. Intentelo Nuevamente");
+            }
+        }
     }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void txtCodeKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCodeKeyTyped
+        if (!Character.isDigit(evt.getKeyChar()) && !Character.isISOControl(evt.getKeyChar())) {
+            Toolkit.getDefaultToolkit().beep();
+            evt.consume();
+        }
+    }//GEN-LAST:event_txtCodeKeyTyped
 
     /**
      * @param args the command line arguments
@@ -395,7 +487,6 @@ public class FramePending extends javax.swing.JFrame {
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnExit;
     private javax.swing.JButton btnSave;
-    private javax.swing.JButton btnSearchClient;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -411,7 +502,8 @@ public class FramePending extends javax.swing.JFrame {
     private javax.swing.JSpinner jsTime;
     private javax.swing.JTable tblPending;
     private static javax.swing.JTextField txtCliente;
-    private static javax.swing.JTextField txtCodigo;
+    private static javax.swing.JTextField txtCode;
+    private javax.swing.JTextField txtDate;
     private static javax.swing.JTextArea txtNote;
     private static javax.swing.JTextField txtPhone;
     // End of variables declaration//GEN-END:variables

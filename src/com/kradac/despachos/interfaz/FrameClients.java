@@ -2,12 +2,13 @@
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
-  */
-
+ */
 package com.kradac.despachos.interfaz;
 
 import com.kradac.despachos.administration.Client;
+import com.kradac.despachos.administration.Dispatch;
 import com.kradac.despachos.threads.ThreadCoordMap;
+import java.awt.Toolkit;
 import javax.swing.JOptionPane;
 
 /**
@@ -15,22 +16,23 @@ import javax.swing.JOptionPane;
  * @author Dalton
  */
 public class FrameClients extends javax.swing.JFrame {
+
     private ThreadCoordMap sock;
     private String phoneOld;
-    
+
     /**
      * Creates new form Client
      */
     public FrameClients() {
         initComponents();
     }
-    
+
     public FrameClients(String phone, int code, String client, String sector, String direction, String note) {
-        initComponents();        
+        initComponents();
         phoneOld = phone;
         if (code == 0) {
             txtCode.setText("0");
-            txtName.setName(client);
+            txtName.setText(client);
             txtPhone.setText(phone);
             txtSector.setText(sector);
             txtDirection.setText(direction);
@@ -39,29 +41,62 @@ public class FrameClients extends javax.swing.JFrame {
             txtLongitud.setText("0.0");
         } else {
             Client c = Principal.listClient.getClientByCode(code);
-            txtCode.setText(""+code);
+            txtCode.setText("" + code);
             txtPhone.setText(c.getPhone());
             txtName.setText(c.getName());
-            txtLastName.setText(c.getLastname());        
-            txtNumHouse.setText(""+c.getNumHouse());
+            txtLastName.setText(c.getLastname());
+            txtNumHouse.setText("" + c.getNumHouse());
             txtReference.setText(c.getReference());
             txtSector.setText(c.getSector());
             txtDirection.setText(c.getDirection());
             txtNote.setText(note);
-            txtLatitud.setText(""+c.getLatitud());
-            txtLongitud.setText(""+c.getLongitud());
-            
+            txtLatitud.setText("" + c.getLatitud());
+            txtLongitud.setText("" + c.getLongitud());
+
             btnAddCode.setEnabled(false);
         }
     }
-    
+
+    public FrameClients(String phone, int code, String client, String time) {
+        initComponents();
+        
+        Dispatch d = Principal.listDispatch.getDispatchByCPT(code, phone, time, client);
+        Client c = Principal.listClient.getClientByCode(code);
+        txtCode.setText("" + code);
+        txtPhone.setText(phone);
+        txtName.setText(d.getClient());
+        txtLastName.setText("");
+        txtNumHouse.setText(""+c.getNumHouse());
+        txtDestino.setText(d.getDestino());
+        txtReference.setText(d.getReference());
+        txtSector.setText(d.getSector());
+        txtDirection.setText(d.getDirection());
+        txtNote.setText(d.getNote());
+        txtLatitud.setText("" + c.getLatitud());
+        txtLongitud.setText("" + c.getLongitud());
+
+        btnAddCode.setEnabled(false);
+        txtCode.setEnabled(false);
+        txtPhone.setEnabled(false);
+        txtName.setEnabled(false);
+        txtLastName.setEnabled(false);
+        txtNumHouse.setEnabled(false);
+        txtReference.setEnabled(false);
+        txtSector.setEnabled(false);
+        txtDirection.setEnabled(false);
+        txtDestino.setEnabled(false);
+        txtNote.setEnabled(false);
+        cbEditCoord.setEnabled(false);
+        btnSave.setEnabled(false);
+    }
+
     public static void setCoordMap(String latitud, String longitud) {
         if (cbEditCoord.isSelected()) {
             txtLatitud.setText(latitud);
             txtLongitud.setText(longitud);
         }
     }
-    
+
     private void openPortCoord() {
         sock = new ThreadCoordMap();
     }
@@ -139,6 +174,11 @@ public class FrameClients extends javax.swing.JFrame {
 
         txtPhone.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         txtPhone.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtPhone.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtPhoneKeyTyped(evt);
+            }
+        });
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel3.setText("Nombres:");
@@ -151,6 +191,12 @@ public class FrameClients extends javax.swing.JFrame {
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel6.setText("Destino:");
+
+        txtNumHouse.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtNumHouseKeyTyped(evt);
+            }
+        });
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel7.setText("# Casa:");
@@ -364,7 +410,7 @@ public class FrameClients extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnAddCodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddCodeActionPerformed
-        txtCode.setText(""+Principal.listClient.getLastDispatch());
+        txtCode.setText("" + Principal.listClient.getCodeAleatorio());
     }//GEN-LAST:event_btnAddCodeActionPerformed
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
@@ -372,28 +418,31 @@ public class FrameClients extends javax.swing.JFrame {
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-        int code = Integer.parseInt(txtCode.getText());
-        int numHouse;
-        Client c = Principal.listClient.getClientByCode(code);
-        
-        try {
-            numHouse = Integer.parseInt(txtNumHouse.getText());
-        } catch (NumberFormatException e) {
-            numHouse = 0;
-        }
-        
-        Client newClient = new Client(txtName.getText(), txtLastName.getText(), txtPhone.getText(), txtDirection.getText(), 
-                    txtSector.getText(), code, numHouse, Double.parseDouble(txtLatitud.getText()), 
-                    Double.parseDouble(txtLongitud.getText()), txtReference.getText());
-        
-        if (c != null) {
-            Principal.listClient.updateClient(newClient, code);
+        if (!txtCode.getText().equals("") && !txtName.getText().equals("")) {
+            int code = Integer.parseInt(txtCode.getText());
+            int numHouse;
+            Client c = Principal.listClient.getClientByCode(code);
+
+            try {
+                numHouse = Integer.parseInt(txtNumHouse.getText());
+            } catch (NumberFormatException e) {
+                numHouse = 0;
+            }
+
+            Client newClient = new Client(txtName.getText(), txtLastName.getText(), txtPhone.getText(), txtDirection.getText(),
+                    txtSector.getText(), code, numHouse, Double.parseDouble(txtLatitud.getText()),
+                    Double.parseDouble(txtLongitud.getText()), txtReference.getText(), txtDestino.getText());
+            if (c != null) {
+                Principal.listClient.updateClient(newClient, code);
+            } else {
+                Principal.listClient.addNewClient(newClient);
+            }
+            Principal.updateTableByDispatch(newClient, phoneOld, txtNote.getText());
+            JOptionPane.showMessageDialog(this, "Datos Guardados Correctamente");
+            this.dispose();
         } else {
-            Principal.listClient.addClient(newClient);
+            JOptionPane.showMessageDialog(this, "No tiene Un Codigo o Nombre de Cliente Asignados");
         }
-        Principal.updateTableByDispatch(newClient, phoneOld, txtNote.getText());
-        JOptionPane.showMessageDialog(this, "Datos Guardados Correctamente");
-        this.dispose();
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void cbEditCoordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbEditCoordActionPerformed
@@ -407,6 +456,20 @@ public class FrameClients extends javax.swing.JFrame {
             closePortCoord();
         }
     }//GEN-LAST:event_cbEditCoordActionPerformed
+
+    private void txtPhoneKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPhoneKeyTyped
+        if (!Character.isDigit(evt.getKeyChar()) && !Character.isISOControl(evt.getKeyChar())) {
+            Toolkit.getDefaultToolkit().beep();
+            evt.consume();
+        }
+    }//GEN-LAST:event_txtPhoneKeyTyped
+
+    private void txtNumHouseKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNumHouseKeyTyped
+        if (!Character.isDigit(evt.getKeyChar()) && !Character.isISOControl(evt.getKeyChar())) {
+            Toolkit.getDefaultToolkit().beep();
+            evt.consume();
+        }
+    }//GEN-LAST:event_txtNumHouseKeyTyped
 
     /**
      * @param args the command line arguments

@@ -8,6 +8,8 @@ package com.kradac.despachos.administration.list;
 
 import com.kradac.despachos.administration.CodesTaxy;
 import com.kradac.despachos.administration.Vehiculo;
+import com.kradac.despachos.database.DataBase;
+import com.kradac.despachos.interfaz.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -18,9 +20,11 @@ import javax.swing.JOptionPane;
  */
 public class ListVehiculos {
     private List<Vehiculo> vehiculos;
+    private DataBase db;
 
     public ListVehiculos() {
         vehiculos = new ArrayList<>();
+        db = new DataBase(Principal.fileConfig, Principal.host);
     }
     
     public void addVehiculo(Vehiculo vehiculo) {
@@ -34,6 +38,25 @@ public class ListVehiculos {
         if (!existe)
             getVehiculos().add(vehiculo);
         else {
+            JOptionPane.showMessageDialog(null, "No pueden haber dos Vehiculos con la misma Placa");
+            System.exit(0);
+        }
+    }
+    
+    public void addNewVehiculo(Vehiculo vehiculo) {
+        boolean existe = false;
+        for (Vehiculo v : getVehiculos()) {
+            if (v.getPlaca().equals(vehiculo.getPlaca())) {
+                existe = true;
+            }
+        }
+
+        if (!existe) {
+            if (db.insertVehiculo(vehiculo)) {
+                getVehiculos().add(vehiculo);
+                db.closeConexion();            }
+
+        } else {
             JOptionPane.showMessageDialog(null, "No pueden haber dos Vehiculos con la misma Placa");
             System.exit(0);
         }
@@ -80,6 +103,41 @@ public class ListVehiculos {
     
     public int getMaxUnidad() {
         return getVehiculos().get(getSize()-1).getVehiculo();
+    }
+    
+    public boolean deleteVehiculo(String placa) {
+        for (Vehiculo v : vehiculos) {
+            if (v.getPlaca().equals(placa)) {
+                if (db.deleteVehiculo(placa)) {
+                    vehiculos.remove(v);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    public boolean updateVehiculo(Vehiculo vehi, String placa) {
+        for (Vehiculo v : vehiculos) {
+            if (v.getPlaca().equals(placa)) {
+               if (db.updateVehiculo(vehi, placa)) {
+                v.setPlaca(vehi.getPlaca());
+                v.setCodesTaxy(vehi.getCodesTaxy());
+                v.setConductor(vehi.getConductor());
+                v.setPropietario(vehi.getPropietario());
+                v.setModelo(vehi.getModelo());
+                v.setNumChasis(vehi.getNumChasis());
+                v.setNumMotor(vehi.getNumMotor());
+                v.setRegMunicipal(vehi.getRegMunicipal());
+                v.setSoat(vehi.getSoat());
+                v.setVehiculo(vehi.getVehiculo());
+                v.setYear(vehi.getYear());
+                v.setZona(vehi.getZona());
+                return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

@@ -15,6 +15,7 @@ import com.kradac.despachos.database.DataBase;
 import com.kradac.despachos.interfaz.Principal;
 import com.kradac.despachos.methods.Functions;
 import java.util.Properties;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -27,6 +28,7 @@ public class Login extends javax.swing.JFrame {
     private final ListRolUser listRolUser;
     private final ListPerson listPerson;
     private final ListStateCivil listStateCivil;
+    private int host = 0;
 
     /**
      * Creates new form Login
@@ -37,11 +39,31 @@ public class Login extends javax.swing.JFrame {
         lblMensaje.setVisible(false);
         
         fileConfig = Functions.getFileProperties("classes/com/kradac/despachos/configFiles/configsystem.properties");
-        bd = new DataBase(fileConfig);
-        listStateCivil = bd.loadStateCivil();
-        listPerson = bd.loadPersons(listStateCivil);
-        listRolUser = bd.loadRolUser();
-        listUser = bd.loadUser(listPerson, listRolUser);
+        int numHosts = Integer.parseInt(fileConfig.getProperty("numHosts"));
+        bd = new DataBase();
+        boolean isDbValid = false;
+        
+        for (int i = 1; i <= numHosts; i++) {
+            if (bd.isConectionDb(fileConfig, i)) {
+                isDbValid = true;
+                host = i;
+                break;
+            }
+        }
+        
+        if (isDbValid) {
+            listStateCivil = bd.loadStateCivil();
+            listPerson = bd.loadPersons(listStateCivil, fileConfig, host);
+            listRolUser = bd.loadRolUser();
+            listUser = bd.loadUser(listPerson, listRolUser, fileConfig, host);
+        } else {
+            listStateCivil = null;
+            listPerson = null;
+            listRolUser = null;
+            listUser = null;
+            JOptionPane.showMessageDialog(null, "No se ha podido establecer una Base de Datos en un Host valido");
+            System.exit(0);
+        }
     }
     
     public void ingresar() {        
@@ -55,7 +77,7 @@ public class Login extends javax.swing.JFrame {
         User u = listUser.existeUser(txtUser.getText(), strPass);
         
         if (u != null) {
-            Principal p = new Principal(listPerson, bd, fileConfig, u, listStateCivil, listRolUser, listUser);
+            Principal p = new Principal(listPerson, bd, fileConfig, u, listStateCivil, listRolUser, listUser, host);
             p.main();
             this.dispose();
         } else {

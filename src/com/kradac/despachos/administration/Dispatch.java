@@ -11,6 +11,7 @@ package com.kradac.despachos.administration;
  * @author Dalton
  */
 public class Dispatch {
+    private String date;
     private String time;
     private String phone;
     private int code;
@@ -23,8 +24,12 @@ public class Dispatch {
     private String placa;
     private int atraso;
     private String note;
+    private String reference;
+    private int num_house;
+    private String destino;
 
-    public Dispatch(String time, String phone, int code, String client, String sector, String direction, int vehiculo, int minute, String timeAsig, String placa, int atraso, String note) {
+    public Dispatch(String date, String time, String phone, int code, String client, String sector, String direction, int vehiculo, int minute, String timeAsig, String placa, int atraso, String note, String reference, int num_house, String destino) {
+        this.date = date;
         this.time = time;
         this.phone = phone;
         this.code = code;
@@ -37,6 +42,9 @@ public class Dispatch {
         this.placa = placa;
         this.atraso = atraso;
         this.note = note;
+        this.reference = reference;
+        this.num_house = num_house;
+        this.destino = destino;
     }
 
     /**
@@ -206,4 +214,60 @@ public class Dispatch {
     public void setNote(String note) {
         this.note = note;
     }    
+
+    /**
+     * @return the date
+     */
+    public String getDate() {
+        return date;
+    }
+
+    /**
+     * @param date the date to set
+     */
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    /**
+     * @return the reference
+     */
+    public String getReference() {
+        return reference;
+    }
+
+    /**
+     * @param reference the reference to set
+     */
+    public void setReference(String reference) {
+        this.reference = reference;
+    }
+
+    /**
+     * @return the num_house
+     */
+    public int getNum_house() {
+        return num_house;
+    }
+
+    /**
+     * @param num_house the num_house to set
+     */
+    public void setNum_house(int num_house) {
+        this.num_house = num_house;
+    }
+
+    /**
+     * @return the destino
+     */
+    public String getDestino() {
+        return destino;
+    }
+
+    /**
+     * @param destino the destino to set
+     */
+    public void setDestino(String destino) {
+        this.destino = destino;
+    }
 }

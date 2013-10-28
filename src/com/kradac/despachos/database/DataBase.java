@@ -53,12 +53,16 @@ public class DataBase {
     private Statement s;
     private ResultSet rs;
 
-    public DataBase(Properties arcConfig) {
+    public DataBase() {
+    }
+    
+    public DataBase(Properties arcConfig, int numHost) {
         this.arcConfig = arcConfig;
-        this.ip = arcConfig.getProperty("ip_base");
-        this.bd = arcConfig.getProperty("base");
-        this.usr = arcConfig.getProperty("user");
-        this.pass = arcConfig.getProperty("pass");
+        String [] parts = this.arcConfig.getProperty("ip_base"+numHost).split(";");
+        this.ip = parts[0];
+        this.bd = this.arcConfig.getProperty("base");
+        this.usr = this.arcConfig.getProperty("user");
+        this.pass = this.arcConfig.getProperty("pass");
         driver = "com.mysql.jdbc.Driver";
         url = "jdbc:mysql://" + ip + "/" + bd;
 
@@ -70,6 +74,27 @@ public class DataBase {
             //Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
             JOptionPane.showMessageDialog(null, "No se Puede Ingresar al Servidor de la Base de Datos");
             System.exit(0);
+        }
+    }
+
+    public boolean isConectionDb(Properties arcConfig, int numHost) {
+        this.arcConfig = arcConfig;
+        String [] parts = this.arcConfig.getProperty("ip_base"+numHost).split(";");
+        this.ip = parts[0];
+        this.bd = this.arcConfig.getProperty("base");
+        this.usr = this.arcConfig.getProperty("user");
+        this.pass = this.arcConfig.getProperty("pass");
+        driver = "com.mysql.jdbc.Driver";
+        url = "jdbc:mysql://" + ip + "/" + bd;
+        try {
+            Class.forName(driver);
+            conexion = DriverManager.getConnection(url, usr, pass);
+            s = conexion.createStatement();
+            return true;
+        } catch (ClassNotFoundException | SQLException ex) {
+            //Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "No se Puede Ingresar al Servidor de la Base de Datos: "+parts[0]);
+            return false;
         }
     }
 
@@ -144,8 +169,8 @@ public class DataBase {
         return null;
     }
 
-    public ListPerson loadPersons(ListStateCivil lsc) {
-        ListPerson listAux = new ListPerson();
+    public ListPerson loadPersons(ListStateCivil lsc, Properties p, int numHost) {
+        ListPerson listAux = new ListPerson(p, numHost);
         try {
             String sql = "SELECT ID_PERSON, NAME, LASTNAME, PHONE, EMAIL, DIRECTION, NUM_HOUSE, TYPE_SANGRE, ID_STATE_CIVIL, CONYUGUE, IMAGE "
                     + "FROM persons ";
@@ -186,8 +211,8 @@ public class DataBase {
         return null;
     }
 
-    public ListUser loadUser(ListPerson listPerson, ListRolUser listRolUser) {
-        ListUser listAux = new ListUser();
+    public ListUser loadUser(ListPerson listPerson, ListRolUser listRolUser, Properties p, int numHost) {
+        ListUser listAux = new ListUser(p, numHost);
         try {
             String sql = "SELECT ID_USER, PASSWORD, ID_ROL_USER, ID_PERSON "
                     + "FROM users ";
@@ -290,7 +315,7 @@ public class DataBase {
         ListVehiculos listAux = new ListVehiculos();
         try {
             String sql = "SELECT ID_VEHICULO, ID_ZONA, ID_CONDUCTOR, ID_PROPIETARIO, ID_CODIGO, VEHICULO, ID_MODELO_VEHICULO, YEAR, "
-                    + "NUM_MOTOR, NUM_CHASIS, REG_MUNICIPAL, SOAT "
+                    + "NUM_MOTOR, NUM_CHASIS, REG_MUNICIPAL, SOAT ,IMAGE "
                     + "FROM vehiculos ORDER BY VEHICULO";
             rs = s.executeQuery(sql);
 
@@ -298,8 +323,8 @@ public class DataBase {
                 listAux.addVehiculo(new Vehiculo(rs.getString("ID_VEHICULO"), listZona.getZonaById(rs.getInt("ID_ZONA")),
                         listPerson.getPersonByCedula(rs.getString("ID_CONDUCTOR")), listPerson.getPersonByCedula(rs.getString("ID_PROPIETARIO")),
                         rs.getInt("VEHICULO"), listModelo.getModeloById(rs.getInt("ID_MODELO_VEHICULO")), rs.getInt("YEAR"), rs.getString("NUM_MOTOR"),
-                        rs.getString("NUM_CHASIS"), rs.getInt("REG_MUNICIPAL"), rs.getString("SOAT"), listCodesTaxy.getCodesTaxyById(rs.getString("ID_CODIGO"))
-                ));
+                        rs.getString("NUM_CHASIS"), rs.getInt("REG_MUNICIPAL"), rs.getString("SOAT"), listCodesTaxy.getCodesTaxyById(rs.getString("ID_CODIGO")), rs.getString("IMAGE"))
+                );
             }
             return listAux;
         } catch (SQLException ex) {
@@ -312,16 +337,19 @@ public class DataBase {
     public ListDispatch loadDispatch() {
         ListDispatch listAux = new ListDispatch();
         try {
-            String sql = "SELECT TIME, PHONE, CODE, CLIENT, SECTOR, DIRECTION, VEHICULO, "
-                    + "MINUTE, TIME_ASIG, ID_VEHICULO, ATRASO, NOTE "
-                    + "FROM assigs ORDER BY DATE, TIME";
+            String sql = "SELECT DATE, TIME, PHONE, CODE, CLIENT, SECTOR, DIRECTION, VEHICULO, "
+                    + "MINUTE, TIME_ASIG, ID_VEHICULO, ATRASO, NOTE, REFERENCE, NUM_HOUSE, DESTINO "
+                    + "FROM assigs "
+                    + "WHERE DATE BETWEEN (SELECT DATE(SUBDATE(NOW(), INTERVAL 15 DAY))) AND DATE(NOW()) "
+                    + "ORDER BY DATE, TIME";
             rs = s.executeQuery(sql);
 
             while (rs.next()) {
-                listAux.addDispatch(new Dispatch(rs.getString("TIME"), rs.getString("PHONE"),
+                listAux.addDispatch(new Dispatch(rs.getString("DATE"), rs.getString("TIME"), rs.getString("PHONE"),
                         rs.getInt("CODE"), rs.getString("CLIENT"),
                         rs.getString("SECTOR"), rs.getString("DIRECTION"), rs.getInt("VEHICULO"), rs.getInt("MINUTE"),
-                        rs.getString("TIME_ASIG"), rs.getString("ID_VEHICULO"), rs.getInt("ATRASO"), rs.getString("NOTE")
+                        rs.getString("TIME_ASIG"), rs.getString("ID_VEHICULO"), rs.getInt("ATRASO"), rs.getString("NOTE"),
+                        rs.getString("REFERENCE"), rs.getInt("NUM_HOUSE"), rs.getString("DESTINO")
                 ));
             }
             return listAux;
@@ -356,14 +384,25 @@ public class DataBase {
     /* INSERT IN THE DATABASE */
     public void insertClientMap(Client c) {
         try {
-            String sql = "INSERT INTO position_clients (CODE, CLIENT, SECTOR, PHONE, LATITUD, LONGITUD, DATE, TIME) "
-                    + "VALUES(" + c.getCode() + ",'" + c.getName() + " " + c.getLastname() + "','" + c.getSector() + "','" + c.getPhone() + "',"
-                    + c.getLatitud() + "," + c.getLongitud() + ",DATE(NOW()), TIME(NOW()))";
-            System.out.println(sql);
+            String sql = "CALL SP_CLIENTS_MAP(" + c.getCode() + ",'" + c.getName() + " " + c.getLastname() + "','" + c.getSector() + "','" + c.getPhone() + "',"
+                    + c.getLatitud() + "," + c.getLongitud() + ")";
             s.executeUpdate(sql);
+        } catch (SQLException ex) {
+            //Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public boolean insertPendign(Pending p) {
+        try {
+            String sql = "INSERT INTO pending (CODE, PHONE, CLIENT, DATE, TIME, REMEMBER, NOTE) "
+                    + "VALUES(" + p.getCode() + ",'"+ p.getPhone()+"','" + p.getClient() + "','" + p.getDate() + "','" + p.getTime() + "','"
+                    + p.getRemember() + "','" + p.getNote() + "')";
+            s.executeUpdate(sql);
+            return true;
         } catch (SQLException ex) {
             Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return false;
     }
 
     /**
@@ -383,11 +422,9 @@ public class DataBase {
                     + p.getNumHouse() + ",'" + p.getTypeSangre() + "','"
                     + p.getStateCivil().getIdStateCivil() + "','" + p.getConyuge()
                     + "','" + p.getImage() + "')";
-
-            System.out.println(sql);
+            
             s.executeUpdate(sql);
         } catch (SQLException ex) {
-            System.err.println(ex);
             inserto = false;
         }
         return inserto;
@@ -400,10 +437,34 @@ public class DataBase {
                     + "password) VALUES('" + u.getUser() + "','"
                     + u.getRolUser().getIdRolUser() + "','"
                     + u.getPerson().getCedula() + "','" + u.getPassword() + "')";
-            System.out.println(sql);
             s.executeUpdate(sql);
         } catch (SQLException ex) {
-            System.err.println(ex);
+            inserto = false;
+        }
+        return inserto;
+    }
+    
+    public boolean insertVehiculo(Vehiculo v) {
+        boolean inserto = true;
+        try {
+            String sql = "INSERT INTO vehiculos (id_vehiculo,id_zona,id_conductor,"
+                    + "id_propietario,id_codigo,vehiculo,id_modelo_vehiculo,"
+                    + "year,num_motor,num_chasis,reg_municipal,soat,image) "
+                    + "VALUES('" + v.getPlaca() + "',"
+                    + v.getZona().getIdZona() + ","
+                    + "'" + v.getConductor().getCedula() + "',"
+                    + "'" + v.getPropietario().getCedula() + "',"
+                    + "'AC',"
+                    + v.getVehiculo() + ","
+                    + v.getModelo().getIdModeloVehiculo() + ","
+                    + v.getYear() + ","
+                    + "'" + v.getNumMotor() + "',"
+                    + "'" + v.getNumChasis() + "',"
+                    + v.getRegMunicipal() + ","
+                    + "'" + v.getSoat() + "',"
+                    + "'')";
+            s.executeUpdate(sql);
+        } catch (SQLException ex) {
             inserto = false;
         }
         return inserto;
@@ -425,11 +486,9 @@ public class DataBase {
                     + c.getLatitud() + ","
                     + c.getLongitud() + ","
                     + "'" + c.getReference() + "')";
-
-            System.out.println(sql);
+            
             s.executeUpdate(sql);
         } catch (SQLException ex) {
-            System.err.println(ex);
             inserto = false;
         }
         return inserto;
@@ -457,12 +516,9 @@ public class DataBase {
                     + atraso + "," + "'" + reference + "',"
                     + "'" + note + "'," + tiquete + ","
                     + latitud + "," + longitud + ")";
-
-            System.out.println(sql);
+            
             s.executeUpdate(sql);
         } catch (SQLException ex) {
-            System.err.println(ex);
-            System.err.println(sql);
             inserto = false;
         }
         return inserto;
@@ -472,13 +528,13 @@ public class DataBase {
             String phone, String client,
             String sector, String direction, String destino, int vehiculo, int minute, String time_asig,
             String id_vehiculo, int atraso, String reference, String note,
-            int tiquete) {
+            int tiquete, double latitud, double longitud) {
         boolean inserto = true;
         String sql = "";
         try {
             sql = "INSERT INTO assigs (id_user,date,time,phone,code,client,"
                     + "sector,direction,destino,vehiculo,minute,time_asig,"
-                    + "id_vehiculo,atraso,reference,note,tiquete) VALUES("
+                    + "id_vehiculo,atraso,reference,note,tiquete,latitud,longitud) VALUES("
                     + "'" + id_user + "',Date(Now()),"
                     + "'" + time + "'," + phone + ","
                     + "'" + code + "','" + client + "',"
@@ -486,16 +542,33 @@ public class DataBase {
                     + "'" + destino + "'," + vehiculo + ","
                     + "'" + minute + "','" + time_asig + "','" + id_vehiculo + "',"
                     + atraso + "," + "'" + reference + "',"
-                    + "'" + note + "'," + tiquete + ")";
-
-            System.out.println(sql);
+                    + "'" + note + "'," + tiquete + ","+latitud+","+longitud+")";
+            
             s.executeUpdate(sql);
         } catch (SQLException ex) {
-            System.err.println(ex);
-            System.err.println(sql);
             inserto = false;
         }
         return inserto;
+    }
+    
+    public void insertLastGps(String unidad, String latitud, String longitud,
+            String fecha, String hora, String vel, String G1, String G2, String activo) {
+        try {
+            String sql = "CALL SP_INSERT_LAST_GPS("
+                    + Integer.parseInt(unidad) + ","
+                    + Double.parseDouble(latitud) + ","
+                    + Double.parseDouble(longitud) + ",'"
+                    + fecha + "','"
+                    + hora + "',"
+                    + Double.parseDouble(vel) + ","
+                    + G1 + ","
+                    + G2 + ","
+                    + Integer.parseInt(activo)
+                    + ")";
+            s.executeUpdate(sql);
+        } catch (SQLException ex) {
+            Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /* UPDATE IN THE DATABASE */
@@ -514,11 +587,9 @@ public class DataBase {
                     + "conyugue='" + p.getConyuge() + "',"
                     + "image='" + p.getImage() + "' WHERE id_person='"
                     + cedula + "'";
-
-            System.out.println(sql);
+            
             s.executeUpdate(sql);
         } catch (SQLException ex) {
-            System.err.println(ex);
             actualizo = false;
         }
         return actualizo;
@@ -532,11 +603,9 @@ public class DataBase {
                     + "id_person='" + user.getPerson().getCedula() + "',"
                     + "password='" + user.getPassword() + "' WHERE id_user='"
                     + id_user + "'";
-
-            System.out.println(sql);
+            
             s.executeUpdate(sql);
         } catch (SQLException ex) {
-            System.err.println(ex);
             actualizo = false;
         }
         return actualizo;
@@ -556,6 +625,31 @@ public class DataBase {
                     + "longitud=" + client.getLongitud() + ","
                     + "reference='" + client.getReference() + "' WHERE code="
                     + client.getCode();
+            
+            s.executeUpdate(sql);
+        } catch (SQLException ex) {
+            actualizo = false;
+        }
+        return actualizo;
+    }
+    
+    public boolean updateVehiculo(Vehiculo v, String placa) {
+        boolean actualizo = true;
+        try {
+            String sql = "UPDATE users  SET id_vehiculo='" + v.getPlaca() + "',"
+                    + "id_zona=" + v.getZona().getIdZona() + ","
+                    + "id_conductor='" + v.getConductor().getCedula() + "',"
+                    + "id_propietario='" + v.getPropietario().getCedula() + "',"
+                    + "id_codigo=" + v.getCodesTaxy().getIdCodigo() + ","
+                    + "vehiculo=" + v.getVehiculo() + ","
+                    + "id_modelo_vehiculo=" + v.getModelo().getIdModeloVehiculo() + ","
+                    + "year='" + v.getYear() + "',"
+                    + "num_motor='" + v.getNumMotor() + "',"
+                    + "num_chasis='" + v.getNumChasis() + "',"
+                    + "reg_municipal=" + v.getRegMunicipal() + ","
+                    + "soat='" + v.getSoat() + "',"
+                    + "image='" + v.getImage() + "' WHERE id_vehiculo='"
+                    + placa + "'";
 
             System.out.println(sql);
             s.executeUpdate(sql);
@@ -567,14 +661,30 @@ public class DataBase {
     }
 
     /* DELETE IN THE DATABASE */
+    public void deleteClientMap(int code) {
+        try {
+            String sql = "DELETE FROM positions_clients WHERE code = "+code;
+            s.executeUpdate(sql);
+        } catch (SQLException ex) {
+            Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void deleteAllClientMap() {
+        try {
+            String sql = "DELETE FROM positions_clients";
+            s.executeUpdate(sql);
+        } catch (SQLException ex) {
+            Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     public boolean deletePerson(String cedula) {
         boolean elimino = true;
         try {
             String sql = "DELETE FROM persons WHERE id_person='" + cedula + "'";
-            System.out.println(sql);
             s.executeUpdate(sql);
         } catch (SQLException ex) {
-            System.err.println(ex);
             elimino = false;
         }
         return elimino;
@@ -584,10 +694,30 @@ public class DataBase {
         boolean elimino = true;
         try {
             String sql = "DELETE FROM users WHERE id_user='" + user + "'";
-            System.out.println(sql);
             s.executeUpdate(sql);
         } catch (SQLException ex) {
-            System.err.println(ex);
+            elimino = false;
+        }
+        return elimino;
+    }
+    
+    public boolean deletePending(String date, String time) {
+        try {
+            String sql = "DELETE FROM pending WHERE date = '"+date+"' AND time = '"+time+"'";
+            s.executeUpdate(sql);
+            return true;
+        } catch (SQLException ex) {
+            Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+    }
+    
+    public boolean deleteVehiculo(String placa) {
+        boolean elimino = true;
+        try {
+            String sql = "DELETE FROM vehiculos WHERE id_vehiculo='" + placa + "'";
+            s.executeUpdate(sql);
+        } catch (SQLException ex) {
             elimino = false;
         }
         return elimino;

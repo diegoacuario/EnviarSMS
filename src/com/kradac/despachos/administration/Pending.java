@@ -126,6 +126,4 @@ public class Pending {
     public void setRemember(String remember) {
         this.remember = remember;
     }
-    
-    
 }

@@ -9,9 +9,9 @@ package com.kradac.despachos.administration.list;
 import com.kradac.despachos.administration.User;
 import com.kradac.despachos.database.DataBase;
 import com.kradac.despachos.interfaz.Principal;
-import com.kradac.despachos.methods.Functions;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import javax.swing.JOptionPane;
 
 /**
@@ -23,8 +23,13 @@ public class ListUser {
     private List<User> users;
 
     public ListUser() {
-        db = new DataBase(Functions.getFileProperties("classes/com/kradac/despachos/configFiles/configsystem.properties"));
-        users = new ArrayList<>();
+        this.users = new ArrayList<>();
+        this.db = new DataBase(Principal.fileConfig, Principal.host);
+    }
+
+    public ListUser(Properties p, int numHost) {
+        this.users = new ArrayList<>();
+        this.db = new DataBase(p, numHost);
     }
 
     /**

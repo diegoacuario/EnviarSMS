@@ -16,7 +16,7 @@ import javax.swing.JOptionPane;
  * @author Dalton
  */
 public class ListModelo {
-    List<Modelo> modelos;
+    private List<Modelo> modelos;
 
     public ListModelo() {
         modelos = new ArrayList<>();
@@ -24,14 +24,14 @@ public class ListModelo {
     
     public void addModelo(Modelo modelo) {
         boolean existe = false;
-        for (Modelo m : modelos) {            
+        for (Modelo m : getModelos()) {            
             if (m.getIdModeloVehiculo() == modelo.getIdModeloVehiculo()) {
                 existe = true;
             }
         }
         
         if (!existe)
-            modelos.add(modelo);
+            getModelos().add(modelo);
         else {
             JOptionPane.showMessageDialog(null, "No pueden haber dos Modelos con el mismo ID");
             System.exit(0);
@@ -39,11 +39,18 @@ public class ListModelo {
     }
     
     public Modelo getModeloById(int idModelo) {
-        for (Modelo m : modelos) {
+        for (Modelo m : getModelos()) {
             if (m.getIdModeloVehiculo()== idModelo) {
                 return m;
             }
         }
         return null;
+    }
+
+    /**
+     * @return the modelos
+     */
+    public List<Modelo> getModelos() {
+        return modelos;
     }
 }

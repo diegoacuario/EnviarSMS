@@ -21,16 +21,24 @@ public class ListByDispatch {
         byDispatchs = new ArrayList<>();
     }
     
-    public void addDispatch(ByDispatch dispatch) {
-        getDispatchs().add(dispatch);
+    public void addByDispatch(ByDispatch dispatch) {
+        getByDispatchs().add(dispatch);
     }
     
 
     /**
      * @return the byDispatchs
      */
-    public List<ByDispatch> getDispatchs() {
+    public List<ByDispatch> getByDispatchs() {
         return byDispatchs;
+    }
+    
+    public void deleteByDispatch(int code) {
+        for (ByDispatch p : byDispatchs) {
+            if (p.getCode() == code) {
+                byDispatchs.remove(p);
+            }
+        }
     }
     
     public ByDispatch getLastDispatch(){

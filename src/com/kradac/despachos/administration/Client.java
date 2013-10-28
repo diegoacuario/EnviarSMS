@@ -21,6 +21,21 @@ public class Client {
     private double latitud;
     private double longitud;
     private String reference;
+    private String destino;
+
+    public Client(String name, String lastname, String phone, String direction, String sector, int code, int numHouse, double latitud, double longitud, String reference, String destino) {
+        this.name = name;
+        this.lastname = lastname;
+        this.phone = phone;
+        this.direction = direction;
+        this.sector = sector;
+        this.code = code;
+        this.numHouse = numHouse;
+        this.latitud = latitud;
+        this.longitud = longitud;
+        this.reference = reference;
+        this.destino = destino;
+    }
 
     public Client(String name, String lastname, String phone, String direction, String sector, int code, int numHouse, double latitud, double longitud, String reference) {        
         this.name = name;
@@ -173,5 +188,19 @@ public class Client {
      */
     public void setReference(String reference) {
         this.reference = reference;
+    }
+
+    /**
+     * @return the destino
+     */
+    public String getDestino() {
+        return destino;
+    }
+
+    /**
+     * @param destino the destino to set
+     */
+    public void setDestino(String destino) {
+        this.destino = destino;
     }
 }

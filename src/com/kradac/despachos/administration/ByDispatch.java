@@ -11,6 +11,7 @@ package com.kradac.despachos.administration;
  * @author Dalton
  */
 public class ByDispatch {
+    private String date;
     private String time;
     private String phone;
     private int code;
@@ -26,24 +27,8 @@ public class ByDispatch {
     private double latitud;
     private double longitud;
 
-    public ByDispatch(String time, String phone, int code, String client, String sector, String direction, int vehiculo, int minute, String timeAsig, String placa, int atraso, String note, double latitud, double longitud) {
-        this.time = time;
-        this.phone = phone;
-        this.code = code;
-        this.client = client;
-        this.sector = sector;
-        this.direction = direction;
-        this.vehiculo = vehiculo;
-        this.minute = minute;
-        this.timeAsig = timeAsig;
-        this.placa = placa;
-        this.atraso = atraso;
-        this.note = note;
-        this.latitud = latitud;
-        this.longitud = longitud;
-    }
-
-    public ByDispatch(String time, String phone, int code, String client, String sector, String direction, int vehiculo, int minute, String timeAsig, String placa, int atraso, String note) {
+    public ByDispatch(String date, String time, String phone, int code, String client, String sector, String direction, int vehiculo, int minute, String timeAsig, String placa, int atraso, String note) {
+        this.date = date;
         this.time = time;
         this.phone = phone;
         this.code = code;
@@ -252,6 +237,20 @@ public class ByDispatch {
      */
     public void setLongitud(double longitud) {
         this.longitud = longitud;
+    }
+
+    /**
+     * @return the date
+     */
+    public String getDate() {
+        return date;
+    }
+
+    /**
+     * @param date the date to set
+     */
+    public void setDate(String date) {
+        this.date = date;
     }
     
     
