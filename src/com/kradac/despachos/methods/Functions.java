@@ -13,6 +13,7 @@ import java.net.URISyntaxException;
 import java.security.CodeSource;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Properties;
 import javax.swing.JOptionPane;
@@ -44,6 +45,30 @@ public class Functions {
     public static String getDate() {
         Calendar calendario = new GregorianCalendar();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return sdf.format(calendario.getTime());
+    }
+    
+    public static String getDateNext() {
+
+        Calendar calendario = new GregorianCalendar();
+        calendario.setLenient(false);
+        calendario.setTime(new Date());
+        
+        calendario.add(Calendar.DAY_OF_MONTH, 1);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+        return sdf.format(calendario.getTime());
+    }
+    
+    public static String getDateBack() {
+
+        Calendar calendario = new GregorianCalendar();
+        calendario.setLenient(false);
+        calendario.setTime(new Date());
+        
+        calendario.add(Calendar.DAY_OF_MONTH, -1);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
         return sdf.format(calendario.getTime());
     }
 

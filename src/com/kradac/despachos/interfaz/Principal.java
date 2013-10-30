@@ -25,11 +25,14 @@ import com.kradac.despachos.administration.list.ListUser;
 import com.kradac.despachos.administration.list.ListVehiculos;
 import com.kradac.despachos.administration.User;
 import com.kradac.despachos.administration.Vehiculo;
+import com.kradac.despachos.administration.list.ListJob;
 import com.kradac.despachos.administration.list.ListModelo;
 import com.kradac.despachos.administration.list.ListPending;
+import com.kradac.despachos.administration.list.ListTurn;
 import com.kradac.despachos.administration.list.ListZona;
 import com.kradac.despachos.database.DataBase;
 import com.kradac.despachos.methods.Functions;
+import com.kradac.despachos.threads.ThreadBloqueos;
 import com.kradac.despachos.threads.ThreadClient;
 import com.kradac.despachos.threads.ThreadReconexion;
 import java.awt.Toolkit;
@@ -65,6 +68,8 @@ public class Principal extends javax.swing.JFrame {
     public static ListModelo listModels;
     public static ListZona listZonas;
     public static ListStateCivil listStateCivil;
+    public static ListJob listJob;
+    public static ListTurn listTurn;
     public static ListByDispatch listByDispatch = new ListByDispatch();
     public static ListDispatch listDispatch = new ListDispatch();
     public static ListRolUser listRolUser = new ListRolUser();
@@ -77,6 +82,7 @@ public class Principal extends javax.swing.JFrame {
     public static int numDispatchs;
     public static DefaultTableModel modelTableByDispatch;
     public static DefaultTableModel modelTableDispatch;
+    public static DefaultTableModel modelTableDispatch2;
     public static ArrayList<String> codeStateVeh;
     public static ArrayList<String> etiquetaStateVeh;
     public static ArrayList<Integer> colorStateVeh;
@@ -94,7 +100,8 @@ public class Principal extends javax.swing.JFrame {
         configStart();
     }
 
-    public Principal(ListPerson lp, DataBase b, Properties p, User u, ListStateCivil lsc, ListRolUser lru, ListUser lu, int h) {
+    public Principal(ListPerson lp, DataBase b, Properties p, User u, ListStateCivil lsc,
+            ListRolUser lru, ListUser lu, ListJob lj, ListTurn lt, int h) {
         listPerson = lp;
         bd = b;
         fileConfig = p;
@@ -102,6 +109,8 @@ public class Principal extends javax.swing.JFrame {
         listStateCivil = lsc;
         listRolUser = lru;
         listUser = lu;
+        listJob = lj;
+        listTurn = lt;
         host = h;
     }
 
@@ -120,9 +129,13 @@ public class Principal extends javax.swing.JFrame {
 
         ThreadReconexion tr = new ThreadReconexion();
         tr.start();
+        
+        ThreadBloqueos tb = new ThreadBloqueos();
+        tb.start();
 
         modelTableByDispatch = (DefaultTableModel) tblByDispatch.getModel();
         modelTableDispatch = (DefaultTableModel) tblDispatchs.getModel();
+        modelTableDispatch2 = (DefaultTableModel) tblDispatchs2.getModel();
         listDispatch.loadDispatch();
         Time t = new Time();
         t.start(lblDate, lblTime);
@@ -133,12 +146,14 @@ public class Principal extends javax.swing.JFrame {
         redimencionarTableVehiculos();
         loadComboStates();
         keyPressed();
+        showDispatch();
 
-        jpSlope.setVisible(false);
+        jLabel5.setVisible(false);
+        lblClientSlope.setVisible(false);
+        lblMinuteSlope.setVisible(false);
         lblSlope.setVisible(false);
         btnImport.setVisible(false);
         btnHistorical.setVisible(false);
-        btnClaims.setVisible(false);
     }
 
     public void keyPressed() {
@@ -230,15 +245,24 @@ public class Principal extends javax.swing.JFrame {
 
         paintStateTaxy(listVehiculos.getEncabezadosTablaVehiculosArrayList());
     }
+    
+    public void showDispatch() {
+        lblDispatchG.setText(""+listDispatch.getDispatchsGeneral());
+        lblDispatchD.setText(""+listDispatch.getDispatchsByDay());
+        lblDispatchT.setText(""+listDispatch.getDispatchByTurn());
+    }
 
     public void paintStateTaxy(ArrayList encab) {
+        DataBase newdb = new DataBase(fileConfig, host);
         //Clave valor
         //[n_unidad]==>[id_codigo]
         Map unidadCodigoBD = new HashMap();
         for (Vehiculo v : listVehiculos.getVehiculos()) {
             unidadCodigoBD.put(v.getVehiculo(), v.getCodesTaxy().getIdCodigo());
+            newdb.updateStateVehiculo(v.getVehiculo(), v.getCodesTaxy().getIdCodigo());
             setNumeroCarrerasRealizadasPorTaxi(v.getVehiculo());
         }
+        newdb.closeConexion();
 
         try {
             DefaultTableCellRenderer tcr = new DefaultTableCellRenderer();
@@ -318,7 +342,7 @@ public class Principal extends javax.swing.JFrame {
                 timeLastDipatch = Functions.getTime();
                 dateLastDispatch = Functions.getDate();
             }
-            
+
             if (Functions.getTime().compareTo(timeLastDipatch) < 0 && Functions.getDate().compareTo(dateLastDispatch) < 0) {
                 JOptionPane.showMessageDialog(this, "Iguale la Hora de Su Reloj Para Realizar Despachos", "ERROR", JOptionPane.ERROR_MESSAGE);
             } else {
@@ -394,6 +418,7 @@ public class Principal extends javax.swing.JFrame {
                                 auxDispatch.getTimeAsig(),//hora asgi
                                 auxDispatch.getPlaca(),//id_vehiculo
                                 auxDispatch.getAtraso(),//atraso
+                                c.getNumHouse(),
                                 c.getReference(),
                                 auxDispatch.getNote(),//NOTA
                                 numDispatchs, c.getLatitud(), c.getLongitud()
@@ -401,11 +426,13 @@ public class Principal extends javax.swing.JFrame {
 
                         modelTableByDispatch.removeRow(rowSelected);
                         modelTableDispatch.insertRow(0, changeToArrayDispatch(auxByDispatch));
+                        modelTableDispatch2.insertRow(0, changeToArrayDispatch(auxByDispatch));
                         bd.deleteClientMap(code);
 
                         listVehiculos.setCodeTaxyByEtiqueta(vehiculo, listCodesTaxy.getCodesTaxyById("OCU"));
                         paintStateTaxy(listVehiculos.getEncabezadosTablaVehiculosArrayList());
                         setNumeroCarrerasRealizadasPorTaxi(vehiculo);
+                        showDispatch();
                     } catch (NumberFormatException e) {
                         JOptionPane.showMessageDialog(this, "Llene los Campos Necesarios para Despachar");
                     }
@@ -549,6 +576,8 @@ public class Principal extends javax.swing.JFrame {
             bd.deleteAllClientMap();
             bd.closeConexion();
             System.exit(0);
+        } else {
+            this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         }
     }
 
@@ -578,6 +607,12 @@ public class Principal extends javax.swing.JFrame {
         lblMinuteSlope = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
         lblTime = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        lblDispatchG = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        lblDispatchD = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        lblDispatchT = new javax.swing.JLabel();
         jPanel6 = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
         cbxStateVeh = new javax.swing.JComboBox();
@@ -588,12 +623,14 @@ public class Principal extends javax.swing.JFrame {
         tblCall = new javax.swing.JTable();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblByDispatch = new javax.swing.JTable();
-        jPanel13 = new javax.swing.JPanel();
-        btnDispatch1 = new javax.swing.JButton();
-        btnDelete1 = new javax.swing.JButton();
-        btnNoDispatch1 = new javax.swing.JButton();
+        jPanel16 = new javax.swing.JPanel();
+        btnDispatch2 = new javax.swing.JButton();
+        btnDelete2 = new javax.swing.JButton();
+        btnNoDispatch2 = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         ltEvents = new javax.swing.JList();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        tblDispatchs = new javax.swing.JTable();
         jPanel9 = new javax.swing.JPanel();
         jPanel14 = new javax.swing.JPanel();
         jPanel15 = new javax.swing.JPanel();
@@ -604,14 +641,14 @@ public class Principal extends javax.swing.JFrame {
         jLabel12 = new javax.swing.JLabel();
         txtSearchCode = new javax.swing.JTextField();
         jScrollPane5 = new javax.swing.JScrollPane();
-        tblDispatchs = new javax.swing.JTable();
+        tblDispatchs2 = new javax.swing.JTable();
         jPanel7 = new javax.swing.JPanel();
         jPanel10 = new javax.swing.JPanel();
         btnSlope = new javax.swing.JButton();
         btnMenu = new javax.swing.JButton();
         btnExit = new javax.swing.JButton();
-        btnClients = new javax.swing.JButton();
-        btnClaims = new javax.swing.JButton();
+        btnSearchClients = new javax.swing.JButton();
+        btnAddClients = new javax.swing.JButton();
         btnImport = new javax.swing.JButton();
         btnHistorical = new javax.swing.JButton();
         jPanel12 = new javax.swing.JPanel();
@@ -673,9 +710,11 @@ public class Principal extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        jLabel2.setText("Telefono");
+        jLabel2.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
+        jLabel2.setText("Telefono:");
 
-        jLabel3.setText("Codigo");
+        jLabel3.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
+        jLabel3.setText("Codigo:");
 
         txtPhone.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
         txtPhone.setHorizontalAlignment(javax.swing.JTextField.CENTER);
@@ -778,21 +817,58 @@ public class Principal extends javax.swing.JFrame {
         lblTime.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/reloj.png"))); // NOI18N
         lblTime.setText("Hora");
 
+        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel1.setText("Carreras General:");
+
+        lblDispatchG.setText("######");
+
+        jLabel4.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel4.setText("Carreras Por Dia:");
+
+        lblDispatchD.setText("######");
+
+        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel6.setText("Carreras Por Turno:");
+
+        lblDispatchT.setText("######");
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel5Layout.createSequentialGroup()
-                .addGap(32, 32, 32)
-                .addComponent(lblTime)
-                .addContainerGap(40, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel6))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblDispatchG, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(lblDispatchD, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(lblDispatchT, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(lblTime))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel5Layout.createSequentialGroup()
-                .addGap(21, 21, 21)
-                .addComponent(lblTime)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                .addContainerGap(13, Short.MAX_VALUE)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1)
+                            .addComponent(lblDispatchG))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel4)
+                            .addComponent(lblDispatchD))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel6)
+                            .addComponent(lblDispatchT)))
+                    .addComponent(lblTime))
+                .addContainerGap())
         );
 
         jLabel9.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
@@ -816,7 +892,7 @@ public class Principal extends javax.swing.JFrame {
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
+                .addGap(0, 11, Short.MAX_VALUE)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel9)
                     .addGroup(jPanel6Layout.createSequentialGroup()
@@ -907,48 +983,85 @@ public class Principal extends javax.swing.JFrame {
             tblByDispatch.getColumnModel().getColumn(11).setPreferredWidth(100);
         }
 
-        btnDispatch1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/enviar.png"))); // NOI18N
-        btnDispatch1.setToolTipText("Despachar => 'F12'");
-        btnDispatch1.addActionListener(new java.awt.event.ActionListener() {
+        btnDispatch2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/enviar.png"))); // NOI18N
+        btnDispatch2.setToolTipText("Despachar => 'F12'");
+        btnDispatch2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnDispatch1ActionPerformed(evt);
             }
         });
 
-        btnDelete1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/eliminar.png"))); // NOI18N
-        btnDelete1.setToolTipText("Borrar => 'F8'");
-        btnDelete1.addActionListener(new java.awt.event.ActionListener() {
+        btnDelete2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/eliminar.png"))); // NOI18N
+        btnDelete2.setToolTipText("Borrar => 'F8'");
+        btnDelete2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnDelete1ActionPerformed(evt);
             }
         });
 
-        btnNoDispatch1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/no_despacho.png"))); // NOI18N
-        btnNoDispatch1.setEnabled(false);
+        btnNoDispatch2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/no_despacho.png"))); // NOI18N
+        btnNoDispatch2.setEnabled(false);
 
-        javax.swing.GroupLayout jPanel13Layout = new javax.swing.GroupLayout(jPanel13);
-        jPanel13.setLayout(jPanel13Layout);
-        jPanel13Layout.setHorizontalGroup(
-            jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel13Layout.createSequentialGroup()
+        javax.swing.GroupLayout jPanel16Layout = new javax.swing.GroupLayout(jPanel16);
+        jPanel16.setLayout(jPanel16Layout);
+        jPanel16Layout.setHorizontalGroup(
+            jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel16Layout.createSequentialGroup()
                 .addGap(0, 249, Short.MAX_VALUE)
-                .addComponent(btnNoDispatch1, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btnNoDispatch2, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnDelete1, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btnDelete2, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnDispatch1, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(btnDispatch2, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
-        jPanel13Layout.setVerticalGroup(
-            jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel13Layout.createSequentialGroup()
-                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnNoDispatch1, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnDelete1, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnDispatch1, javax.swing.GroupLayout.Alignment.TRAILING))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        jPanel16Layout.setVerticalGroup(
+            jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(btnNoDispatch2, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addComponent(btnDelete2, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addComponent(btnDispatch2, javax.swing.GroupLayout.Alignment.TRAILING)
         );
 
         jScrollPane3.setViewportView(ltEvents);
+
+        tblDispatchs.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Hora", "Telefono", "Codigo", "Cliente", "Barrio o Sector", "Direccion", "Unidad", "Min.", "H. Asig.", "Placa", "Atr.", "Nota"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tblDispatchs.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                tblDispatchsMousePressed(evt);
+            }
+        });
+        tblDispatchs.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                tblDispatchsPropertyChange(evt);
+            }
+        });
+        jScrollPane6.setViewportView(tblDispatchs);
+        if (tblDispatchs.getColumnModel().getColumnCount() > 0) {
+            tblDispatchs.getColumnModel().getColumn(0).setPreferredWidth(50);
+            tblDispatchs.getColumnModel().getColumn(1).setPreferredWidth(65);
+            tblDispatchs.getColumnModel().getColumn(2).setPreferredWidth(40);
+            tblDispatchs.getColumnModel().getColumn(3).setPreferredWidth(150);
+            tblDispatchs.getColumnModel().getColumn(4).setPreferredWidth(150);
+            tblDispatchs.getColumnModel().getColumn(5).setPreferredWidth(200);
+            tblDispatchs.getColumnModel().getColumn(6).setPreferredWidth(40);
+            tblDispatchs.getColumnModel().getColumn(7).setPreferredWidth(25);
+            tblDispatchs.getColumnModel().getColumn(10).setPreferredWidth(25);
+            tblDispatchs.getColumnModel().getColumn(11).setPreferredWidth(100);
+        }
 
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
@@ -957,11 +1070,12 @@ public class Principal extends javax.swing.JFrame {
             .addGroup(jPanel8Layout.createSequentialGroup()
                 .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 783, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 478, Short.MAX_VALUE))
-            .addComponent(jScrollPane2)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 482, Short.MAX_VALUE))
+            .addComponent(jScrollPane6)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel8Layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jPanel13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jPanel16, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(jScrollPane2)
         );
         jPanel8Layout.setVerticalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -969,11 +1083,13 @@ public class Principal extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(jScrollPane3))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 64, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jPanel16, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE))
         );
 
         tabPanel.addTab("Principal", jPanel8);
@@ -1050,14 +1166,14 @@ public class Principal extends javax.swing.JFrame {
             jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel14Layout.createSequentialGroup()
                 .addComponent(jPanel15, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 644, Short.MAX_VALUE))
+                .addGap(0, 648, Short.MAX_VALUE))
         );
         jPanel14Layout.setVerticalGroup(
             jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel15, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
-        tblDispatchs.setModel(new javax.swing.table.DefaultTableModel(
+        tblDispatchs2.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -1073,23 +1189,23 @@ public class Principal extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        tblDispatchs.addMouseListener(new java.awt.event.MouseAdapter() {
+        tblDispatchs2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
-                tblDispatchsMousePressed(evt);
+                tblDispatchs2MousePressed(evt);
             }
         });
-        jScrollPane5.setViewportView(tblDispatchs);
-        if (tblDispatchs.getColumnModel().getColumnCount() > 0) {
-            tblDispatchs.getColumnModel().getColumn(0).setPreferredWidth(50);
-            tblDispatchs.getColumnModel().getColumn(1).setPreferredWidth(65);
-            tblDispatchs.getColumnModel().getColumn(2).setPreferredWidth(40);
-            tblDispatchs.getColumnModel().getColumn(3).setPreferredWidth(150);
-            tblDispatchs.getColumnModel().getColumn(4).setPreferredWidth(150);
-            tblDispatchs.getColumnModel().getColumn(5).setPreferredWidth(200);
-            tblDispatchs.getColumnModel().getColumn(6).setPreferredWidth(40);
-            tblDispatchs.getColumnModel().getColumn(7).setPreferredWidth(25);
-            tblDispatchs.getColumnModel().getColumn(10).setPreferredWidth(25);
-            tblDispatchs.getColumnModel().getColumn(11).setPreferredWidth(100);
+        jScrollPane5.setViewportView(tblDispatchs2);
+        if (tblDispatchs2.getColumnModel().getColumnCount() > 0) {
+            tblDispatchs2.getColumnModel().getColumn(0).setPreferredWidth(50);
+            tblDispatchs2.getColumnModel().getColumn(1).setPreferredWidth(65);
+            tblDispatchs2.getColumnModel().getColumn(2).setPreferredWidth(40);
+            tblDispatchs2.getColumnModel().getColumn(3).setPreferredWidth(150);
+            tblDispatchs2.getColumnModel().getColumn(4).setPreferredWidth(150);
+            tblDispatchs2.getColumnModel().getColumn(5).setPreferredWidth(200);
+            tblDispatchs2.getColumnModel().getColumn(6).setPreferredWidth(40);
+            tblDispatchs2.getColumnModel().getColumn(7).setPreferredWidth(25);
+            tblDispatchs2.getColumnModel().getColumn(10).setPreferredWidth(25);
+            tblDispatchs2.getColumnModel().getColumn(11).setPreferredWidth(100);
         }
 
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
@@ -1104,7 +1220,7 @@ public class Principal extends javax.swing.JFrame {
             .addGroup(jPanel9Layout.createSequentialGroup()
                 .addComponent(jPanel14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE))
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 359, Short.MAX_VALUE))
         );
 
         tabPanel.addTab("Despachos", jPanel9);
@@ -1121,22 +1237,26 @@ public class Principal extends javax.swing.JFrame {
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jpSlope, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(35, 35, 35)
-                        .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(28, 28, 28)
-                        .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
         );
         panelCenterLayout.setVerticalGroup(
             panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelCenterLayout.createSequentialGroup()
                 .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(jPanel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jpSlope, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelCenterLayout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(panelCenterLayout.createSequentialGroup()
+                        .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jpSlope, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(tabPanel))
+                .addComponent(tabPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 435, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         btnSlope.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/pendientes.png"))); // NOI18N
@@ -1163,17 +1283,21 @@ public class Principal extends javax.swing.JFrame {
             }
         });
 
-        btnClients.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/buscar.png"))); // NOI18N
-        btnClients.setText("Clientes");
-        btnClients.addActionListener(new java.awt.event.ActionListener() {
+        btnSearchClients.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/buscar.png"))); // NOI18N
+        btnSearchClients.setText("Clientes");
+        btnSearchClients.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnClientsActionPerformed(evt);
+                btnSearchClientsActionPerformed(evt);
             }
         });
 
-        btnClaims.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/bechofer.png"))); // NOI18N
-        btnClaims.setText("Reclamos");
-        btnClaims.setEnabled(false);
+        btnAddClients.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/llamada.png"))); // NOI18N
+        btnAddClients.setText("Añadir Cliente");
+        btnAddClients.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddClientsActionPerformed(evt);
+            }
+        });
 
         btnImport.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/guardar.png"))); // NOI18N
         btnImport.setText("Importar");
@@ -1194,14 +1318,14 @@ public class Principal extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnSlope)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnClients)
+                .addComponent(btnSearchClients)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnClaims)
+                .addComponent(btnAddClients)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnHistorical)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnImport)
-                .addContainerGap(19, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel10Layout.setVerticalGroup(
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1212,8 +1336,8 @@ public class Principal extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
                 .addGap(1, 1, 1)
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnClaims, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnClients, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(btnAddClients, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnSearchClients, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
             .addComponent(btnImport, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
@@ -1282,10 +1406,10 @@ public class Principal extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelCenter, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(panelCenter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -1353,14 +1477,18 @@ public class Principal extends javax.swing.JFrame {
         if (!ct.getIdCodigo().equals("OCU") && !ct.getIdCodigo().equals("ASI")) {
             if (numCol.length > 0) {
                 for (int i = 0; i < numCol.length; i++) {
-                    int r = JOptionPane.showConfirmDialog(this, "\n<html><b>¿Esta seguro que quiere Activar esta unidad?</b></html>", "Error", 0);
+                    int vehiculo = Integer.parseInt(listVehiculos.getEncabezadosTablaVehiculosArrayString()[numCol[i]]);
+                    Vehiculo v = listVehiculos.getVehiculoByVehiculo(vehiculo);
+                    if (v.getCodesTaxy().getIdCodigo().equals("OCU") || v.getCodesTaxy().getIdCodigo().equals("ASI")) {
+                        int r = JOptionPane.showConfirmDialog(this, "\n<html><b>¿Esta seguro que quiere Activar esta unidad?</b></html>", "Error", 0);
 
-                    if (r == 0) {
-                        clearStateVehiculo(tblStateVeh.getColumnName(numCol[i]) + "");
-                        /*listVehiculos.setCodeTaxyByEtiqueta(vehiculo, listCodesTaxy.getCodesTaxyById("AC"));
-                         paintStateTaxy(listVehiculos.getEncabezadosTablaVehiculosArrayList());*/
+                        if (r == 0) {
+                            clearStateVehiculo(tblStateVeh.getColumnName(numCol[i]) + "");
+                            listVehiculos.setCodeTaxyByEtiqueta(vehiculo, ct);
+                        }
+                    } else {
+                        listVehiculos.setCodeTaxyByEtiqueta(vehiculo, ct);
                     }
-                    listVehiculos.setCodeTaxyByEtiqueta(Integer.parseInt(listVehiculos.getEncabezadosTablaVehiculosArrayString()[numCol[i]]), ct);
                 }
                 paintStateTaxy(listVehiculos.getEncabezadosTablaVehiculosArrayList());
             } else {
@@ -1400,30 +1528,41 @@ public class Principal extends javax.swing.JFrame {
                                 tblByDispatch.setValueAt("", rowSelected, 9);
                                 tblByDispatch.setValueAt("", rowSelected, 10);
                             } else {
-                                tblByDispatch.setValueAt(placa, rowSelected, 9);
-                                tblByDispatch.setValueAt(Functions.getTime(), rowSelected, 8);
+                                if (listVehiculos.getBloqueoVehiculo(vehiculo)) {
+                                    JOptionPane.showMessageDialog(this, "Esta unidad ha sido bloqueada por falta de PAGO, no se podrá despachar "
+                                            + "más carreras hasta que no se comunique con KRADAC\n"
+                                            + "para que sea habilitada nuevamente...", "ERROR", JOptionPane.ERROR_MESSAGE);
+                                    tblByDispatch.setValueAt("", rowSelected, 6);
+                                    tblByDispatch.setValueAt("", rowSelected, 7);
+                                    tblByDispatch.setValueAt("", rowSelected, 8);
+                                    tblByDispatch.setValueAt("", rowSelected, 9);
+                                    tblByDispatch.setValueAt("", rowSelected, 10);
+                                } else {
+                                    tblByDispatch.setValueAt(placa, rowSelected, 9);
+                                    tblByDispatch.setValueAt(Functions.getTime(), rowSelected, 8);
 
-                                listVehiculos.setCodeTaxyByEtiqueta(vehiculo, listCodesTaxy.getCodesTaxyById("ASI"));
-                                paintStateTaxy(listVehiculos.getEncabezadosTablaVehiculosArrayList());
-                                bd.insertLifeAssigns(
-                                        userLogin.getUser(),//user
-                                        (String) tblByDispatch.getValueAt(rowSelected, 0),//hora
-                                        Integer.parseInt((String) tblByDispatch.getValueAt(rowSelected, 2)),//code
-                                        (String) tblByDispatch.getValueAt(rowSelected, 1),//telefono
-                                        "ASI", 0,
-                                        "",
-                                        "",
-                                        "",
-                                        "",
-                                        Integer.parseInt((String) tblByDispatch.getValueAt(rowSelected, 6)),//vehiculo
-                                        0,//Integer.parseInt((String) tblByDispatch.getValueAt(rowSelected, 7)),//minute
-                                        (String) tblByDispatch.getValueAt(rowSelected, 9),//id_vehiculo
-                                        0,//Integer.parseInt((String) tblByDispatch.getValueAt(rowSelected, 10)),//atraso
-                                        "",
-                                        "",
-                                        0,
-                                        0.0, 0.0
-                                );
+                                    listVehiculos.setCodeTaxyByEtiqueta(vehiculo, listCodesTaxy.getCodesTaxyById("ASI"));
+                                    paintStateTaxy(listVehiculos.getEncabezadosTablaVehiculosArrayList());
+                                    bd.insertLifeAssigns(
+                                            userLogin.getUser(),//user
+                                            (String) tblByDispatch.getValueAt(rowSelected, 0),//hora
+                                            Integer.parseInt((String) tblByDispatch.getValueAt(rowSelected, 2)),//code
+                                            (String) tblByDispatch.getValueAt(rowSelected, 1),//telefono
+                                            "ASI", 0,
+                                            "",
+                                            "",
+                                            "",
+                                            "",
+                                            Integer.parseInt((String) tblByDispatch.getValueAt(rowSelected, 6)),//vehiculo
+                                            0,//Integer.parseInt((String) tblByDispatch.getValueAt(rowSelected, 7)),//minute
+                                            (String) tblByDispatch.getValueAt(rowSelected, 9),//id_vehiculo
+                                            0,//Integer.parseInt((String) tblByDispatch.getValueAt(rowSelected, 10)),//atraso
+                                            "",
+                                            "",
+                                            0,
+                                            0.0, 0.0
+                                    );
+                                }
                             }
                         } else {
                             int r = JOptionPane.showConfirmDialog(this,
@@ -1442,11 +1581,13 @@ public class Principal extends javax.swing.JFrame {
                         try {
                             Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 6).toString());
                         } catch (NumberFormatException ex) {
-                            JOptionPane.showMessageDialog(null, "Solo Puede Ingresar Numeros de Unidad Validos");
+                            JOptionPane.showMessageDialog(this, "Solo Puede Ingresar Numeros de Unidad Validos", "ERROR", JOptionPane.ERROR_MESSAGE);
                             tblByDispatch.setValueAt("", rowSelected, 6);
                         } finally {
-                            tblByDispatch.setValueAt("", rowSelected, 9);
+                            tblByDispatch.setValueAt("", rowSelected, 7);
                             tblByDispatch.setValueAt("", rowSelected, 8);
+                            tblByDispatch.setValueAt("", rowSelected, 9);
+                            tblByDispatch.setValueAt("", rowSelected, 10);
                         }
                     }
                 }
@@ -1461,7 +1602,7 @@ public class Principal extends javax.swing.JFrame {
                             int minute = Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 7).toString());
                             tblByDispatch.setValueAt(minute * -1, rowSelected, 10);
                         } catch (NumberFormatException e) {
-                            JOptionPane.showMessageDialog(null, "Solo Puede Ingresar Numeros");
+                            JOptionPane.showMessageDialog(this, "Solo Puede Ingresar Numeros", "ERROR", JOptionPane.ERROR_MESSAGE);
                             tblByDispatch.setValueAt("", rowSelected, 7);
                         }
                     } else {
@@ -1472,14 +1613,6 @@ public class Principal extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_tblByDispatchPropertyChange
-
-    private void btnDispatch1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDispatch1ActionPerformed
-        dispatch();
-    }//GEN-LAST:event_btnDispatch1ActionPerformed
-
-    private void btnDelete1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDelete1ActionPerformed
-        deleteRowByDispatch();
-    }//GEN-LAST:event_btnDelete1ActionPerformed
 
     private void cbxStateVehActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxStateVehActionPerformed
         // TODO add your handling code here:
@@ -1553,15 +1686,69 @@ public class Principal extends javax.swing.JFrame {
         fp.setLocationRelativeTo(this);
     }//GEN-LAST:event_btnSlopeActionPerformed
 
-    private void btnClientsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClientsActionPerformed
+    private void btnSearchClientsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchClientsActionPerformed
         if ((sc == null) || (!sc.isDisplayable())) {
             sc = new SearchClients();
         }
         sc.setVisible(true);
         sc.setLocationRelativeTo(this);
+    }//GEN-LAST:event_btnSearchClientsActionPerformed
 
+    private void tblDispatchs2MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblDispatchs2MousePressed
+        int intClicks = evt.getClickCount();
 
-    }//GEN-LAST:event_btnClientsActionPerformed
+        if (intClicks == 2) {
+            int rowSelected = tblDispatchs2.getSelectedRow();
+
+            if ((fc == null) || (!fc.isDisplayable())) {
+                fc = new FrameClients(tblDispatchs2.getValueAt(rowSelected, 1).toString(),
+                        Integer.parseInt(tblDispatchs2.getValueAt(rowSelected, 2).toString()),
+                        tblDispatchs2.getValueAt(rowSelected, 3).toString(),
+                        tblDispatchs2.getValueAt(rowSelected, 0).toString());
+            }
+            fc.setVisible(true);
+            fc.setLocationRelativeTo(this);
+        }
+    }//GEN-LAST:event_tblDispatchs2MousePressed
+
+    private void txtSearchClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchClientActionPerformed
+        listDispatch.loadDispatchByClient(txtSearchClient.getText());
+    }//GEN-LAST:event_txtSearchClientActionPerformed
+
+    private void txtSearchPhoneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchPhoneActionPerformed
+        listDispatch.loadDispatchByPhone(txtSearchPhone.getText());
+    }//GEN-LAST:event_txtSearchPhoneActionPerformed
+
+    private void txtSearchCodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchCodeActionPerformed
+        try {
+            listDispatch.loadDispatchByCode(Integer.parseInt(txtSearchCode.getText()));
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Ingrese un Codigo Para Inicia la Busqueda");
+        }
+
+    }//GEN-LAST:event_txtSearchCodeActionPerformed
+
+    private void txtSearchPhoneKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchPhoneKeyTyped
+        if (!Character.isDigit(evt.getKeyChar()) && !Character.isISOControl(evt.getKeyChar())) {
+            Toolkit.getDefaultToolkit().beep();
+            evt.consume();
+        }
+    }//GEN-LAST:event_txtSearchPhoneKeyTyped
+
+    private void txtSearchCodeKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchCodeKeyTyped
+        if (!Character.isDigit(evt.getKeyChar()) && !Character.isISOControl(evt.getKeyChar())) {
+            Toolkit.getDefaultToolkit().beep();
+            evt.consume();
+        }
+    }//GEN-LAST:event_txtSearchCodeKeyTyped
+
+    private void btnAddClientsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddClientsActionPerformed
+        if ((fc == null) || (!fc.isDisplayable())) {
+            fc = new FrameClients();
+        }
+        fc.setVisible(true);
+        fc.setLocationRelativeTo(this);
+    }//GEN-LAST:event_btnAddClientsActionPerformed
 
     private void tblDispatchsMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblDispatchsMousePressed
         int intClicks = evt.getClickCount();
@@ -1580,36 +1767,17 @@ public class Principal extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_tblDispatchsMousePressed
 
-    private void txtSearchClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchClientActionPerformed
-        listDispatch.loadDispatchByClient(txtSearchClient.getText());
-    }//GEN-LAST:event_txtSearchClientActionPerformed
+    private void tblDispatchsPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_tblDispatchsPropertyChange
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tblDispatchsPropertyChange
 
-    private void txtSearchPhoneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchPhoneActionPerformed
-        listDispatch.loadDispatchByPhone(txtSearchPhone.getText());
-    }//GEN-LAST:event_txtSearchPhoneActionPerformed
+    private void btnDelete1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDelete1ActionPerformed
+        deleteRowByDispatch();
+    }//GEN-LAST:event_btnDelete1ActionPerformed
 
-    private void txtSearchCodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchCodeActionPerformed
-        try {
-            listDispatch.loadDispatchByCode(Integer.parseInt(txtSearchCode.getText()));
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Ingrese un Codigo Para Inicia la Busqueda");
-        }
-        
-    }//GEN-LAST:event_txtSearchCodeActionPerformed
-
-    private void txtSearchPhoneKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchPhoneKeyTyped
-        if (!Character.isDigit(evt.getKeyChar()) && !Character.isISOControl(evt.getKeyChar())) {
-            Toolkit.getDefaultToolkit().beep();
-            evt.consume();
-        }
-    }//GEN-LAST:event_txtSearchPhoneKeyTyped
-
-    private void txtSearchCodeKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchCodeKeyTyped
-        if (!Character.isDigit(evt.getKeyChar()) && !Character.isISOControl(evt.getKeyChar())) {
-            Toolkit.getDefaultToolkit().beep();
-            evt.consume();
-        }
-    }//GEN-LAST:event_txtSearchCodeKeyTyped
+    private void btnDispatch1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDispatch1ActionPerformed
+        dispatch();
+    }//GEN-LAST:event_btnDispatch1ActionPerformed
 
     /**
      */
@@ -1646,32 +1814,35 @@ public class Principal extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAddClients;
     private javax.swing.JButton btnChangeState;
-    private javax.swing.JButton btnClaims;
-    private javax.swing.JButton btnClients;
-    private javax.swing.JButton btnDelete1;
-    private javax.swing.JButton btnDispatch1;
+    private javax.swing.JButton btnDelete2;
+    private javax.swing.JButton btnDispatch2;
     private javax.swing.JButton btnExit;
     private javax.swing.JButton btnHistorical;
     private javax.swing.JButton btnImport;
     private javax.swing.JButton btnMenu;
-    private javax.swing.JButton btnNoDispatch1;
+    private javax.swing.JButton btnNoDispatch2;
+    private javax.swing.JButton btnSearchClients;
     private javax.swing.JButton btnSlope;
     private javax.swing.JComboBox cbxStateVeh;
     private javax.swing.JComboBox cbxZonas;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel12;
-    private javax.swing.JPanel jPanel13;
     private javax.swing.JPanel jPanel14;
     private javax.swing.JPanel jPanel15;
+    private javax.swing.JPanel jPanel16;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
@@ -1683,11 +1854,15 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
     public static javax.swing.JPanel jpSlope;
     private javax.swing.JLabel lblCall;
     public static javax.swing.JLabel lblClientSlope;
     public static javax.swing.JLabel lblConection;
     public static javax.swing.JLabel lblDate;
+    private javax.swing.JLabel lblDispatchD;
+    private javax.swing.JLabel lblDispatchG;
+    private javax.swing.JLabel lblDispatchT;
     public static javax.swing.JLabel lblMinuteSlope;
     public static javax.swing.JLabel lblSlope;
     public static javax.swing.JLabel lblTime;
@@ -1697,6 +1872,7 @@ public class Principal extends javax.swing.JFrame {
     public static javax.swing.JTable tblByDispatch;
     private javax.swing.JTable tblCall;
     public static javax.swing.JTable tblDispatchs;
+    public static javax.swing.JTable tblDispatchs2;
     private javax.swing.JTable tblStateVeh;
     private javax.swing.JTextField txtCode;
     private javax.swing.JTextField txtPhone;

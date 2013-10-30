@@ -37,7 +37,7 @@ public class ListPending {
     public void existePending(String date, String time) {
         for (Pending pending : pendings) {
             if (pending.getDate().equals(date) && pending.getRemember().equals(time)) {
-                LookPending m = new LookPending(pending.getTime(), pending.getClient());
+                LookPending m = new LookPending(pending.getTime(), pending.getClient(), pending.getCode());
                 m.start();
             }
         }

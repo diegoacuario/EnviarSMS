@@ -9,6 +9,7 @@ import com.kradac.despachos.administration.Client;
 import com.kradac.despachos.administration.CodesTaxy;
 import com.kradac.despachos.administration.Company;
 import com.kradac.despachos.administration.Dispatch;
+import com.kradac.despachos.administration.Job;
 import com.kradac.despachos.administration.list.ListClients;
 import com.kradac.despachos.administration.list.ListCodesTaxy;
 import com.kradac.despachos.administration.list.ListDispatch;
@@ -26,10 +27,14 @@ import com.kradac.despachos.administration.Pending;
 import com.kradac.despachos.administration.Person;
 import com.kradac.despachos.administration.RolUser;
 import com.kradac.despachos.administration.StateCivil;
+import com.kradac.despachos.administration.Turn;
 import com.kradac.despachos.administration.User;
 import com.kradac.despachos.administration.Vehiculo;
 import com.kradac.despachos.administration.Zona;
+import com.kradac.despachos.administration.list.ListJob;
 import com.kradac.despachos.administration.list.ListPending;
+import com.kradac.despachos.administration.list.ListTurn;
+import com.kradac.despachos.interfaz.Principal;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -169,18 +174,19 @@ public class DataBase {
         return null;
     }
 
-    public ListPerson loadPersons(ListStateCivil lsc, Properties p, int numHost) {
+    public ListPerson loadPersons(ListStateCivil lsc, ListJob lj, Properties p, int numHost) {
         ListPerson listAux = new ListPerson(p, numHost);
         try {
-            String sql = "SELECT ID_PERSON, NAME, LASTNAME, PHONE, EMAIL, DIRECTION, NUM_HOUSE, TYPE_SANGRE, ID_STATE_CIVIL, CONYUGUE, IMAGE "
-                    + "FROM persons ";
+            String sql = "SELECT ID_PERSON, NAME, LASTNAME, PHONE, EMAIL, DIRECTION, NUM_HOUSE, TYPE_SANGRE, "
+                    + "ID_STATE_CIVIL, CONYUGUE, IMAGE, ID_JOB "
+                    + "FROM persons ORDER BY LASTNAME";
 
             rs = s.executeQuery(sql);
 
             while (rs.next()) {
                 listAux.addPerson(new Person(rs.getString("ID_PERSON"), rs.getString("NAME"), rs.getString("LASTNAME"), rs.getString("PHONE"),
                         rs.getString("EMAIL"), rs.getString("DIRECTION"), rs.getInt("NUM_HOUSE"), rs.getString("TYPE_SANGRE"),
-                        lsc.getStateCivilById(rs.getInt("ID_STATE_CIVIL")), rs.getString("CONYUGUE"), rs.getString("IMAGE")));
+                        lsc.getStateCivilById(rs.getInt("ID_STATE_CIVIL")), rs.getString("CONYUGUE"), rs.getString("IMAGE"), lj.getJobById(rs.getInt("ID_JOB"))));
             }
             return listAux;
         } catch (SQLException ex) {
@@ -210,6 +216,26 @@ public class DataBase {
         }
         return null;
     }
+    
+    public ListJob loadJobs() {
+        ListJob listAux = new ListJob();
+        try {
+            String sql = "SELECT ID_JOB, JOB "
+                    + "FROM jobs ";
+
+            rs = s.executeQuery(sql);
+
+            while (rs.next()) {
+                listAux.addJobs(new Job(rs.getInt("ID_JOB"), rs.getString("JOB")));
+            }
+            return listAux;
+        } catch (SQLException ex) {
+            //Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Problemas al Cargar Trabajos de Personas");
+            System.exit(0);
+        }
+        return null;
+    }
 
     public ListUser loadUser(ListPerson listPerson, ListRolUser listRolUser, Properties p, int numHost) {
         ListUser listAux = new ListUser(p, numHost);
@@ -227,6 +253,26 @@ public class DataBase {
         } catch (SQLException ex) {
             //Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
             JOptionPane.showMessageDialog(null, "Problemas al Cargar las Personas");
+        }
+        return null;
+    }
+    
+    public ListTurn loadTurns() {
+        ListTurn listAux = new ListTurn();
+        try {
+            String sql = "SELECT ID_TURN, TIME_START, TIME_FINISH "
+                    + "FROM turns ";
+
+            rs = s.executeQuery(sql);
+
+            while (rs.next()) {
+                listAux.addTurn(new Turn(rs.getInt("ID_TURN"), rs.getString("TIME_START"), rs.getString("TIME_FINISH")));
+            }
+            return listAux;
+        } catch (SQLException ex) {
+            //Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Problemas al Cargar Zonas de los Vehiculos");
+            System.exit(0);
         }
         return null;
     }
@@ -380,6 +426,19 @@ public class DataBase {
         }
         return null;
     }
+    
+    public void getStateVehiculoPendientePago() {
+        try {
+            String sql = "SELECT N_UNIDAD, ACTIVO FROM ultimos_gps";
+            
+            rs = s.executeQuery(sql);
+            while (rs.next()) {                
+                Principal.listVehiculos.updateBloqueVehiculos(rs.getInt("N_UNIDAD"), rs.getBoolean("ACTIVO"));
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     /* INSERT IN THE DATABASE */
     public void insertClientMap(Client c) {
@@ -502,20 +561,13 @@ public class DataBase {
         boolean inserto = true;
         String sql = "";
         try {
-            sql = "INSERT INTO life_assigns (id_user,date,time,code,"
-                    + "phone,id_codigo,respaldo,client,sector,direction,"
-                    + "destino,vehiculo,minute,id_vehiculo,atraso,reference,"
-                    + "note,tiquete,latitud,longitud) VALUES("
-                    + "'" + id_user + "',Date(Now()),"
-                    + "'" + time + "'," + code + ","
-                    + "'" + phone + "','" + id_codigo + "',"
-                    + respaldo + ",'" + client + "',"
-                    + "'" + sector + "','" + direction + "',"
-                    + "'" + destino + "','" + vehiculo + "',"
-                    + "'" + minute + "','" + id_vehiculo + "',"
-                    + atraso + "," + "'" + reference + "',"
-                    + "'" + note + "'," + tiquete + ","
-                    + latitud + "," + longitud + ")";
+            sql = "INSERT INTO life_assigns (id_user,date,time,code,phone,id_codigo,respaldo,client,sector,direction,"
+                    + "destino,vehiculo,minute,id_vehiculo,atraso,reference,note,tiquete,latitud,longitud) "
+                    + "VALUES('" + id_user + "',Date(Now()),'" + time + "'," + code + ",'"
+                    + phone + "','" + id_codigo + "'," + respaldo + ",'" + client + "','"
+                    + sector + "','" + direction + "','" + destino + "','" + vehiculo + "','" 
+                    + minute + "','" + id_vehiculo + "',"+ atraso + ",'" + reference + "','"
+                    + note + "'," + tiquete + ","+ latitud + "," + longitud + ")";
             
             s.executeUpdate(sql);
         } catch (SQLException ex) {
@@ -527,22 +579,18 @@ public class DataBase {
     public boolean insertAssigns(String id_user, String time, int code,
             String phone, String client,
             String sector, String direction, String destino, int vehiculo, int minute, String time_asig,
-            String id_vehiculo, int atraso, String reference, String note,
+            String id_vehiculo, int atraso, int numHouse, String reference, String note,
             int tiquete, double latitud, double longitud) {
         boolean inserto = true;
         String sql = "";
         try {
             sql = "INSERT INTO assigs (id_user,date,time,phone,code,client,"
                     + "sector,direction,destino,vehiculo,minute,time_asig,"
-                    + "id_vehiculo,atraso,reference,note,tiquete,latitud,longitud) VALUES("
-                    + "'" + id_user + "',Date(Now()),"
-                    + "'" + time + "'," + phone + ","
-                    + "'" + code + "','" + client + "',"
-                    + "'" + sector + "','" + direction + "',"
-                    + "'" + destino + "'," + vehiculo + ","
-                    + "'" + minute + "','" + time_asig + "','" + id_vehiculo + "',"
-                    + atraso + "," + "'" + reference + "',"
-                    + "'" + note + "'," + tiquete + ","+latitud+","+longitud+")";
+                    + "id_vehiculo,atraso,num_house,reference,note,tiquete,latitud,longitud) VALUES("
+                    + "'" + id_user + "',Date(Now()),'" + time + "','" + phone + "',"
+                    + code + ",'" + client + "','" + sector + "','" + direction + "','"
+                    + destino + "'," + vehiculo + "," + minute + ",'" + time_asig + "','" + id_vehiculo + "',"
+                    + atraso + ","+numHouse+",'" + reference + "','" + note + "'," + tiquete + ","+latitud+","+longitud+")";
             
             s.executeUpdate(sql);
         } catch (SQLException ex) {
@@ -585,7 +633,8 @@ public class DataBase {
                     + "type_sangre='" + p.getTypeSangre() + "',"
                     + "id_state_civil=" + p.getStateCivil().getIdStateCivil() + ","
                     + "conyugue='" + p.getConyuge() + "',"
-                    + "image='" + p.getImage() + "' WHERE id_person='"
+                    + "image='" + p.getImage() + "',"
+                    + "id_job="+p.getJob().getIdJob()+" WHERE id_person='"
                     + cedula + "'";
             
             s.executeUpdate(sql);
@@ -614,7 +663,7 @@ public class DataBase {
     public boolean updateClient(Client client, int code) {
         boolean actualizo = true;
         try {
-            String sql = "UPDATE clients  SET name='" + client.getName() + "',"
+            String sql = "UPDATE clients SET name='" + client.getName() + "',"
                     + "lastname='" + client.getLastname() + "',"
                     + "phone='" + client.getPhone() + "',"
                     + "direction='" + client.getDirection() + "',"
@@ -636,11 +685,11 @@ public class DataBase {
     public boolean updateVehiculo(Vehiculo v, String placa) {
         boolean actualizo = true;
         try {
-            String sql = "UPDATE users  SET id_vehiculo='" + v.getPlaca() + "',"
+            String sql = "UPDATE vehiculos SET id_vehiculo='" + v.getPlaca() + "',"
                     + "id_zona=" + v.getZona().getIdZona() + ","
                     + "id_conductor='" + v.getConductor().getCedula() + "',"
                     + "id_propietario='" + v.getPropietario().getCedula() + "',"
-                    + "id_codigo=" + v.getCodesTaxy().getIdCodigo() + ","
+                    + "id_codigo='" + v.getCodesTaxy().getIdCodigo() + "',"
                     + "vehiculo=" + v.getVehiculo() + ","
                     + "id_modelo_vehiculo=" + v.getModelo().getIdModeloVehiculo() + ","
                     + "year='" + v.getYear() + "',"
@@ -650,14 +699,22 @@ public class DataBase {
                     + "soat='" + v.getSoat() + "',"
                     + "image='" + v.getImage() + "' WHERE id_vehiculo='"
                     + placa + "'";
-
             System.out.println(sql);
             s.executeUpdate(sql);
         } catch (SQLException ex) {
-            System.err.println(ex);
             actualizo = false;
         }
         return actualizo;
+    }
+    
+    public void updateStateVehiculo(int vehiculo, String id_code) {
+        try {
+            String sql = "UPDATE ultimos_gps SET ID_CODIGO='" + id_code + "' WHERE N_UNIDAD="+ vehiculo;
+            
+            s.executeUpdate(sql);
+        } catch (SQLException ex) {
+            Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /* DELETE IN THE DATABASE */

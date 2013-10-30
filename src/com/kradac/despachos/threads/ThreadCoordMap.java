@@ -69,7 +69,7 @@ public class ThreadCoordMap extends Thread {
                 }
             }
         } catch(BindException be){
-            JOptionPane.showMessageDialog(null, "Dirección de Puerto para obtener coodenadas ya esta en Uso por Otra Aplicación", "ERROR", JOptionPane.ERROR_MESSAGE);
+            //JOptionPane.showMessageDialog(null, "Dirección de Puerto para obtener coodenadas ya esta en Uso por Otra Aplicación", "ERROR", JOptionPane.ERROR_MESSAGE);
             cerrarConexion();
         }catch (IOException ex) {
             Logger.getLogger(ThreadCoordMap.class.getName()).log(Level.SEVERE, null, ex);

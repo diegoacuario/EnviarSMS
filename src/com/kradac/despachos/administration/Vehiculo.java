@@ -24,6 +24,7 @@ public class Vehiculo {
     private String soat;
     private CodesTaxy codesTaxy;
     private String image;
+    private boolean bloqueo;
 
     public Vehiculo(String placa, Zona zona, Person conductor, Person propietario, int vehiculo, Modelo modelo, int year, String numMotor, String numChasis, int regMunicipal, String soat, CodesTaxy codesTaxy,String image) {
         this.placa = placa;
@@ -215,5 +216,19 @@ public class Vehiculo {
      */
     public void setCodesTaxy(CodesTaxy codesTaxy) {
         this.codesTaxy = codesTaxy;
+    }
+
+    /**
+     * @return the bloque
+     */
+    public boolean isBloqueo() {
+        return bloqueo;
+    }
+
+    /**
+     * @param bloqueo the bloque to set
+     */
+    public void setBloqueo(boolean bloqueo) {
+        this.bloqueo = bloqueo;
     }
 }

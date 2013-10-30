@@ -71,6 +71,15 @@ public class ListVehiculos {
         return null;
     }
     
+    public Vehiculo getVehiculoByVehiculo(int vehiculo) {
+        for (Vehiculo v : getVehiculos()) {
+            if (v.getVehiculo() == vehiculo) {
+                return v;
+            }
+        }
+        return null;
+    }
+    
     public int getSize() {
         return getVehiculos().size();
     }
@@ -162,5 +171,22 @@ public class ListVehiculos {
                 v.setCodesTaxy(ct);
             }
         }
+    }
+    
+    public void updateBloqueVehiculos(int vehiculo, boolean state) {
+        for (Vehiculo v : getVehiculos()) {
+            if (v.getVehiculo() == vehiculo) {
+                v.setBloqueo(state);
+            }
+        }
+    }
+    
+    public boolean getBloqueoVehiculo(int vehiculo) {
+        for (Vehiculo v : getVehiculos()) {
+            if (v.getVehiculo() == vehiculo) {
+                return v.isBloqueo();
+            }
+        }
+        return false;
     }
 }

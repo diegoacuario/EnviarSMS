@@ -466,7 +466,7 @@ public class FrameVehiculos extends javax.swing.JFrame {
             cbxConductor.setSelectedItem(v.getConductor().getLastname() + " " + v.getConductor().getName());
             cbxPropietario.setSelectedItem(v.getPropietario().getLastname() + " " + v.getPropietario().getName());
             txtUnidad.setText(v.getVehiculo() + "");
-            cbxModelo.setSelectedItem(v.getModelo().getModeloVehiculo());;
+            cbxModelo.setSelectedItem(v.getModelo().getModeloVehiculo());
             txtAnio.setText(v.getYear() + "");
             txtNumMot.setText(v.getNumMotor());
             txtnumCha.setText(v.getNumChasis());

@@ -98,6 +98,7 @@ public class ListPerson {
                     p.setStateCivil(person.getStateCivil());
                     p.setConyuge(person.getConyuge());
                     p.setImage(person.getImage());
+                    p.setJob(person.getJob());
                     return true;
                 }
             }

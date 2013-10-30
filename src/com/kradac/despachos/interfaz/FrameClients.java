@@ -60,7 +60,7 @@ public class FrameClients extends javax.swing.JFrame {
     public FrameClients(String phone, int code, String client, String time) {
         initComponents();
         
-        Dispatch d = Principal.listDispatch.getDispatchByCPT(code, phone, time, client);
+        Dispatch d = Principal.listDispatch.getDispatchByCPTC(code, phone, time, client);
         Client c = Principal.listClient.getClientByCode(code);
         txtCode.setText("" + code);
         txtPhone.setText(phone);
@@ -76,16 +76,6 @@ public class FrameClients extends javax.swing.JFrame {
         txtLongitud.setText("" + c.getLongitud());
 
         btnAddCode.setEnabled(false);
-        txtCode.setEnabled(false);
-        txtPhone.setEnabled(false);
-        txtName.setEnabled(false);
-        txtLastName.setEnabled(false);
-        txtNumHouse.setEnabled(false);
-        txtReference.setEnabled(false);
-        txtSector.setEnabled(false);
-        txtDirection.setEnabled(false);
-        txtDestino.setEnabled(false);
-        txtNote.setEnabled(false);
         cbEditCoord.setEnabled(false);
         btnSave.setEnabled(false);
     }
@@ -154,6 +144,11 @@ public class FrameClients extends javax.swing.JFrame {
         setTitle("Clientes");
         setIconImage(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/llamada.png")).getImage());
         setResizable(false);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel1.setText("Código:");
@@ -429,15 +424,17 @@ public class FrameClients extends javax.swing.JFrame {
                 numHouse = 0;
             }
 
-            Client newClient = new Client(txtName.getText(), txtLastName.getText(), txtPhone.getText(), txtDirection.getText(),
-                    txtSector.getText(), code, numHouse, Double.parseDouble(txtLatitud.getText()),
-                    Double.parseDouble(txtLongitud.getText()), txtReference.getText(), txtDestino.getText());
+            Client newClient = new Client(txtName.getText().toUpperCase(), txtLastName.getText().toUpperCase(), txtPhone.getText(), 
+                    txtDirection.getText().toUpperCase(), txtSector.getText().toUpperCase(), code, numHouse, 
+                    Double.parseDouble(txtLatitud.getText()), Double.parseDouble(txtLongitud.getText()), 
+                    txtReference.getText().toUpperCase(), txtDestino.getText().toUpperCase());
             if (c != null) {
                 Principal.listClient.updateClient(newClient, code);
             } else {
                 Principal.listClient.addNewClient(newClient);
             }
-            Principal.updateTableByDispatch(newClient, phoneOld, txtNote.getText());
+            Principal.updateTableByDispatch(newClient, phoneOld, txtNote.getText().toUpperCase());
+            closePortCoord();
             JOptionPane.showMessageDialog(this, "Datos Guardados Correctamente");
             this.dispose();
         } else {
@@ -470,6 +467,10 @@ public class FrameClients extends javax.swing.JFrame {
             evt.consume();
         }
     }//GEN-LAST:event_txtNumHouseKeyTyped
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        closePortCoord();
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments

@@ -11,6 +11,8 @@ import com.kradac.despachos.administration.list.ListRolUser;
 import com.kradac.despachos.administration.list.ListStateCivil;
 import com.kradac.despachos.administration.list.ListUser;
 import com.kradac.despachos.administration.User;
+import com.kradac.despachos.administration.list.ListJob;
+import com.kradac.despachos.administration.list.ListTurn;
 import com.kradac.despachos.database.DataBase;
 import com.kradac.despachos.interfaz.Principal;
 import com.kradac.despachos.methods.Functions;
@@ -28,6 +30,8 @@ public class Login extends javax.swing.JFrame {
     private final ListRolUser listRolUser;
     private final ListPerson listPerson;
     private final ListStateCivil listStateCivil;
+    private final ListJob listJob;
+    private final ListTurn listTurn;
     private int host = 0;
 
     /**
@@ -53,10 +57,14 @@ public class Login extends javax.swing.JFrame {
         
         if (isDbValid) {
             listStateCivil = bd.loadStateCivil();
-            listPerson = bd.loadPersons(listStateCivil, fileConfig, host);
+            listTurn = bd.loadTurns();
+            listJob = bd.loadJobs();
+            listPerson = bd.loadPersons(listStateCivil, listJob, fileConfig, host);
             listRolUser = bd.loadRolUser();
             listUser = bd.loadUser(listPerson, listRolUser, fileConfig, host);
         } else {
+            listTurn = null;
+            listJob = null;
             listStateCivil = null;
             listPerson = null;
             listRolUser = null;
@@ -77,7 +85,7 @@ public class Login extends javax.swing.JFrame {
         User u = listUser.existeUser(txtUser.getText(), strPass);
         
         if (u != null) {
-            Principal p = new Principal(listPerson, bd, fileConfig, u, listStateCivil, listRolUser, listUser, host);
+            Principal p = new Principal(listPerson, bd, fileConfig, u, listStateCivil, listRolUser, listUser, listJob, listTurn, host);
             p.main();
             this.dispose();
         } else {

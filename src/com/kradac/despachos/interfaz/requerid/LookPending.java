@@ -16,11 +16,13 @@ import java.util.logging.Logger;
  */
 public class LookPending extends Thread{
     private final String hora;
+    private final int code;
     private final String nombre_apellido;
     private int c = 1;
 
-    public LookPending(String hora, String nombre_apellido) {
+    public LookPending(String hora, String nombre_apellido, int code) {
         this.hora = hora;
+        this.code = code;
         this.nombre_apellido = nombre_apellido;        
     }
 
@@ -30,7 +32,7 @@ public class LookPending extends Thread{
             try {
                 if (c <= 69) {                    
                     Principal.lblMinuteSlope.setText(hora);
-                    Principal.lblClientSlope.setText(nombre_apellido);
+                    Principal.lblClientSlope.setText(code+" :: "+nombre_apellido);
                     Principal.lblSlope.setVisible(true);
                     Principal.jpSlope.setVisible(true);
                     c++;

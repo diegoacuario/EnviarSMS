@@ -23,19 +23,7 @@ public class ListZona {
     }
     
     public void addZona(Zona zona) {
-        boolean existe = false;
-        for (Zona z : getZonas()) {            
-            if (z.getIdZona() == zona.getIdZona()) {
-                existe = true;
-            }
-        }
-        
-        if (!existe)
-            getZonas().add(zona);
-        else {
-            JOptionPane.showMessageDialog(null, "No pueden haber dos Zonas con el mismo ID");
-            System.exit(0);
-        }
+        zonas.add(zona);
     }
     
     public Zona getZonaById(int idZona) {

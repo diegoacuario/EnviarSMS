@@ -22,8 +22,9 @@ public class Person {
     private StateCivil stateCivil;
     private String conyuge;
     private String image;
+    private Job job;
 
-    public Person(String cedula, String name, String lastname, String phone, String email, String direction, int numHouse, String typeSangre, StateCivil stateCivil, String conyuge, String image) {
+    public Person(String cedula, String name, String lastname, String phone, String email, String direction, int numHouse, String typeSangre, StateCivil stateCivil, String conyuge, String image, Job job) {
         this.cedula = cedula;
         this.name = name;
         this.lastname = lastname;
@@ -35,6 +36,7 @@ public class Person {
         this.stateCivil = stateCivil;
         this.conyuge = conyuge;
         this.image = image;
+        this.job = job;
     }
 
     /**
@@ -189,5 +191,19 @@ public class Person {
      */
     public void setImage(String image) {
         this.image = image;
+    }
+
+    /**
+     * @return the job
+     */
+    public Job getJob() {
+        return job;
+    }
+
+    /**
+     * @param job the job to set
+     */
+    public void setJob(Job job) {
+        this.job = job;
     }
 }

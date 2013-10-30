@@ -5,6 +5,7 @@
  */
 package com.kradac.despachos.interfaz;
 
+import com.kradac.despachos.administration.Job;
 import com.kradac.despachos.administration.Person;
 import com.kradac.despachos.administration.StateCivil;
 import com.kradac.despachos.methods.Functions;
@@ -39,6 +40,10 @@ public class FramePerson extends javax.swing.JFrame {
 
         for (StateCivil sc : Principal.listStateCivil.getStateCivils()) {
             cbxStateCivil.addItem(sc.getStateCivil());
+        }
+        
+        for (Job j : Principal.listJob.getJobs()) {
+            cbxJobs.addItem(j.getJob());
         }
     }
 
@@ -88,7 +93,8 @@ public class FramePerson extends javax.swing.JFrame {
 
             Person p = new Person(txtCedula.getText(), txtName.getText(), txtLastName.getText(), txtPhone.getText(), txtEmail.getText(),
                     txtDirection.getText(), numHouse, txtTypeSangre.getText(),
-                    Principal.listStateCivil.getStateCivilByState(cbxStateCivil.getSelectedItem().toString()), txtConyugue.getText(), "");
+                    Principal.listStateCivil.getStateCivilByState(cbxStateCivil.getSelectedItem().toString()), txtConyugue.getText(), "",
+                    Principal.listJob.getJobByName(cbxJobs.getSelectedItem().toString()));
             int insert = Principal.listPerson.addNewPerson(p);
             if (insert == 0) {
                 JOptionPane.showMessageDialog(this, "La persona ya existe.", "ERROR", JOptionPane.ERROR_MESSAGE);
@@ -140,6 +146,8 @@ public class FramePerson extends javax.swing.JFrame {
         lblImage = new javax.swing.JLabel();
         btnLoadImage = new javax.swing.JButton();
         cbxStateCivil = new javax.swing.JComboBox();
+        jLabel12 = new javax.swing.JLabel();
+        cbxJobs = new javax.swing.JComboBox();
         btnRefresh = new javax.swing.JButton();
         btnAdd = new javax.swing.JButton();
         btnDelete = new javax.swing.JButton();
@@ -263,6 +271,8 @@ public class FramePerson extends javax.swing.JFrame {
         btnLoadImage.setText("Cargar Foto");
         btnLoadImage.setEnabled(false);
 
+        jLabel12.setText("Trabajo");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -301,14 +311,17 @@ public class FramePerson extends javax.swing.JFrame {
                         .addGroup(jPanel1Layout.createSequentialGroup()
                             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(jLabel10)
-                                .addComponent(jLabel11))
+                                .addComponent(jLabel11)
+                                .addComponent(jLabel12))
                             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addGroup(jPanel1Layout.createSequentialGroup()
                                     .addGap(17, 17, 17)
                                     .addComponent(txtConyugue, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGroup(jPanel1Layout.createSequentialGroup()
                                     .addGap(18, 18, 18)
-                                    .addComponent(cbxStateCivil, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                        .addComponent(cbxJobs, javax.swing.GroupLayout.Alignment.LEADING, 0, 144, Short.MAX_VALUE)
+                                        .addComponent(cbxStateCivil, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                             .addGap(0, 0, Short.MAX_VALUE)))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(btnLoadImage)
@@ -357,6 +370,10 @@ public class FramePerson extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel11)
                     .addComponent(cbxStateCivil, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel12)
+                    .addComponent(cbxJobs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnLoadImage)
@@ -464,7 +481,8 @@ public class FramePerson extends javax.swing.JFrame {
             txtDirection.setText(p.getDirection());
             txtNumHouse.setText("" + p.getNumHouse());
             txtTypeSangre.setText(p.getTypeSangre());
-            cbxStateCivil.setSelectedIndex(p.getStateCivil().getIdStateCivil() - 1);
+            cbxStateCivil.setSelectedItem(p.getStateCivil().getStateCivil());
+            cbxJobs.setSelectedItem(p.getJob().getJob());
             txtConyugue.setText(p.getConyuge());
 
             btnRefresh.setEnabled(true);
@@ -492,7 +510,8 @@ public class FramePerson extends javax.swing.JFrame {
 
         Person p = new Person(cedula, name, lastName, txtPhone.getText(), txtEmail.getText(),
                 txtDirection.getText(), numHouse, txtTypeSangre.getText(),
-                Principal.listStateCivil.getStateCivilByState(cbxStateCivil.getSelectedItem().toString()), txtConyugue.getText(), "");
+                Principal.listStateCivil.getStateCivilByState(cbxStateCivil.getSelectedItem().toString()), txtConyugue.getText(), "",
+                Principal.listJob.getJobByName(cbxJobs.getSelectedItem().toString()));
 
         if (Principal.listPerson.updatePerson(p, tblPerson.getValueAt(rowSelected, 0).toString())) {
             modelTablePerson.setValueAt(cedula, rowSelected, 0);
@@ -647,10 +666,12 @@ public class FramePerson extends javax.swing.JFrame {
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnLoadImage;
     private javax.swing.JButton btnRefresh;
+    private javax.swing.JComboBox cbxJobs;
     private javax.swing.JComboBox cbxStateCivil;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
