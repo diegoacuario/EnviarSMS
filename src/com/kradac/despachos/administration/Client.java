@@ -37,19 +37,6 @@ public class Client {
         this.destino = destino;
     }
 
-    public Client(String name, String lastname, String phone, String direction, String sector, int code, int numHouse, double latitud, double longitud, String reference) {        
-        this.name = name;
-        this.lastname = lastname;
-        this.phone = phone;
-        this.direction = direction;
-        this.sector = sector;
-        this.code = code;
-        this.numHouse = numHouse;
-        this.latitud = latitud;
-        this.longitud = longitud;
-        this.reference = reference;
-    }
-
     /**
      * @return the name
      */

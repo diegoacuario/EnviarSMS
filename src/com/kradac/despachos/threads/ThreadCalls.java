@@ -8,6 +8,7 @@ package com.kradac.despachos.threads;
 
 import com.kradac.despachos.database.DataBase;
 import com.kradac.despachos.interfaz.Principal;
+import com.kradac.despachos.methods.Functions;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,25 +16,19 @@ import java.util.logging.Logger;
  *
  * @author Dalton
  */
-public class ThreadBloqueos extends Thread{
-    int c = 0;
+public class ThreadCalls extends Thread{
 
     @Override
     public void run() {
         while (true) {            
             try {
-                if (c == 0) {
-                    DataBase db = new DataBase(Principal.fileConfig, Principal.numHost);
-                    db.getStateVehiculoPendientePago();
-                    db.closeConexion();
-                }
-                c++;
-                if (c == 10) {
-                    c = 0;
-                }
-                sleep(1000);
+                DataBase db = new DataBase(Principal.fileConfig, Principal.numHost);
+                
+                db.loadCall(Principal.listCall, Functions.getDate()+" "+Functions.getTime());
+                db.closeConexion();
+                sleep(2000);
             } catch (InterruptedException ex) {
-                Logger.getLogger(ThreadBloqueos.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ThreadCalls.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }

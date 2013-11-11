@@ -56,7 +56,7 @@ public class FrameVehiculos extends javax.swing.JFrame {
         String[] dataVeh = {
             v.getVehiculo() + "",
             v.getPlaca(),
-            v.getConductor().getName()+ " " +v.getConductor().getLastname()
+            v.getConductor().getLastname()+ " " +v.getConductor().getName()
         };
         return dataVeh;
     }
@@ -164,7 +164,7 @@ public class FrameVehiculos extends javax.swing.JFrame {
         btnClear = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Personas");
+        setTitle("Vehiculos");
         setIconImage(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/persons.png")).getImage());
         setResizable(false);
 

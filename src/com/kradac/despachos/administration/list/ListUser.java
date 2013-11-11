@@ -24,7 +24,7 @@ public class ListUser {
 
     public ListUser() {
         this.users = new ArrayList<>();
-        this.db = new DataBase(Principal.fileConfig, Principal.host);
+        this.db = new DataBase(Principal.fileConfig, Principal.numHost);
     }
 
     public ListUser(Properties p, int numHost) {
@@ -64,7 +64,6 @@ public class ListUser {
         if (existe == -1) {
             if (db.insertUser(user)) {
                 existe = 1;
-                db.closeConexion();
                 users.add(user);
             }
         }

@@ -23,7 +23,7 @@ public class ListClients {
 
     public ListClients() {
         clients = new ArrayList<>();
-        db = new DataBase(Principal.fileConfig, Principal.host);
+        db = new DataBase(Principal.fileConfig, Principal.numHost);
     }
 
     /**
@@ -43,9 +43,7 @@ public class ListClients {
 
         if (estado == -1) {
             if (db.insertClient(client)) {
-                System.out.println("insertando");
                 estado = 1;//CUANDO SE HA GUARDADO
-                db.closeConexion();
                 clients.add(client);
             }
         }
@@ -130,7 +128,12 @@ public class ListClients {
     }
     
     public int getCodeAleatorio(){
-        for (int i = 0; i < getSize(); i++) {
+        int start = 0;
+        if (Principal.company.getIdCompany().equals("QLB")) {
+            start = 27400;
+        }
+        
+        for (int i = start; i < getSize(); i++) {
             Client c = getClientByCode(i);
             if (c == null) {
                 return i;

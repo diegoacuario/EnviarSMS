@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Clientes" language="groovy" pageWidth="595" pageHeight="842" columnWidth="426" leftMargin="99" rightMargin="70" topMargin="70" bottomMargin="70">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="empresa" class="java.lang.String"/>
+	<parameter name="sql" class="java.lang.String">
+		<defaultValueExpression><![CDATA["SELECT"
++ " clients.`phone` AS CLIENTES_TELEFONO,"
++ " clients.`code` AS CLIENTES_CODIGO,"
++ " clients.`name` AS CLIENTES_NOMBRE_APELLIDO_CLI,"
++ " clients.`direction` AS CLIENTES_DIRECCION_CLI,"
++ " clients.`sector` AS CLIENTES_SECTOR,"
++ " clients.`reference` AS CLIENTES_INFOR_ADICIONAL,"
++ " clients.`num_house` AS CLIENTES_NUM_CASA_CLI "
++ " FROM  `clients` clients"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="cod" class="java.lang.Integer"/>
+	<parameter name="tel" class="java.lang.String"/>
+	<parameter name="nom" class="java.lang.String"/>
+	<parameter name="usuario" class="java.lang.String"/>
+	<parameter name="fechaIni" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="horaIni" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[$P!{sql}]]>
+	</queryString>
+	<field name="CLIENTES_TELEFONO" class="java.lang.String"/>
+	<field name="CLIENTES_CODIGO" class="java.lang.Integer"/>
+	<field name="CLIENTES_NOMBRE_APELLIDO_CLI" class="java.lang.String"/>
+	<field name="CLIENTES_DIRECCION_CLI" class="java.lang.String"/>
+	<field name="CLIENTES_SECTOR" class="java.lang.String"/>
+	<field name="CLIENTES_INFOR_ADICIONAL" class="java.lang.String"/>
+	<field name="CLIENTES_NUM_CASA_CLI" class="java.lang.Integer"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="69" splitType="Stretch">
+			<staticText>
+				<reportElement x="67" y="0" width="273" height="24"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="18"/>
+				</textElement>
+				<text><![CDATA[Cooperativa de Taxis]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="67" y="24" width="259" height="27"/>
+				<textElement textAlignment="Center">
+					<font size="20"/>
+				</textElement>
+				<textFieldExpression><![CDATA["\""+$P{empresa}+"\""]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="195" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="67" height="16"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Código:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="16" width="67" height="16"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nombre:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="62" width="67" height="15"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Dirección:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="32" width="67" height="16"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Teléfono:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="47" width="67" height="15"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Barrio:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="109" width="67" height="15"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Referencia:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="67" y="0" width="63" height="16"/>
+				<textElement textAlignment="Left">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CLIENTES_CODIGO}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="67" y="16" width="359" height="16"/>
+				<textFieldExpression><![CDATA[$F{CLIENTES_NOMBRE_APELLIDO_CLI}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="67" y="32" width="79" height="16"/>
+				<textFieldExpression><![CDATA[$F{CLIENTES_TELEFONO}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="67" y="62" width="359" height="15"/>
+				<textFieldExpression><![CDATA[$F{CLIENTES_DIRECCION_CLI}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="67" y="47" width="169" height="15"/>
+				<textFieldExpression><![CDATA[$F{CLIENTES_SECTOR}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="67" y="110" width="359" height="49"/>
+				<textElement textAlignment="Justified"/>
+				<textFieldExpression><![CDATA[$F{CLIENTES_INFOR_ADICIONAL}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="251" y="46" width="75" height="16"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Número Casa:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="340" y="46" width="86" height="16"/>
+				<textFieldExpression><![CDATA[$F{CLIENTES_NUM_CASA_CLI}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="77" width="67" height="16"/>
+				<text><![CDATA[Fecha:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="93" width="67" height="17"/>
+				<text><![CDATA[Hora:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="67" y="77" width="184" height="16"/>
+				<textFieldExpression><![CDATA[$P{fechaIni}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="67" y="93" width="184" height="16"/>
+				<textFieldExpression><![CDATA[$P{horaIni}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="22" splitType="Stretch">
+			<textField>
+				<reportElement x="326" y="0" width="100" height="22"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField pattern="yyyy/MM/dd">
+				<reportElement x="0" y="0" width="100" height="22"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="76" splitType="Stretch">
+			<textField>
+				<reportElement x="120" y="9" width="190" height="28"/>
+				<textElement verticalAlignment="Bottom">
+					<font size="16" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="19" width="120" height="20"/>
+				<textElement verticalAlignment="Bottom"/>
+				<text><![CDATA[Total de clientes:]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>

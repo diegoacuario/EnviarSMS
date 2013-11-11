@@ -3,13 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package com.kradac.despachos.interfaz;
 
 import com.kradac.despachos.administration.Client;
 import com.kradac.despachos.administration.Pending;
+import com.kradac.despachos.administration.PendingDiarios;
 import com.kradac.despachos.database.DataBase;
-import com.kradac.despachos.methods.Functions;
 import java.awt.Toolkit;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -26,45 +25,50 @@ import javax.swing.text.DefaultFormatterFactory;
  * @author Dalton
  */
 public class FramePending extends javax.swing.JFrame {
+
     private DefaultTableModel modelTablePending;
     private DataBase bd;
-    SimpleDateFormat formatoHora = new SimpleDateFormat("HH:mm:ss");
+    SimpleDateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd");
+    SimpleDateFormat formatTime = new SimpleDateFormat("HH:mm:ss");
 
     /**
      * Creates new form FramePending
      */
     public FramePending() {
         initComponents();
-        bd = new DataBase(Principal.fileConfig, Principal.host);
+        bd = new DataBase(Principal.fileConfig, Principal.numHost);
         loadComponent();
     }
-    
+
     private void loadComponent() {
+        GregorianCalendar gc = new GregorianCalendar();
+        
         modelTablePending = (DefaultTableModel) tblPending.getModel();
         for (Pending p : Principal.listPending.getPendings()) {
             modelTablePending.addRow(changeToArrayPending(p));
         }
-        
+
         JFormattedTextField textField = ((JSpinner.DefaultEditor) jsTime.getEditor()).getTextField();
         JFormattedTextField textField2 = ((JSpinner.DefaultEditor) jsRemember.getEditor()).getTextField();
-        
+
         DefaultFormatterFactory dff = (DefaultFormatterFactory) textField.getFormatterFactory();
         DefaultFormatterFactory dff2 = (DefaultFormatterFactory) textField2.getFormatterFactory();
-        
+
         DateFormatter formatter = (DateFormatter) dff.getDefaultFormatter();
         DateFormatter formatter2 = (DateFormatter) dff2.getDefaultFormatter();
-        
-        formatter.setFormat(new SimpleDateFormat("HH:mm:ss"));
-        formatter2.setFormat(new SimpleDateFormat("HH:mm:ss"));
 
-        jsTime.setValue((new GregorianCalendar()).getTime());
-        jsRemember.setValue((new GregorianCalendar().getTime()));
-        txtDate.setText(Functions.getDate());
+        formatter.setFormat(formatTime);
+        formatter2.setFormat(formatTime);
+        
+        jsTime.setValue(gc.getTime());
+        jsRemember.setValue(gc.getTime());
+        jdDate.setFormats(formatDate);
+        jdDate.setDate(gc.getTime());
     }
-    
+
     private String[] changeToArrayPending(Pending p) {
         String[] dataPending = {
-            p.getCode()+"",
+            p.getCode() + "",
             p.getDate(),
             p.getTime(),
             p.getRemember(),
@@ -82,6 +86,9 @@ public class FramePending extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        jTabbedPane2 = new javax.swing.JTabbedPane();
+        jPanel3 = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         txtCode = new javax.swing.JTextField();
@@ -98,12 +105,39 @@ public class FramePending extends javax.swing.JFrame {
         jsTime = new javax.swing.JSpinner();
         jLabel9 = new javax.swing.JLabel();
         jsRemember = new javax.swing.JSpinner();
-        txtDate = new javax.swing.JTextField();
-        btnExit = new javax.swing.JButton();
+        jdDate = new org.jdesktop.swingx.JXDatePicker();
         btnSave = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblPending = new javax.swing.JTable();
         btnDelete = new javax.swing.JButton();
+        btnExit = new javax.swing.JButton();
+        jPanel4 = new javax.swing.JPanel();
+        jPanel5 = new javax.swing.JPanel();
+        jLabel6 = new javax.swing.JLabel();
+        txtCodeDiario = new javax.swing.JTextField();
+        jLabel8 = new javax.swing.JLabel();
+        txtPhoneDiario = new javax.swing.JTextField();
+        txtClienteDiario = new javax.swing.JTextField();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        txtNoteDiario = new javax.swing.JTextArea();
+        jPanel6 = new javax.swing.JPanel();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        jsTimeDiiario = new javax.swing.JSpinner();
+        jLabel14 = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
+        txtCantRemember = new javax.swing.JTextField();
+        cbxRememberTime = new javax.swing.JComboBox();
+        jLabel16 = new javax.swing.JLabel();
+        jdDateStart = new org.jdesktop.swingx.JXDatePicker();
+        jdDateFinish = new org.jdesktop.swingx.JXDatePicker();
+        btnSaveDiario = new javax.swing.JButton();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        tblPendingDiario = new javax.swing.JTable();
+        btnDeleteDiario = new javax.swing.JButton();
+        btnExitDiario = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Despachos Pendientes");
@@ -123,11 +157,11 @@ public class FramePending extends javax.swing.JFrame {
             }
         });
         txtCode.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                txtCodeFocusGained(evt);
-            }
             public void focusLost(java.awt.event.FocusEvent evt) {
                 txtCodeFocusLost(evt);
+            }
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                txtCodeFocusGained(evt);
             }
         });
         txtCode.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -230,6 +264,12 @@ public class FramePending extends javax.swing.JFrame {
 
         jsRemember.setModel(new javax.swing.SpinnerDateModel(new java.util.Date(), null, null, java.util.Calendar.MINUTE));
 
+        jdDate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jdDateActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -242,9 +282,9 @@ public class FramePending extends javax.swing.JFrame {
                     .addComponent(jLabel9))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jsRemember, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
-                    .addComponent(jsTime, javax.swing.GroupLayout.PREFERRED_SIZE, 115, Short.MAX_VALUE)
-                    .addComponent(txtDate))
+                    .addComponent(jsRemember, javax.swing.GroupLayout.DEFAULT_SIZE, 154, Short.MAX_VALUE)
+                    .addComponent(jsTime)
+                    .addComponent(jdDate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -252,9 +292,7 @@ public class FramePending extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel3)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(2, 2, 2)
-                        .addComponent(txtDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jdDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
@@ -263,16 +301,8 @@ public class FramePending extends javax.swing.JFrame {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel9)
                     .addComponent(jsRemember, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(29, Short.MAX_VALUE))
+                .addContainerGap(36, Short.MAX_VALUE))
         );
-
-        btnExit.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/cancelar.png"))); // NOI18N
-        btnExit.setText("Cerrar");
-        btnExit.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnExitActionPerformed(evt);
-            }
-        });
 
         btnSave.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/guardar.png"))); // NOI18N
         btnSave.setText("Guardar");
@@ -322,47 +352,360 @@ public class FramePending extends javax.swing.JFrame {
             }
         });
 
+        btnExit.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/cancelar.png"))); // NOI18N
+        btnExit.setText("Cerrar");
+        btnExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExitActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 753, Short.MAX_VALUE)
+            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel3Layout.createSequentialGroup()
+                    .addContainerGap()
+                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel3Layout.createSequentialGroup()
+                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGap(8, 8, 8))
+                        .addGroup(jPanel3Layout.createSequentialGroup()
+                            .addGap(0, 0, Short.MAX_VALUE)
+                            .addComponent(btnDelete)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(btnExit))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGroup(jPanel3Layout.createSequentialGroup()
+                            .addComponent(btnSave)
+                            .addGap(595, 595, 595)))
+                    .addContainerGap()))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 491, Short.MAX_VALUE)
+            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel3Layout.createSequentialGroup()
+                    .addContainerGap()
+                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(btnSave)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnExit, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addContainerGap()))
+        );
+
+        jTabbedPane2.addTab("Pendiente Unico", jPanel3);
+
+        jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder("Información del cliente"));
+
+        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel6.setText("Codigo:");
+
+        txtCodeDiario.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtCodeDiario.setToolTipText("Ingresar el codigo del cliente a buscar...");
+        txtCodeDiario.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtCodeDiarioActionPerformed(evt);
+            }
+        });
+        txtCodeDiario.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                txtCodeDiarioFocusLost(evt);
+            }
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                txtCodeDiarioFocusGained(evt);
+            }
+        });
+        txtCodeDiario.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtCodeDiarioKeyPressed(evt);
+            }
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtCodeDiarioKeyTyped(evt);
+            }
+        });
+
+        jLabel8.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel8.setText("Teléfono:");
+
+        txtPhoneDiario.setEditable(false);
+        txtPhoneDiario.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+
+        txtClienteDiario.setEditable(false);
+
+        jLabel10.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel10.setText("Cliente:");
+
+        jLabel11.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel11.setText("Nota:");
+
+        txtNoteDiario.setColumns(20);
+        txtNoteDiario.setLineWrap(true);
+        txtNoteDiario.setRows(2);
+        txtNoteDiario.setTabSize(0);
+        txtNoteDiario.setMargin(new java.awt.Insets(3, 3, 3, 3));
+        txtNoteDiario.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                txtNoteDiarioFocusLost(evt);
+            }
+        });
+        txtNoteDiario.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtNoteDiarioKeyPressed(evt);
+            }
+        });
+        jScrollPane3.setViewportView(txtNoteDiario);
+
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addComponent(jLabel6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(txtCodeDiario, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(30, 30, 30)
+                        .addComponent(jLabel8)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(txtPhoneDiario, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE))
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel10)
+                            .addComponent(jLabel11))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane3)
+                            .addComponent(txtClienteDiario))))
+                .addContainerGap())
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(txtCodeDiario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel8)
+                    .addComponent(txtPhoneDiario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel10)
+                    .addComponent(txtClienteDiario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGap(29, 29, 29)
+                        .addComponent(jLabel11))
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder("Información de pendiente"));
+        jPanel6.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+
+        jLabel12.setText("Fecha Inicial:");
+
+        jLabel13.setText("Hora:");
+
+        jsTimeDiiario.setModel(new javax.swing.SpinnerDateModel(new java.util.Date(), null, null, java.util.Calendar.MINUTE));
+
+        jLabel14.setText("Recordar:");
+
+        jLabel15.setText("Fecha Final:");
+
+        txtCantRemember.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        txtCantRemember.setText("1");
+
+        cbxRememberTime.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Lunes - Domingo", "Lunes - Viernes" }));
+
+        jLabel16.setText("Días:");
+
+        jdDateStart.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jdDateStartActionPerformed(evt);
+            }
+        });
+
+        jdDateFinish.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jdDateFinishActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel13)
+                    .addComponent(jLabel12)
+                    .addComponent(jLabel14)
+                    .addComponent(jLabel15)
+                    .addComponent(jLabel16))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(cbxRememberTime, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jsTimeDiiario, javax.swing.GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE)
+                    .addComponent(txtCantRemember, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jdDateStart, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jdDateFinish, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel12)
+                    .addComponent(jdDateStart, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(10, 10, 10)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel15)
+                    .addComponent(jdDateFinish, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel13)
+                    .addComponent(jsTimeDiiario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel14)
+                    .addComponent(txtCantRemember, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel16)
+                    .addComponent(cbxRememberTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        btnSaveDiario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/guardar.png"))); // NOI18N
+        btnSaveDiario.setText("Guardar");
+        btnSaveDiario.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveDiarioActionPerformed(evt);
+            }
+        });
+
+        tblPendingDiario.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Código", "Fecha de Inicio", "Fecha de Fin", "Hora", "Min. Antes", "Recordar", "Nota"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tblPendingDiario.setShowVerticalLines(false);
+        jScrollPane4.setViewportView(tblPendingDiario);
+        if (tblPendingDiario.getColumnModel().getColumnCount() > 0) {
+            tblPendingDiario.getColumnModel().getColumn(0).setPreferredWidth(25);
+            tblPendingDiario.getColumnModel().getColumn(1).setPreferredWidth(25);
+            tblPendingDiario.getColumnModel().getColumn(3).setPreferredWidth(25);
+            tblPendingDiario.getColumnModel().getColumn(5).setPreferredWidth(25);
+        }
+
+        btnDeleteDiario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/eliminar.png"))); // NOI18N
+        btnDeleteDiario.setText("Eliminar");
+        btnDeleteDiario.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteDiarioActionPerformed(evt);
+            }
+        });
+
+        btnExitDiario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/cancelar.png"))); // NOI18N
+        btnExitDiario.setText("Cerrar");
+        btnExitDiario.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExitDiarioActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 753, Short.MAX_VALUE)
+            .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel4Layout.createSequentialGroup()
+                    .addContainerGap()
+                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel4Layout.createSequentialGroup()
+                            .addGap(0, 0, Short.MAX_VALUE)
+                            .addComponent(btnDeleteDiario)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(btnExitDiario))
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGroup(jPanel4Layout.createSequentialGroup()
+                            .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(btnSaveDiario))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addContainerGap()))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 491, Short.MAX_VALUE)
+            .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel4Layout.createSequentialGroup()
+                    .addContainerGap()
+                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(jPanel4Layout.createSequentialGroup()
+                            .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(btnSaveDiario))
+                        .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnExitDiario, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnDeleteDiario, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addContainerGap()))
+        );
+
+        jTabbedPane2.addTab("Pendiente Diario", jPanel4);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(18, 18, 18))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(btnDelete)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(btnExit))
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 702, Short.MAX_VALUE))
-                        .addContainerGap())
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnSave)
-                        .addGap(0, 0, Short.MAX_VALUE))))
+                .addComponent(jTabbedPane2)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnSave)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnExit, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+            .addComponent(jTabbedPane2)
         );
 
         pack();
@@ -371,27 +714,27 @@ public class FramePending extends javax.swing.JFrame {
     private void txtCodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCodeActionPerformed
         Client c = Principal.listClient.getClientByCode(Integer.parseInt(txtCode.getText()));
         txtPhone.setText(c.getPhone());
-        txtCliente.setText(c.getName()+" "+c.getLastname());
+        txtCliente.setText(c.getName() + " " + c.getLastname());
     }//GEN-LAST:event_txtCodeActionPerformed
 
     private void txtCodeFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtCodeFocusGained
-        
+
     }//GEN-LAST:event_txtCodeFocusGained
 
     private void txtCodeFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtCodeFocusLost
-        
+
     }//GEN-LAST:event_txtCodeFocusLost
 
     private void txtCodeKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCodeKeyPressed
-        
+
     }//GEN-LAST:event_txtCodeKeyPressed
 
     private void txtNoteFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtNoteFocusLost
-        
+
     }//GEN-LAST:event_txtNoteFocusLost
 
     private void txtNoteKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNoteKeyPressed
-        
+
     }//GEN-LAST:event_txtNoteKeyPressed
 
     private void btnExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExitActionPerformed
@@ -399,20 +742,14 @@ public class FramePending extends javax.swing.JFrame {
     }//GEN-LAST:event_btnExitActionPerformed
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-        /*SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
-                pendiente.setFecha(formato.format(jDFecha.getDate()));                
-                SimpleDateFormat formatoHora = new SimpleDateFormat("HH:mm:ss");
-                pendiente.setHora(formatoHora.format(((Date) jSHora.getValue())));
-                pendiente.setRecordar(formatoHora.format(((Date) jSRecordar.getValue())));*/
         if (!txtCode.getText().equals("")) {
-            Pending p = new Pending(Integer.parseInt(txtCode.getText()), 
-                    txtCliente.getText(), txtPhone.getText(), txtDate.getText(), formatoHora.format((Date) jsTime.getValue()), 
-                    txtNote.getText(), formatoHora.format((Date) jsRemember.getValue()));
-            
+            Pending p = new Pending(Integer.parseInt(txtCode.getText()),
+                    txtCliente.getText(), txtPhone.getText(), formatDate.format(jdDate.getDate()), formatTime.format((Date) jsTime.getValue()),
+                    txtNote.getText(), formatTime.format((Date) jsRemember.getValue()));
+
             if (bd.insertPendign(p)) {
                 Principal.listPending.addPending(p);
                 modelTablePending.insertRow(0, changeToArrayPending(p));
-
 
                 txtCode.setText("");
                 txtCliente.setText("");
@@ -447,6 +784,82 @@ public class FramePending extends javax.swing.JFrame {
             evt.consume();
         }
     }//GEN-LAST:event_txtCodeKeyTyped
+
+    private void txtCodeDiarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCodeDiarioActionPerformed
+        Client c = Principal.listClient.getClientByCode(Integer.parseInt(txtCodeDiario.getText()));
+        txtPhoneDiario.setText(c.getPhone());
+        txtClienteDiario.setText(c.getName() + " " + c.getLastname());
+    }//GEN-LAST:event_txtCodeDiarioActionPerformed
+
+    private void txtCodeDiarioFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtCodeDiarioFocusGained
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtCodeDiarioFocusGained
+
+    private void txtCodeDiarioFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtCodeDiarioFocusLost
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtCodeDiarioFocusLost
+
+    private void txtCodeDiarioKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCodeDiarioKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtCodeDiarioKeyPressed
+
+    private void txtCodeDiarioKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCodeDiarioKeyTyped
+        if (!Character.isDigit(evt.getKeyChar()) && !Character.isISOControl(evt.getKeyChar())) {
+            Toolkit.getDefaultToolkit().beep();
+            evt.consume();
+        }
+    }//GEN-LAST:event_txtCodeDiarioKeyTyped
+
+    private void txtNoteDiarioFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtNoteDiarioFocusLost
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtNoteDiarioFocusLost
+
+    private void txtNoteDiarioKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNoteDiarioKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtNoteDiarioKeyPressed
+
+    private void btnSaveDiarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveDiarioActionPerformed
+        if (!txtCodeDiario.getText().equals("")) {
+            PendingDiarios p = new PendingDiarios(Integer.parseInt(txtCode.getText()), txtCliente.getText(),
+                    formatDate.format(jdDateStart.getDate()), formatDate.format(jdDateFinish.getDate()), formatTime.format((Date) jsTime.getValue()),
+                    txtNote.getText(), Integer.parseInt(txtCantRemember.getText()), cbxRememberTime.getSelectedItem().toString(),
+                    txtPhone.getText());
+
+            /*if (bd.insertPendign(p)) {
+             Principal.listPending.addPending(p);
+             modelTablePending.insertRow(0, changeToArrayPending(p));
+
+             txtCode.setText("");
+             txtCliente.setText("");
+             txtPhone.setText("");
+             txtNote.setText("");
+             } else {
+             JOptionPane.showMessageDialog(this, "No se pudo Ingresar Depsacho Pendiente", "ERROR", JOptionPane.ERROR_MESSAGE);
+             }*/
+        } else {
+            JOptionPane.showMessageDialog(this, "Debe ingresar un Codigo de Cliente", "ERROR", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnSaveDiarioActionPerformed
+
+    private void btnDeleteDiarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteDiarioActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnDeleteDiarioActionPerformed
+
+    private void btnExitDiarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExitDiarioActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnExitDiarioActionPerformed
+
+    private void jdDateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jdDateActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jdDateActionPerformed
+
+    private void jdDateStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jdDateStartActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jdDateStartActionPerformed
+
+    private void jdDateFinishActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jdDateFinishActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jdDateFinishActionPerformed
 
     /**
      * @param args the command line arguments
@@ -485,26 +898,56 @@ public class FramePending extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnDelete;
+    private javax.swing.JButton btnDeleteDiario;
     private javax.swing.JButton btnExit;
+    private javax.swing.JButton btnExitDiario;
     private javax.swing.JButton btnSave;
+    private javax.swing.JButton btnSaveDiario;
+    private javax.swing.JComboBox cbxRememberTime;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTabbedPane jTabbedPane2;
+    private org.jdesktop.swingx.JXDatePicker jdDate;
+    private org.jdesktop.swingx.JXDatePicker jdDateFinish;
+    private org.jdesktop.swingx.JXDatePicker jdDateStart;
     private javax.swing.JSpinner jsRemember;
     private javax.swing.JSpinner jsTime;
+    private javax.swing.JSpinner jsTimeDiiario;
     private javax.swing.JTable tblPending;
+    private javax.swing.JTable tblPendingDiario;
+    private javax.swing.JTextField txtCantRemember;
     private static javax.swing.JTextField txtCliente;
+    private static javax.swing.JTextField txtClienteDiario;
     private static javax.swing.JTextField txtCode;
-    private javax.swing.JTextField txtDate;
+    private static javax.swing.JTextField txtCodeDiario;
     private static javax.swing.JTextArea txtNote;
+    private static javax.swing.JTextArea txtNoteDiario;
     private static javax.swing.JTextField txtPhone;
+    private static javax.swing.JTextField txtPhoneDiario;
     // End of variables declaration//GEN-END:variables
 }

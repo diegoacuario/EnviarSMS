@@ -1,5 +1,6 @@
 package com.kradac.despachos.threads;
 
+import com.kradac.despachos.database.DataBase;
 import com.kradac.despachos.interfaz.Principal;
 
 /*
@@ -20,7 +21,9 @@ public class ThreadClient extends Thread {
 
     @Override
     public void run() {
-        Principal.listClient = Principal.bd.loadClients();
+        DataBase db = new DataBase(Principal.fileConfig, Principal.numHost);
+        Principal.listClient = db.loadClients();
+        db.closeConexion();
     }
     
 }

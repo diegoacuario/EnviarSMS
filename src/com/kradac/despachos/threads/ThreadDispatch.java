@@ -15,25 +15,18 @@ import java.util.logging.Logger;
  *
  * @author Dalton
  */
-public class ThreadBloqueos extends Thread{
-    int c = 0;
+public class ThreadDispatch extends Thread{
 
     @Override
     public void run() {
         while (true) {            
             try {
-                if (c == 0) {
-                    DataBase db = new DataBase(Principal.fileConfig, Principal.numHost);
-                    db.getStateVehiculoPendientePago();
-                    db.closeConexion();
-                }
-                c++;
-                if (c == 10) {
-                    c = 0;
-                }
-                sleep(1000);
+                DataBase db = new DataBase(Principal.fileConfig, Principal.numHost);
+                db.loadDispatchClient(Principal.listDispatch);
+                db.closeConexion();
+                sleep(2000);
             } catch (InterruptedException ex) {
-                Logger.getLogger(ThreadBloqueos.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ThreadDispatch.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }

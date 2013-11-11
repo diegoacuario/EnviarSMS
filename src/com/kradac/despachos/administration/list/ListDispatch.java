@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package com.kradac.despachos.administration.list;
 
 import com.kradac.despachos.administration.Dispatch;
@@ -18,16 +17,34 @@ import java.util.List;
  * @author Dalton
  */
 public class ListDispatch {
+
     private List<Dispatch> dispatchs;
 
     public ListDispatch() {
-        dispatchs = new ArrayList<>();
+        dispatchs = new ArrayList();
     }
-    
+
     public void addDispatch(Dispatch dispatch) {
-        getDispatchs().add(dispatch);
+        dispatchs.add(dispatch);
     }
-    
+
+    public void addDispatchClient(Dispatch dispatch) {
+        boolean existe = false;
+        for (Dispatch p : dispatchs) {
+            if ((p.getDate() + " " + p.getTime()).equals(dispatch.getDate() + " " + dispatch.getTime())) {
+                existe = true;
+                break;
+            }
+        }
+        if (!existe) {
+            dispatchs.add(dispatch);
+            Principal.modelTableDispatch2.insertRow(0, changeToArrayDispatch(dispatch));
+            Principal.modelTableDispatch.insertRow(0, changeToArrayDispatch(dispatch));
+            Principal.listVehiculos.setCodeTaxyByEtiqueta(dispatch.getVehiculo(), Principal.listCodesTaxy.getCodesTaxyById("OCU"));
+            //Principal.redimencionarTableVehiculos();
+            Principal.showDispatch();
+        }
+    }
 
     /**
      * @return the dispatchs
@@ -35,24 +52,24 @@ public class ListDispatch {
     public List<Dispatch> getDispatchs() {
         return dispatchs;
     }
-    
-    public Dispatch getLastDispatch(){
+
+    public Dispatch getLastDispatch() {
         Dispatch d = null;
         int cantDispatch = dispatchs.size();
         if (cantDispatch > 0) {
-            d = dispatchs.get(dispatchs.size()-1); 
+            d = dispatchs.get(dispatchs.size() - 1);
         }
         return d;
     }
-    
-    public void loadDispatch(){
+
+    public void loadDispatch() {
         for (Dispatch p : dispatchs) {
             Principal.modelTableDispatch2.insertRow(0, changeToArrayDispatch(p));
             Principal.modelTableDispatch.insertRow(0, changeToArrayDispatch(p));
         }
     }
-    
-    public void loadDispatchByClient(String client){
+
+    public void loadDispatchByClient(String client) {
         clearTableDispatch();
         for (Dispatch p : dispatchs) {
             if (p.getClient().toUpperCase().contains(client.toUpperCase())) {
@@ -60,8 +77,8 @@ public class ListDispatch {
             }
         }
     }
-    
-    public void loadDispatchByCode(int code){
+
+    public void loadDispatchByCode(int code) {
         clearTableDispatch();
         for (Dispatch p : dispatchs) {
             if (p.getCode() == code) {
@@ -69,8 +86,8 @@ public class ListDispatch {
             }
         }
     }
-    
-    public void loadDispatchByPhone(String phone){
+
+    public void loadDispatchByPhone(String phone) {
         clearTableDispatch();
         for (Dispatch p : dispatchs) {
             if (p.getPhone().equals(phone)) {
@@ -78,7 +95,7 @@ public class ListDispatch {
             }
         }
     }
-    
+
     public String[] changeToArrayDispatch(Dispatch dispatch) {
         String[] dataDispatch = {
             dispatch.getTime(),
@@ -96,7 +113,7 @@ public class ListDispatch {
         };
         return dataDispatch;
     }
-    
+
     public int getDispatchByDayVeh(int vehiculo) {
         int c = 0;
         String dateNow = Functions.getDate();
@@ -107,7 +124,29 @@ public class ListDispatch {
         }
         return c;
     }
-    
+
+    public int getDispatchByTurnVeh(int vehiculo) {
+        int size = 0;
+        Turn t = Principal.listTurn.getTurnByTimeNow();
+        String dateNow = Functions.getDate();
+        String dateBack = Functions.getDateBack();
+
+        for (Dispatch d : dispatchs) {
+            if (t.getTimeStart().compareTo(t.getTimeFinish()) >= 0) {
+                if (d.getDate().compareTo(dateBack) >= 0 && d.getTime().compareTo(t.getTimeStart()) >= 0 && d.getVehiculo() == vehiculo) {
+                    size++;
+                } else if (d.getDate().compareTo(dateNow) >= 0 && d.getTime().compareTo(t.getTimeFinish()) <= 0 && d.getVehiculo() == vehiculo) {
+                    size++;
+                }
+            } else {
+                if (d.getDate().compareTo(dateNow) == 0 && d.getTime().compareTo(t.getTimeStart()) >= 0 && d.getTime().compareTo(t.getTimeFinish()) <= 0 && d.getVehiculo() == vehiculo) {
+                    size++;
+                }
+            }
+        }
+        return size;
+    }
+
     public Dispatch getDispatchByCPTC(int code, String phone, String time, String client) {
         for (Dispatch d : dispatchs) {
             if (d.getCode() == code && d.getPhone().equals(phone) && d.getTime().equals(time) && d.getClient().equals(client)) {
@@ -116,19 +155,19 @@ public class ListDispatch {
         }
         return null;
     }
-    
+
     private void clearTableDispatch() {
         int n_filas = Principal.tblDispatchs2.getRowCount();
         for (int i = 0; i < n_filas; i++) {
             Principal.modelTableDispatch2.removeRow(0);
         }
     }
-    
-    public int getDispatchsGeneral(){
+
+    public int getDispatchsGeneral() {
         return dispatchs.size();
     }
-    
-    public int getDispatchsByDay(){
+
+    public int getDispatchsByDay() {
         int size = 0;
         String dateNow = Functions.getDate();
         for (Dispatch d : dispatchs) {
@@ -138,14 +177,13 @@ public class ListDispatch {
         }
         return size;
     }
-    
+
     public int getDispatchByTurn() {
         int size = 0;
         Turn t = Principal.listTurn.getTurnByTimeNow();
         String dateNow = Functions.getDate();
         String dateBack = Functions.getDateBack();
-        
-        System.out.println(t.getIdTurn());
+
         for (Dispatch d : dispatchs) {
             if (t.getTimeStart().compareTo(t.getTimeFinish()) >= 0) {
                 if (d.getDate().compareTo(dateBack) >= 0 && d.getTime().compareTo(t.getTimeStart()) >= 0) {

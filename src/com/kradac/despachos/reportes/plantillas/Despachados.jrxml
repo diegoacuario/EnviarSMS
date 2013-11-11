@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Despachados" language="groovy" pageWidth="595" pageHeight="842" columnWidth="426" leftMargin="99" rightMargin="70" topMargin="70" bottomMargin="70">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="empresa" class="java.lang.String"/>
+	<parameter name="sql" class="java.lang.String">
+		<defaultValueExpression><![CDATA["SELECT "
++ "assigs.`code` AS ASIGNADOS_COD_CLIENTE,"
++ "assigs.`date` AS ASIGNADOS_FECHA,"
++ "assigs.`time` AS ASIGNADOS_HORA,"
++ "assigs.`phone` AS ASIGNADOS_TELEFONO,"
++ "assigs.`client` AS ASIGNADOS_NOMBRE_APELLIDO_CLI,"
++ "assigs.`direction` AS ASIGNADOS_DIRECCION_CLI,"
++ "assigs.`note` AS ASIGNADOS_NOTA,"
++ "assigs.`id_vehiculo` AS ASIGNADOS_N_UNIDAD,"
++ "assigs.`minute` AS ASIGNADOS_MINUTOS,"
++ "assigs.`sector` AS ASIGNADOS_SECTOR,"
++ "assigs.`atraso` AS ASIGNADOS_ATRASO"
++ " FROM `assigs` assigs "]]></defaultValueExpression>
+	</parameter>
+	<parameter name="cod" class="java.lang.Integer"/>
+	<parameter name="uni" class="java.lang.String"/>
+	<parameter name="usuario" class="java.lang.String"/>
+	<parameter name="horaIni" class="java.lang.String">
+		<defaultValueExpression><![CDATA["00:00:00"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="horaFin" class="java.lang.String">
+		<defaultValueExpression><![CDATA["23:59:59"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="quien" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="fechaIni" class="java.lang.String"/>
+	<parameter name="fechaFin" class="java.lang.String"/>
+	<parameter name="fechaIniDes" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="fechaFinDes" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="user" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[$P!{sql}]]>
+	</queryString>
+	<field name="ASIGNADOS_COD_CLIENTE" class="java.lang.Integer"/>
+	<field name="ASIGNADOS_FECHA" class="java.sql.Date"/>
+	<field name="ASIGNADOS_HORA" class="java.sql.Time"/>
+	<field name="ASIGNADOS_TELEFONO" class="java.lang.String"/>
+	<field name="ASIGNADOS_NOMBRE_APELLIDO_CLI" class="java.lang.String"/>
+	<field name="ASIGNADOS_DIRECCION_CLI" class="java.lang.String"/>
+	<field name="ASIGNADOS_NOTA" class="java.lang.String"/>
+	<field name="ASIGNADOS_N_UNIDAD" class="java.lang.String"/>
+	<field name="ASIGNADOS_MINUTOS" class="java.lang.Integer"/>
+	<field name="ASIGNADOS_SECTOR" class="java.lang.String"/>
+	<field name="ASIGNADOS_ATRASO" class="java.lang.Integer"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="133" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="426" height="24"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="18"/>
+				</textElement>
+				<text><![CDATA[Cooperativa de Taxis]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="24" width="426" height="27"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="20"/>
+				</textElement>
+				<textFieldExpression><![CDATA["\""+$P{empresa}+"\""]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="64" width="100" height="20"/>
+				<text><![CDATA[Carreras realizadas ]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="100" y="64" width="326" height="20"/>
+				<textFieldExpression><![CDATA[$P{quien}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="83" width="100" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Entre las fechas:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="100" y="83" width="326" height="20"/>
+				<textFieldExpression><![CDATA[$P{fechaIniDes} +" y "+ $P{fechaFinDes}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="103" width="100" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Entre las horas:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="100" y="103" width="326" height="20"/>
+				<textFieldExpression><![CDATA[$P{horaIni} + "  y  " + $P{horaFin}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="96" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="67" height="16"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Código:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="16" width="67" height="16"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nombre:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="67" y="0" width="63" height="16"/>
+				<textElement textAlignment="Left">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ASIGNADOS_COD_CLIENTE}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="67" y="16" width="359" height="16"/>
+				<textFieldExpression><![CDATA[$F{ASIGNADOS_NOMBRE_APELLIDO_CLI}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="171" y="0" width="43" height="16"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Unidad:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="214" y="0" width="69" height="16"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$F{ASIGNADOS_N_UNIDAD}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="32" width="67" height="16"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Dirección:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="67" y="32" width="359" height="16"/>
+				<textFieldExpression><![CDATA[$F{ASIGNADOS_DIRECCION_CLI}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="48" width="143" height="16"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Minutos para recogerlo:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="324" y="0" width="36" height="16"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fecha:]]></text>
+			</staticText>
+                        <textField>
+				<reportElement x="360" y="0" width="66" height="16"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{ASIGNADOS_FECHA}]]></textFieldExpression>
+			</textField>
+                        <staticText>
+				<reportElement x="324" y="16" width="66" height="16"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Hora:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="360" y="16" width="66" height="16"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{ASIGNADOS_HORA}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="242" y="48" width="164" height="16"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Minutos en que lo recogió:"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="143" y="48" width="43" height="16"/>
+				<textFieldExpression><![CDATA[$F{ASIGNADOS_MINUTOS}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="406" y="48" width="20" height="16"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{ASIGNADOS_ATRASO}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="64" width="67" height="16"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nota:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="67" y="64" width="359" height="32"/>
+				<textFieldExpression><![CDATA[$F{ASIGNADOS_NOTA}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="22" splitType="Stretch">
+			<textField>
+				<reportElement x="326" y="0" width="100" height="22"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField pattern="yyyy/MM/dd">
+				<reportElement x="0" y="0" width="100" height="22"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="76" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="15" width="120" height="20"/>
+				<textElement verticalAlignment="Bottom"/>
+				<text><![CDATA[Total de carreras:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="120" y="7" width="190" height="28"/>
+				<textElement verticalAlignment="Bottom">
+					<font size="16" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

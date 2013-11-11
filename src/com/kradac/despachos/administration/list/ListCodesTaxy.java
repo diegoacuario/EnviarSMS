@@ -89,6 +89,14 @@ public class ListCodesTaxy {
         }
         return mapEtiqColor;
     }
+    
+    public void deleteCodesTaxy (String idCodeTaxy) {
+        for (CodesTaxy c : getCodesTaxys()) {
+            if (c.getIdCodigo().equals(idCodeTaxy)) {
+                codesTaxys.remove(c);
+            }
+        }
+    }
 
     /**
      * @return the codesTaxys

@@ -91,9 +91,9 @@ public class FramePerson extends javax.swing.JFrame {
                 numHouse = 0;
             }
 
-            Person p = new Person(txtCedula.getText(), txtName.getText(), txtLastName.getText(), txtPhone.getText(), txtEmail.getText(),
+            Person p = new Person(txtCedula.getText(), txtName.getText().toUpperCase(), txtLastName.getText().toUpperCase(), txtPhone.getText(), txtEmail.getText(),
                     txtDirection.getText(), numHouse, txtTypeSangre.getText(),
-                    Principal.listStateCivil.getStateCivilByState(cbxStateCivil.getSelectedItem().toString()), txtConyugue.getText(), "",
+                    Principal.listStateCivil.getStateCivilByState(cbxStateCivil.getSelectedItem().toString()), txtConyugue.getText().toUpperCase(), "",
                     Principal.listJob.getJobByName(cbxJobs.getSelectedItem().toString()));
             int insert = Principal.listPerson.addNewPerson(p);
             if (insert == 0) {
@@ -500,7 +500,7 @@ public class FramePerson extends javax.swing.JFrame {
 
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
         int rowSelected = tblPerson.getSelectedRow();
-        String cedula = txtCedula.getText(), name = txtName.getText(), lastName = txtLastName.getText();
+        String cedula = txtCedula.getText(), name = txtName.getText().toUpperCase(), lastName = txtLastName.getText().toUpperCase();
         int numHouse;
         try {
             numHouse = Integer.parseInt(txtNumHouse.getText());
@@ -510,7 +510,7 @@ public class FramePerson extends javax.swing.JFrame {
 
         Person p = new Person(cedula, name, lastName, txtPhone.getText(), txtEmail.getText(),
                 txtDirection.getText(), numHouse, txtTypeSangre.getText(),
-                Principal.listStateCivil.getStateCivilByState(cbxStateCivil.getSelectedItem().toString()), txtConyugue.getText(), "",
+                Principal.listStateCivil.getStateCivilByState(cbxStateCivil.getSelectedItem().toString()), txtConyugue.getText().toUpperCase(), "",
                 Principal.listJob.getJobByName(cbxJobs.getSelectedItem().toString()));
 
         if (Principal.listPerson.updatePerson(p, tblPerson.getValueAt(rowSelected, 0).toString())) {
@@ -560,7 +560,7 @@ public class FramePerson extends javax.swing.JFrame {
 
     private void txtCedulaFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtCedulaFocusLost
         if (!Functions.validateCedula(txtCedula.getText())) {
-            JOptionPane.showMessageDialog(this, "El Numero de Cedula Es Invalido", "ERROR", JOptionPane.ERROR_MESSAGE);
+            //JOptionPane.showMessageDialog(this, "El Numero de Cedula Es Invalido", "ERROR", JOptionPane.ERROR_MESSAGE);
             isValidCedula = false;
         } else {
             isValidCedula = true;

@@ -24,7 +24,7 @@ public class ListPerson {
 
     public ListPerson() { //Una ves que ya el Programa este corriendo
         this.persons = new ArrayList<>();
-        this.db = new DataBase(Principal.fileConfig, Principal.host);
+        this.db = new DataBase(Principal.fileConfig, Principal.numHost);
     }
 
     public ListPerson(Properties p, int numHost) { //Cuando va a loguearse en el Login

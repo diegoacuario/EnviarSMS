@@ -117,7 +117,6 @@ public class FrameClients extends javax.swing.JFrame {
         txtName = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         txtLastName = new javax.swing.JTextField();
-        txtDirection = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         txtDestino = new javax.swing.JTextField();
@@ -136,6 +135,8 @@ public class FrameClients extends javax.swing.JFrame {
         txtLatitud = new javax.swing.JTextField();
         txtLongitud = new javax.swing.JTextField();
         jLabel13 = new javax.swing.JLabel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        txtDirection = new javax.swing.JTextArea();
         jPanel2 = new javax.swing.JPanel();
         btnSave = new javax.swing.JButton();
         btnCancel = new javax.swing.JButton();
@@ -203,6 +204,7 @@ public class FrameClients extends javax.swing.JFrame {
         jLabel10.setText("Referencia:");
 
         txtReference.setColumns(20);
+        txtReference.setLineWrap(true);
         txtReference.setRows(5);
         jScrollPane1.setViewportView(txtReference);
 
@@ -210,6 +212,7 @@ public class FrameClients extends javax.swing.JFrame {
         jLabel11.setText("Nota:");
 
         txtNote.setColumns(20);
+        txtNote.setLineWrap(true);
         txtNote.setRows(5);
         jScrollPane2.setViewportView(txtNote);
 
@@ -234,6 +237,11 @@ public class FrameClients extends javax.swing.JFrame {
         jLabel13.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel13.setText("Longitud:");
 
+        txtDirection.setColumns(20);
+        txtDirection.setLineWrap(true);
+        txtDirection.setRows(3);
+        jScrollPane3.setViewportView(txtDirection);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -250,18 +258,9 @@ public class FrameClients extends javax.swing.JFrame {
                         .addGap(41, 41, 41)
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtPhone))
+                        .addComponent(txtPhone, javax.swing.GroupLayout.DEFAULT_SIZE, 148, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel3))
-                        .addGap(20, 20, 20)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtLastName)
-                            .addComponent(txtName)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel5)
                             .addComponent(jLabel6)
                             .addComponent(jLabel7))
                         .addGap(19, 19, 19)
@@ -272,8 +271,7 @@ public class FrameClients extends javax.swing.JFrame {
                                 .addComponent(jLabel8)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(txtSector))
-                            .addComponent(txtDestino)
-                            .addComponent(txtDirection)))
+                            .addComponent(txtDestino)))
                     .addComponent(jScrollPane1)
                     .addComponent(jScrollPane2)
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -289,7 +287,17 @@ public class FrameClients extends javax.swing.JFrame {
                             .addComponent(jLabel10)
                             .addComponent(jLabel11)
                             .addComponent(cbEditCoord))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel5))
+                        .addGap(11, 11, 11)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txtLastName)
+                            .addComponent(jScrollPane3)
+                            .addComponent(txtName))))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -314,10 +322,10 @@ public class FrameClients extends javax.swing.JFrame {
                     .addComponent(jLabel4)
                     .addComponent(txtLastName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel5)
-                    .addComponent(txtDirection, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
                     .addComponent(txtDestino, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -342,8 +350,7 @@ public class FrameClients extends javax.swing.JFrame {
                     .addComponent(jLabel12)
                     .addComponent(txtLatitud, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel13)
-                    .addComponent(txtLongitud, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(txtLongitud, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
         btnSave.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/ok.png"))); // NOI18N
@@ -395,10 +402,10 @@ public class FrameClients extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         pack();
@@ -528,9 +535,10 @@ public class FrameClients extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTextField txtCode;
     private javax.swing.JTextField txtDestino;
-    private javax.swing.JTextField txtDirection;
+    private javax.swing.JTextArea txtDirection;
     private javax.swing.JTextField txtLastName;
     public static javax.swing.JTextField txtLatitud;
     public static javax.swing.JTextField txtLongitud;

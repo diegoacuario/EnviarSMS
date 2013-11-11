@@ -5,6 +5,7 @@
  */
 package com.kradac.despachos.database;
 
+import com.kradac.despachos.administration.Call;
 import com.kradac.despachos.administration.Client;
 import com.kradac.despachos.administration.CodesTaxy;
 import com.kradac.despachos.administration.Company;
@@ -24,6 +25,7 @@ import com.kradac.despachos.administration.list.ListZona;
 import com.kradac.despachos.administration.Marca;
 import com.kradac.despachos.administration.Modelo;
 import com.kradac.despachos.administration.Pending;
+import com.kradac.despachos.administration.PendingDiarios;
 import com.kradac.despachos.administration.Person;
 import com.kradac.despachos.administration.RolUser;
 import com.kradac.despachos.administration.StateCivil;
@@ -31,6 +33,7 @@ import com.kradac.despachos.administration.Turn;
 import com.kradac.despachos.administration.User;
 import com.kradac.despachos.administration.Vehiculo;
 import com.kradac.despachos.administration.Zona;
+import com.kradac.despachos.administration.list.ListCall;
 import com.kradac.despachos.administration.list.ListJob;
 import com.kradac.despachos.administration.list.ListPending;
 import com.kradac.despachos.administration.list.ListTurn;
@@ -40,6 +43,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -53,18 +57,46 @@ public class DataBase {
 
     private Properties arcConfig;
     private Connection conexion;
-    private String driver, url, ip, usr, pass;
+    private String driver, url, ip, usr, pass, server;
     private String bd;
     private Statement s;
     private ResultSet rs;
 
     public DataBase() {
     }
-    
+
+    public Connection getConexion() {
+        return conexion;
+    }
+
+    public String[] getUsuarios() {
+        try {
+            String[] datosCast;
+            String sql = "SELECT id_user FROM users";
+            rs = s.executeQuery(sql);
+            ArrayList<String> listaUsuarios = new ArrayList();
+            while (rs.next()) {
+                listaUsuarios.add(rs.getString("id_user"));
+            }
+            datosCast = new String[listaUsuarios.size()];
+            datosCast = listaUsuarios.toArray(datosCast);
+            return datosCast;
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return null;
+    }
+
+    public ResultSet getDatosUsuario(String usuario) throws SQLException {
+        String sql = "SELECT * FROM users WHERE id_user='" + usuario + "'";
+        return rs = s.executeQuery(sql);
+    }
+
     public DataBase(Properties arcConfig, int numHost) {
         this.arcConfig = arcConfig;
-        String [] parts = this.arcConfig.getProperty("ip_base"+numHost).split(";");
+        String[] parts = this.arcConfig.getProperty("ip_base" + numHost).split(";");
         this.ip = parts[0];
+        this.server = parts[1];
         this.bd = this.arcConfig.getProperty("base");
         this.usr = this.arcConfig.getProperty("user");
         this.pass = this.arcConfig.getProperty("pass");
@@ -84,8 +116,9 @@ public class DataBase {
 
     public boolean isConectionDb(Properties arcConfig, int numHost) {
         this.arcConfig = arcConfig;
-        String [] parts = this.arcConfig.getProperty("ip_base"+numHost).split(";");
+        String[] parts = this.arcConfig.getProperty("ip_base" + numHost).split(";");
         this.ip = parts[0];
+        this.setServer(parts[1]);
         this.bd = this.arcConfig.getProperty("base");
         this.usr = this.arcConfig.getProperty("user");
         this.pass = this.arcConfig.getProperty("pass");
@@ -98,7 +131,7 @@ public class DataBase {
             return true;
         } catch (ClassNotFoundException | SQLException ex) {
             //Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
-            JOptionPane.showMessageDialog(null, "No se Puede Ingresar al Servidor de la Base de Datos: "+parts[0]);
+            JOptionPane.showMessageDialog(null, "No se Puede Ingresar al Servidor de la Base de Datos: " + parts[0]);
             return false;
         }
     }
@@ -207,7 +240,7 @@ public class DataBase {
             while (rs.next()) {
                 listAux.addClient(new Client(rs.getString("NAME"), rs.getString("LASTNAME"), rs.getString("PHONE"),
                         rs.getString("DIRECTION"), rs.getString("SECTOR"), rs.getInt("CODE"), rs.getInt("NUM_HOUSE"),
-                        rs.getDouble("LATITUD"), rs.getDouble("LONGITUD"), rs.getString("REFERENCE")));
+                        rs.getDouble("LATITUD"), rs.getDouble("LONGITUD"), rs.getString("REFERENCE"), ""));
             }
             return listAux;
         } catch (SQLException ex) {
@@ -216,7 +249,7 @@ public class DataBase {
         }
         return null;
     }
-    
+
     public ListJob loadJobs() {
         ListJob listAux = new ListJob();
         try {
@@ -256,7 +289,7 @@ public class DataBase {
         }
         return null;
     }
-    
+
     public ListTurn loadTurns() {
         ListTurn listAux = new ListTurn();
         try {
@@ -271,7 +304,7 @@ public class DataBase {
             return listAux;
         } catch (SQLException ex) {
             //Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
-            JOptionPane.showMessageDialog(null, "Problemas al Cargar Zonas de los Vehiculos");
+            JOptionPane.showMessageDialog(null, "Problemas al Cargar Turnos");
             System.exit(0);
         }
         return null;
@@ -406,6 +439,79 @@ public class DataBase {
         return null;
     }
 
+    public void loadDispatchClient(ListDispatch listDispatch) {
+
+        try {
+            String sql = "SELECT DATE, TIME, PHONE, CODE, CLIENT, SECTOR, DIRECTION, VEHICULO, "
+                    + "MINUTE, TIME_ASIG, ID_VEHICULO, ATRASO, NOTE, REFERENCE, NUM_HOUSE, DESTINO "
+                    + "FROM assigs "
+                    + "WHERE DATE BETWEEN (SELECT DATE(SUBDATE(NOW(), INTERVAL 2 DAY))) AND DATE(NOW()) "
+                    + "ORDER BY DATE DESC, TIME DESC LIMIT 10";
+            rs = s.executeQuery(sql);
+
+            while (rs.next()) {
+                listDispatch.addDispatchClient(new Dispatch(rs.getString("DATE"), rs.getString("TIME"), rs.getString("PHONE"),
+                        rs.getInt("CODE"), rs.getString("CLIENT"),
+                        rs.getString("SECTOR"), rs.getString("DIRECTION"), rs.getInt("VEHICULO"), rs.getInt("MINUTE"),
+                        rs.getString("TIME_ASIG"), rs.getString("ID_VEHICULO"), rs.getInt("ATRASO"), rs.getString("NOTE"),
+                        rs.getString("REFERENCE"), rs.getInt("NUM_HOUSE"), rs.getString("DESTINO")
+                ));
+            }
+        } catch (SQLException ex) {
+            //Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Problemas al Cargar los Despachos del Otro Equipo");
+        }
+    }
+
+    public void loadTrash() {
+
+        try {
+            String sql = "SELECT DATE, TIME, PHONE, CODE, CLIENT, SECTOR, DIRECTION "
+                    + "FROM trash "
+                    + "WHERE DATE BETWEEN (SELECT DATE(SUBDATE(NOW(), INTERVAL 2 DAY))) AND DATE(NOW()) "
+                    + "ORDER BY DATE DESC, TIME DESC";
+            rs = s.executeQuery(sql);
+
+            while (rs.next()) {
+                String[] dataTrash = {
+                    rs.getString("TIME"),
+                    rs.getString("PHONE"),
+                    rs.getInt("CODE")+"",
+                    rs.getString("CLIENT"),
+                    rs.getString("SECTOR"),
+                    rs.getString("DIRECTION")
+                };
+                Principal.modelTableTrash.insertRow(0, dataTrash);
+            }
+        } catch (SQLException ex) {
+            //Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Problemas al Cargar las carreras Eliminadas");
+        }
+    }
+
+    public void loadCall(ListCall listCall, String now) {
+
+        try {
+            String sql = "SELECT ID_SOLICITUD, LINEA, DATE, TIME, PHONE, CLIENT, DIRECTION, REFERENCE, LATITUD, LONGITUD "
+                    + "FROM calls "
+                    + "WHERE DATE BETWEEN (SELECT DATE(SUBDATE(NOW(), INTERVAL 2 DAY))) AND DATE(NOW()) "
+                    + "ORDER BY DATE DESC, TIME DESC LIMIT 2";
+
+            rs = s.executeQuery(sql);
+
+            while (rs.next()) {
+                listCall.addCallClient(new Call(rs.getInt("ID_SOLICITUD"), rs.getString("DATE"),
+                        rs.getString("TIME"), rs.getString("PHONE"), rs.getString("LINEA"),
+                        rs.getString("CLIENT"), rs.getString("DIRECTION"), rs.getString("REFERENCE"),
+                        rs.getDouble("LATITUD"), rs.getDouble("LONGITUD")
+                ));
+            }
+        } catch (SQLException ex) {
+            //Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Problemas al Cargar los Llamadas del Otro Equipo");
+        }
+    }
+
     public ListPending loadPending() {
         ListPending listAux = new ListPending();
         try {
@@ -426,17 +532,31 @@ public class DataBase {
         }
         return null;
     }
-    
+
     public void getStateVehiculoPendientePago() {
         try {
             String sql = "SELECT N_UNIDAD, ACTIVO FROM ultimos_gps";
-            
+
             rs = s.executeQuery(sql);
-            while (rs.next()) {                
+            while (rs.next()) {
                 Principal.listVehiculos.updateBloqueVehiculos(rs.getInt("N_UNIDAD"), rs.getBoolean("ACTIVO"));
             }
         } catch (SQLException ex) {
             Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public String getFeDif() {
+        try {
+
+            String sql = "SELECT TIMESTAMPDIFF(SECOND, '1990-01-01 00:05:00', NOW()) AS 'DATE'";
+
+            rs = s.executeQuery(sql);
+            rs.next();
+
+            return rs.getString("DATE");
+        } catch (SQLException ex) {
+            return null;
         }
     }
 
@@ -450,11 +570,11 @@ public class DataBase {
             //Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public boolean insertPendign(Pending p) {
         try {
             String sql = "INSERT INTO pending (CODE, PHONE, CLIENT, DATE, TIME, REMEMBER, NOTE) "
-                    + "VALUES(" + p.getCode() + ",'"+ p.getPhone()+"','" + p.getClient() + "','" + p.getDate() + "','" + p.getTime() + "','"
+                    + "VALUES(" + p.getCode() + ",'" + p.getPhone() + "','" + p.getClient() + "','" + p.getDate() + "','" + p.getTime() + "','"
                     + p.getRemember() + "','" + p.getNote() + "')";
             s.executeUpdate(sql);
             return true;
@@ -463,6 +583,19 @@ public class DataBase {
         }
         return false;
     }
+    
+    /*public boolean insertPendignDiario(Pending p) {
+        try {
+            String sql = "INSERT INTO pending (CODE, PHONE, CLIENT, DATE, TIME, REMEMBER, NOTE) "
+                    + "VALUES(" + p.getCode() + ",'" + p.getPhone() + "','" + p.getClient() + "','" + p.getDate() + "','" + p.getTime() + "','"
+                    + p.getRemember() + "','" + p.getNote() + "')";
+            s.executeUpdate(sql);
+            return true;
+        } catch (SQLException ex) {
+            Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+    }*/
 
     /**
      *
@@ -475,13 +608,13 @@ public class DataBase {
         try {
             String sql = "INSERT INTO persons (id_person,name,lastname,phone,"
                     + "email,direction,num_house,type_sangre,id_state_civil,"
-                    + "conyugue,image) VALUES('" + p.getCedula() + "','"
+                    + "conyugue,image,id_job) VALUES('" + p.getCedula() + "','"
                     + p.getName() + "','" + p.getLastname() + "','" + p.getPhone()
                     + "','" + p.getEmail() + "','" + p.getDirection() + "',"
                     + p.getNumHouse() + ",'" + p.getTypeSangre() + "','"
                     + p.getStateCivil().getIdStateCivil() + "','" + p.getConyuge()
-                    + "','" + p.getImage() + "')";
-            
+                    + "','" + p.getImage() + "'," + p.getJob().getIdJob() + ")";
+
             s.executeUpdate(sql);
         } catch (SQLException ex) {
             inserto = false;
@@ -502,7 +635,7 @@ public class DataBase {
         }
         return inserto;
     }
-    
+
     public boolean insertVehiculo(Vehiculo v) {
         boolean inserto = true;
         try {
@@ -545,7 +678,7 @@ public class DataBase {
                     + c.getLatitud() + ","
                     + c.getLongitud() + ","
                     + "'" + c.getReference() + "')";
-            
+
             s.executeUpdate(sql);
         } catch (SQLException ex) {
             inserto = false;
@@ -565,15 +698,31 @@ public class DataBase {
                     + "destino,vehiculo,minute,id_vehiculo,atraso,reference,note,tiquete,latitud,longitud) "
                     + "VALUES('" + id_user + "',Date(Now()),'" + time + "'," + code + ",'"
                     + phone + "','" + id_codigo + "'," + respaldo + ",'" + client + "','"
-                    + sector + "','" + direction + "','" + destino + "','" + vehiculo + "','" 
-                    + minute + "','" + id_vehiculo + "',"+ atraso + ",'" + reference + "','"
-                    + note + "'," + tiquete + ","+ latitud + "," + longitud + ")";
-            
+                    + sector + "','" + direction + "','" + destino + "','" + vehiculo + "','"
+                    + minute + "','" + id_vehiculo + "'," + atraso + ",'" + reference + "','"
+                    + note + "'," + tiquete + "," + latitud + "," + longitud + ")";
+
             s.executeUpdate(sql);
         } catch (SQLException ex) {
             inserto = false;
         }
         return inserto;
+    }
+
+    public void insertTrashAssign(String id_user, String time, int code,
+            String phone, String client,
+            String sector, String direction) {
+
+        try {
+            String sql = "INSERT INTO trash (id_user,date,time,phone,code,client,"
+                    + "sector,direction) VALUES("
+                    + "'" + id_user + "',Date(Now()),'" + time + "','" + phone + "',"
+                    + code + ",'" + client + "','" + sector + "','" + direction + "')";
+
+            s.executeUpdate(sql);
+        } catch (SQLException ex) {
+            Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public boolean insertAssigns(String id_user, String time, int code,
@@ -590,15 +739,15 @@ public class DataBase {
                     + "'" + id_user + "',Date(Now()),'" + time + "','" + phone + "',"
                     + code + ",'" + client + "','" + sector + "','" + direction + "','"
                     + destino + "'," + vehiculo + "," + minute + ",'" + time_asig + "','" + id_vehiculo + "',"
-                    + atraso + ","+numHouse+",'" + reference + "','" + note + "'," + tiquete + ","+latitud+","+longitud+")";
-            
+                    + atraso + "," + numHouse + ",'" + reference + "','" + note + "'," + tiquete + "," + latitud + "," + longitud + ")";
+
             s.executeUpdate(sql);
         } catch (SQLException ex) {
             inserto = false;
         }
         return inserto;
     }
-    
+
     public void insertLastGps(String unidad, String latitud, String longitud,
             String fecha, String hora, String vel, String G1, String G2, String activo) {
         try {
@@ -613,6 +762,19 @@ public class DataBase {
                     + G2 + ","
                     + Integer.parseInt(activo)
                     + ")";
+            s.executeUpdate(sql);
+        } catch (SQLException ex) {
+            Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void insertCall(Call c) {
+        try {
+            String sql = "INSERT INTO calls (linea,date,time,phone,client,"
+                    + "direction,latitud,longitud,id_solicitud,reference) "
+                    + "VALUES('" + c.getLine() + "','" + c.getDate() + "','" + c.getTime() + "','" + c.getPhone() + "','" + c.getClient() + "','" + c.getDirection() + "',"
+                    + c.getLatitud() + "," + c.getLongitud() + "," + c.getIdSolicitud() + ",'" + c.getReference() + "')";
+
             s.executeUpdate(sql);
         } catch (SQLException ex) {
             Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
@@ -634,9 +796,9 @@ public class DataBase {
                     + "id_state_civil=" + p.getStateCivil().getIdStateCivil() + ","
                     + "conyugue='" + p.getConyuge() + "',"
                     + "image='" + p.getImage() + "',"
-                    + "id_job="+p.getJob().getIdJob()+" WHERE id_person='"
+                    + "id_job=" + p.getJob().getIdJob() + " WHERE id_person='"
                     + cedula + "'";
-            
+
             s.executeUpdate(sql);
         } catch (SQLException ex) {
             actualizo = false;
@@ -652,7 +814,7 @@ public class DataBase {
                     + "id_person='" + user.getPerson().getCedula() + "',"
                     + "password='" + user.getPassword() + "' WHERE id_user='"
                     + id_user + "'";
-            
+
             s.executeUpdate(sql);
         } catch (SQLException ex) {
             actualizo = false;
@@ -674,14 +836,14 @@ public class DataBase {
                     + "longitud=" + client.getLongitud() + ","
                     + "reference='" + client.getReference() + "' WHERE code="
                     + client.getCode();
-            
+
             s.executeUpdate(sql);
         } catch (SQLException ex) {
             actualizo = false;
         }
         return actualizo;
     }
-    
+
     public boolean updateVehiculo(Vehiculo v, String placa) {
         boolean actualizo = true;
         try {
@@ -692,25 +854,24 @@ public class DataBase {
                     + "id_codigo='" + v.getCodesTaxy().getIdCodigo() + "',"
                     + "vehiculo=" + v.getVehiculo() + ","
                     + "id_modelo_vehiculo=" + v.getModelo().getIdModeloVehiculo() + ","
-                    + "year='" + v.getYear() + "',"
+                    + "year=" + v.getYear() + ","
                     + "num_motor='" + v.getNumMotor() + "',"
                     + "num_chasis='" + v.getNumChasis() + "',"
                     + "reg_municipal=" + v.getRegMunicipal() + ","
                     + "soat='" + v.getSoat() + "',"
                     + "image='" + v.getImage() + "' WHERE id_vehiculo='"
                     + placa + "'";
-            System.out.println(sql);
+
             s.executeUpdate(sql);
         } catch (SQLException ex) {
             actualizo = false;
         }
         return actualizo;
     }
-    
+
     public void updateStateVehiculo(int vehiculo, String id_code) {
         try {
-            String sql = "UPDATE ultimos_gps SET ID_CODIGO='" + id_code + "' WHERE N_UNIDAD="+ vehiculo;
-            
+            String sql = "UPDATE ultimos_gps SET ID_CODIGO='" + id_code + "' WHERE N_UNIDAD=" + vehiculo;
             s.executeUpdate(sql);
         } catch (SQLException ex) {
             Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
@@ -720,13 +881,13 @@ public class DataBase {
     /* DELETE IN THE DATABASE */
     public void deleteClientMap(int code) {
         try {
-            String sql = "DELETE FROM positions_clients WHERE code = "+code;
+            String sql = "DELETE FROM positions_clients WHERE code = " + code;
             s.executeUpdate(sql);
         } catch (SQLException ex) {
             Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public void deleteAllClientMap() {
         try {
             String sql = "DELETE FROM positions_clients";
@@ -735,7 +896,7 @@ public class DataBase {
             Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public boolean deletePerson(String cedula) {
         boolean elimino = true;
         try {
@@ -757,10 +918,10 @@ public class DataBase {
         }
         return elimino;
     }
-    
+
     public boolean deletePending(String date, String time) {
         try {
-            String sql = "DELETE FROM pending WHERE date = '"+date+"' AND time = '"+time+"'";
+            String sql = "DELETE FROM pending WHERE date = '" + date + "' AND time = '" + time + "'";
             s.executeUpdate(sql);
             return true;
         } catch (SQLException ex) {
@@ -768,7 +929,7 @@ public class DataBase {
         }
         return false;
     }
-    
+
     public boolean deleteVehiculo(String placa) {
         boolean elimino = true;
         try {
@@ -778,5 +939,83 @@ public class DataBase {
             elimino = false;
         }
         return elimino;
+    }
+    
+    public boolean crearCodigo(String cod, String estate, String color) {
+        if (!codigoExiste(cod)) {
+            String sql = "INSERT INTO codes_taxy VALUES ('" + cod + "','" + estate + "','" + color + "')";
+            try {
+                s.executeUpdate(sql);
+                return true;
+            } catch (SQLException ex) {
+                System.out.println(ex);
+                return false;
+            }
+
+        }
+        return false;
+    }
+
+    public boolean updateCodigo(String codAnt, String cod, String estate, String color) {
+      
+            String sql;
+            sql = "UPDATE codes_taxy SET "
+                    + "id_codigo='" + cod + "',"
+                    + " etiqueta='" + estate + "', "
+                    + "color='" + color + "' WHERE id_codigo='" + codAnt + "'";
+            System.out.println(color);
+            try {
+                s.executeUpdate(sql);
+                return true;
+            } catch (SQLException ex) {
+                System.out.println(ex);
+                return false;
+            }
+        
+    }
+
+    public boolean codigoExiste(String cod) {
+        String sql = "SELECT COUNT(ID_CODIGO) AS NUM FROM codes_taxy WHERE ID_CODIGO = '" + cod + "'";
+
+        int cant = 0;
+        try {
+            rs = s.executeQuery(sql);
+            while (rs.next()) {
+                cant = rs.getInt("NUM");
+            }
+            if (cant > 0) {
+                JOptionPane.showMessageDialog(null, "ESTADO  CON EL CODIGO " + cod + " YA EXISTE");
+                return true;
+
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return false;
+    }
+    
+    public boolean deleteState(String cod) {
+        boolean elimino = true;
+        try {
+            String sql = "DELETE FROM codes_taxy WHERE id_codigo='" + cod + "'";
+            s.executeUpdate(sql);
+        } catch (SQLException ex) {
+            elimino = false;
+        }
+        return elimino;
+    }
+
+    /**
+     * @return the server
+     */
+    public String getServer() {
+        return server;
+    }
+
+    /**
+     * @param server the server to set
+     */
+    public void setServer(String server) {
+        this.server = server;
     }
 }
