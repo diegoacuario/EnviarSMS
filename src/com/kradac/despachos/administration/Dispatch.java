@@ -25,10 +25,11 @@ public class Dispatch {
     private int atraso;
     private String note;
     private String reference;
-    private int num_house;
+    private String num_house;
     private String destino;
+    private String line;
 
-    public Dispatch(String date, String time, String phone, int code, String client, String sector, String direction, int vehiculo, int minute, String timeAsig, String placa, int atraso, String note, String reference, int num_house, String destino) {
+    public Dispatch(String date, String time, String phone, int code, String client, String sector, String direction, int vehiculo, int minute, String timeAsig, String placa, int atraso, String note, String reference, String num_house, String destino, String line) {
         this.date = date;
         this.time = time;
         this.phone = phone;
@@ -45,6 +46,21 @@ public class Dispatch {
         this.reference = reference;
         this.num_house = num_house;
         this.destino = destino;
+        this.line = line;
+    }
+
+    /**
+     * @return the date
+     */
+    public String getDate() {
+        return date;
+    }
+
+    /**
+     * @param date the date to set
+     */
+    public void setDate(String date) {
+        this.date = date;
     }
 
     /**
@@ -213,20 +229,6 @@ public class Dispatch {
      */
     public void setNote(String note) {
         this.note = note;
-    }    
-
-    /**
-     * @return the date
-     */
-    public String getDate() {
-        return date;
-    }
-
-    /**
-     * @param date the date to set
-     */
-    public void setDate(String date) {
-        this.date = date;
     }
 
     /**
@@ -246,14 +248,14 @@ public class Dispatch {
     /**
      * @return the num_house
      */
-    public int getNum_house() {
+    public String getNum_house() {
         return num_house;
     }
 
     /**
      * @param num_house the num_house to set
      */
-    public void setNum_house(int num_house) {
+    public void setNum_house(String num_house) {
         this.num_house = num_house;
     }
 
@@ -270,4 +272,20 @@ public class Dispatch {
     public void setDestino(String destino) {
         this.destino = destino;
     }
+
+    /**
+     * @return the line
+     */
+    public String getLine() {
+        return line;
+    }
+
+    /**
+     * @param line the line to set
+     */
+    public void setLine(String line) {
+        this.line = line;
+    }
+
+    
 }

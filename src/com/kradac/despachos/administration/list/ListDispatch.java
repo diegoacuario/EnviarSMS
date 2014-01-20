@@ -11,6 +11,8 @@ import com.kradac.despachos.interfaz.Principal;
 import com.kradac.despachos.methods.Functions;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -41,8 +43,13 @@ public class ListDispatch {
             Principal.modelTableDispatch2.insertRow(0, changeToArrayDispatch(dispatch));
             Principal.modelTableDispatch.insertRow(0, changeToArrayDispatch(dispatch));
             Principal.listVehiculos.setCodeTaxyByEtiqueta(dispatch.getVehiculo(), Principal.listCodesTaxy.getCodesTaxyById("OCU"));
-            //Principal.redimencionarTableVehiculos();
             Principal.showDispatch();
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(ListDispatch.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            Principal.paintStateTaxy();
         }
     }
 
@@ -96,19 +103,21 @@ public class ListDispatch {
         }
     }
 
-    public String[] changeToArrayDispatch(Dispatch dispatch) {
-        String[] dataDispatch = {
+    public Object[] changeToArrayDispatch(Dispatch dispatch) {
+        Object dataDispatch[] = new Object[] {
+            dispatch.getLine(),
+            dispatch.getDate(),
             dispatch.getTime(),
             dispatch.getPhone(),
-            "" + dispatch.getCode(),
+            dispatch.getCode(),
             dispatch.getClient(),
             dispatch.getSector(),
             dispatch.getDirection(),
-            "" + dispatch.getVehiculo(),
-            "" + dispatch.getMinute(),
+            dispatch.getVehiculo(),
+            dispatch.getMinute(),
             dispatch.getTimeAsig(),
             dispatch.getPlaca(),
-            "" + dispatch.getAtraso(),
+            dispatch.getAtraso(),
             dispatch.getNote()
         };
         return dataDispatch;

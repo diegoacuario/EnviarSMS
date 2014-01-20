@@ -20,7 +20,7 @@
 + " FROM `assigs` assigs "]]></defaultValueExpression>
 	</parameter>
 	<parameter name="cod" class="java.lang.Integer"/>
-	<parameter name="uni" class="java.lang.String"/>
+	<parameter name="uni" class="java.lang.Integer"/>
 	<parameter name="usuario" class="java.lang.String"/>
 	<parameter name="horaIni" class="java.lang.String">
 		<defaultValueExpression><![CDATA["00:00:00"]]></defaultValueExpression>

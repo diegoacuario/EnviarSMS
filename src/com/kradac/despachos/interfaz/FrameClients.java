@@ -9,13 +9,17 @@ import com.kradac.despachos.administration.Client;
 import com.kradac.despachos.administration.Dispatch;
 import com.kradac.despachos.threads.ThreadCoordMap;
 import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import javax.swing.JOptionPane;
 
 /**
  *
  * @author Dalton
  */
-public class FrameClients extends javax.swing.JFrame {
+public class FrameClients extends javax.swing.JFrame implements KeyListener, MouseListener {
 
     private ThreadCoordMap sock;
     private String phoneOld;
@@ -25,10 +29,13 @@ public class FrameClients extends javax.swing.JFrame {
      */
     public FrameClients() {
         initComponents();
+        this.addMouseListener(this);
+        this.addKeyListener(this);
     }
 
     public FrameClients(String phone, int code, String client, String sector, String direction, String note) {
-        initComponents();
+        this();
+
         phoneOld = phone;
         if (code == 0) {
             txtCode.setText("0");
@@ -58,26 +65,30 @@ public class FrameClients extends javax.swing.JFrame {
     }
 
     public FrameClients(String phone, int code, String client, String time) {
-        initComponents();
-        
-        Dispatch d = Principal.listDispatch.getDispatchByCPTC(code, phone, time, client);
-        Client c = Principal.listClient.getClientByCode(code);
-        txtCode.setText("" + code);
-        txtPhone.setText(phone);
-        txtName.setText(d.getClient());
-        txtLastName.setText("");
-        txtNumHouse.setText(""+c.getNumHouse());
-        txtDestino.setText(d.getDestino());
-        txtReference.setText(d.getReference());
-        txtSector.setText(d.getSector());
-        txtDirection.setText(d.getDirection());
-        txtNote.setText(d.getNote());
-        txtLatitud.setText("" + c.getLatitud());
-        txtLongitud.setText("" + c.getLongitud());
+        this();
+        try {
+            Dispatch d = Principal.listDispatch.getDispatchByCPTC(code, phone, time, client);
+            Client c = Principal.listClient.getClientByCode(code);
+            txtCode.setText("" + code);
+            txtPhone.setText(phone);
+            txtName.setText(d.getClient());
+            txtLastName.setText("");
+            txtNumHouse.setText("" + c.getNumHouse());
+            txtDestino.setText(d.getDestino());
+            txtReference.setText(d.getReference());
+            txtSector.setText(d.getSector());
+            txtDirection.setText(d.getDirection());
+            txtNote.setText(d.getNote());
+            txtLatitud.setText("" + c.getLatitud());
+            txtLongitud.setText("" + c.getLongitud());
 
-        btnAddCode.setEnabled(false);
-        cbEditCoord.setEnabled(false);
-        btnSave.setEnabled(false);
+            btnAddCode.setEnabled(false);
+            cbEditCoord.setEnabled(false);
+            btnSave.setEnabled(false);
+        } catch (NullPointerException e) {
+            JOptionPane.showMessageDialog(this, "Datos de los Clientes aun no estan Cargados. Espere un momento por favor.");
+        }
+
     }
 
     public static void setCoordMap(String latitud, String longitud) {
@@ -150,6 +161,20 @@ public class FrameClients extends javax.swing.JFrame {
                 formWindowClosing(evt);
             }
         });
+        addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                formKeyTyped(evt);
+            }
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                formKeyPressed(evt);
+            }
+        });
+
+        jPanel1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                jPanel1KeyTyped(evt);
+            }
+        });
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel1.setText("Código:");
@@ -214,6 +239,14 @@ public class FrameClients extends javax.swing.JFrame {
         txtNote.setColumns(20);
         txtNote.setLineWrap(true);
         txtNote.setRows(5);
+        txtNote.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtNoteKeyReleased(evt);
+            }
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtNoteKeyPressed(evt);
+            }
+        });
         jScrollPane2.setViewportView(txtNote);
 
         cbEditCoord.setText("Editar Coordenadas del Cliente");
@@ -422,18 +455,12 @@ public class FrameClients extends javax.swing.JFrame {
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         if (!txtCode.getText().equals("") && !txtName.getText().equals("")) {
             int code = Integer.parseInt(txtCode.getText());
-            int numHouse;
+            
             Client c = Principal.listClient.getClientByCode(code);
 
-            try {
-                numHouse = Integer.parseInt(txtNumHouse.getText());
-            } catch (NumberFormatException e) {
-                numHouse = 0;
-            }
-
-            Client newClient = new Client(txtName.getText().toUpperCase(), txtLastName.getText().toUpperCase(), txtPhone.getText(), 
-                    txtDirection.getText().toUpperCase(), txtSector.getText().toUpperCase(), code, numHouse, 
-                    Double.parseDouble(txtLatitud.getText()), Double.parseDouble(txtLongitud.getText()), 
+            Client newClient = new Client(txtName.getText().toUpperCase(), txtLastName.getText().toUpperCase(), txtPhone.getText(),
+                    txtDirection.getText().toUpperCase(), txtSector.getText().toUpperCase(), code, txtNumHouse.getText(),
+                    Double.parseDouble(txtLatitud.getText()), Double.parseDouble(txtLongitud.getText()),
                     txtReference.getText().toUpperCase(), txtDestino.getText().toUpperCase());
             if (c != null) {
                 Principal.listClient.updateClient(newClient, code);
@@ -469,15 +496,32 @@ public class FrameClients extends javax.swing.JFrame {
     }//GEN-LAST:event_txtPhoneKeyTyped
 
     private void txtNumHouseKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNumHouseKeyTyped
-        if (!Character.isDigit(evt.getKeyChar()) && !Character.isISOControl(evt.getKeyChar())) {
-            Toolkit.getDefaultToolkit().beep();
-            evt.consume();
-        }
+
     }//GEN-LAST:event_txtNumHouseKeyTyped
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         closePortCoord();
     }//GEN-LAST:event_formWindowClosing
+
+    private void formKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyTyped
+
+    }//GEN-LAST:event_formKeyTyped
+
+    private void jPanel1KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jPanel1KeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jPanel1KeyTyped
+
+    private void formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyPressed
+
+    }//GEN-LAST:event_formKeyPressed
+
+    private void txtNoteKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNoteKeyReleased
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtNoteKeyReleased
+
+    private void txtNoteKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNoteKeyPressed
+
+    }//GEN-LAST:event_txtNoteKeyPressed
 
     /**
      * @param args the command line arguments
@@ -549,4 +593,46 @@ public class FrameClients extends javax.swing.JFrame {
     private javax.swing.JTextArea txtReference;
     private javax.swing.JTextField txtSector;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == 27) {
+            this.dispose();
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        this.requestFocus();
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

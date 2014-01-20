@@ -56,6 +56,7 @@ public class ChannelLastGps extends Thread {
                 try {
                     output.print("$$1##"+Principal.company.getIdCompany()+"$$\n");
                     String response = input.readLine();
+                    //System.out.println(response);
                     if (response != null) {
                         ArrayList<String> newData = new ArrayList();
                         
@@ -67,6 +68,8 @@ public class ChannelLastGps extends Thread {
                         for (String trama : newData) {
                             saveDataVehiculo(trama);                                                               
                         }
+                    } else {
+                        openConexion();                        
                     }
                     sleep(10000);
                 } catch (IOException ex) {
@@ -92,15 +95,17 @@ public class ChannelLastGps extends Thread {
         try {
             try {
                 s = new Socket(ip, port);
+                changeIconSeñal(true);
                 isConected = true;
                 //System.out.println("Conexion Establecida Correctamente.");
             } catch (UnknownHostException ex) {
                 //System.out.println("Aqui: " + ex.getMessage());
             } catch (IOException ex) {
                 //System.err.println("No es posible conectarse con el Servidor");
-                try {
-                    sleep(5000);
-                    openConexion();
+                try {                    
+                    closeConexion();
+                    sleep(30000);
+                    openConexion();                    
                 } catch (InterruptedException ex1) {
                 }
             }
@@ -117,6 +122,7 @@ public class ChannelLastGps extends Thread {
             }
             try {
                 s.close();
+                changeIconSeñal(false);
                 isConected = false;
                 //System.err.println("Canal Cerrado con el Servidor");
             } catch (NullPointerException ex) {
@@ -150,5 +156,17 @@ public class ChannelLastGps extends Thread {
                     recorrido[10]);
         } catch (ArrayIndexOutOfBoundsException ex) {
         } 
+    }
+    
+    private void changeIconSeñal(boolean señal) {
+        if (señal) {
+            Principal.lblConection.setIcon(new javax.swing.ImageIcon(ChannelMessageFromServer.class.getResource("/com/kradac/despachos/img/senal.png")));
+            Principal.isConextion = true;
+            Principal.modelListEvents.add(0, "Conexion Establecida con el Servidor");
+        } else {
+            Principal.lblConection.setIcon(new javax.swing.ImageIcon(ChannelMessageFromServer.class.getResource("/com/kradac/despachos/img/nosenal.png")));
+            Principal.isConextion = false;
+            Principal.modelListEvents.add(0, "Conexion Perdida con el Servidor");
+        }
     }
 }

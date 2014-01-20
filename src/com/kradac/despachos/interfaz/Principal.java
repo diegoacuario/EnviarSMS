@@ -7,7 +7,6 @@ package com.kradac.despachos.interfaz;
 
 import com.kradac.despachos.interfaz.requerid.Time;
 import com.kradac.despachos.interfaz.requerid.ColorComboBoxEditor;
-import com.kradac.despachos.interfaz.requerid.FormatTable;
 import com.kradac.despachos.interfaz.requerid.ColorCellRenderer;
 import com.kradac.despachos.administration.Client;
 import com.kradac.despachos.administration.CodesTaxy;
@@ -40,11 +39,14 @@ import com.kradac.despachos.conections.ChannelLastGps;
 import com.kradac.despachos.conections.ChannelMessageFromServer;
 import com.kradac.despachos.conections.ChannelMessageToServer;
 import com.kradac.despachos.database.DataBase;
+import com.kradac.despachos.interfaz.requerid.Pintame;
 import com.kradac.despachos.methods.Functions;
 import com.kradac.despachos.threads.ThreadBloqueos;
 import com.kradac.despachos.threads.ThreadCalls;
 import com.kradac.despachos.threads.ThreadClient;
 import com.kradac.despachos.threads.ThreadDispatch;
+import com.kradac.despachos.threads.ThreadTrash;
+import java.awt.Frame;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -58,12 +60,12 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
-import javax.swing.SwingConstants;
+import javax.swing.RowFilter;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 /**
  *
@@ -98,6 +100,9 @@ public class Principal extends javax.swing.JFrame {
     public static DefaultTableModel modelTableByDispatch;
     public static DefaultTableModel modelTableDispatch;
     public static DefaultTableModel modelTableDispatch2;
+    public static TableRowSorter<TableModel> sorter;
+    public static TableRowSorter<TableModel> sorter2;
+    public static TableRowSorter<TableModel> sorterTrash;
     public static DefaultTableModel modelTableCall;
     public static DefaultTableModel modelTableTrash;
     public static DefaultListModel modelListEvents;
@@ -160,6 +165,9 @@ public class Principal extends javax.swing.JFrame {
 
         ThreadBloqueos tb = new ThreadBloqueos();
         tb.start();
+        
+        ThreadTrash tt = new ThreadTrash();
+        tt.start();
 
         ChannelMessageFromServer cmfs = new ChannelMessageFromServer();
         cmfs.start();
@@ -181,8 +189,6 @@ public class Principal extends javax.swing.JFrame {
         loadComboStates();
         keyPressed();
         showDispatch();
-        
-        bd.loadTrash();
 
         /*int host = Integer.parseInt(fileConfig.getProperty("host"));
          String [] parts = fileConfig.getProperty("ip_base"+host).split(";");
@@ -194,11 +200,22 @@ public class Principal extends javax.swing.JFrame {
         ThreadCalls tcll = new ThreadCalls();
         tcll.start();
         //}
-
         jpSlope.setVisible(false);
         lblSlope.setVisible(false);
         btnImport.setVisible(false);
         btnHistorical.setVisible(false);
+
+        sorter = new TableRowSorter<TableModel>(modelTableDispatch);
+        tblDispatchs.setRowSorter(sorter);
+
+        sorter2 = new TableRowSorter<TableModel>(modelTableDispatch2);
+        tblDispatchs2.setRowSorter(sorter2);
+        
+        sorterTrash = new TableRowSorter<TableModel>(modelTableTrash);
+        tblTrash.setRowSorter(sorterTrash);
+
+        //sorter.setRowFilter(RowFilter.regexFilter("4", 2));
+        //sorter.setRowFilter(RowFilter.numberFilter(RowFilter.ComparisonType.EQUAL, Integer.parseInt("4"), 3));
     }
 
     public void keyPressed() {
@@ -288,7 +305,7 @@ public class Principal extends javax.swing.JFrame {
             }
         }
 
-        paintStateTaxy(listVehiculos.getEncabezadosTablaVehiculosArrayList());
+        paintStateTaxy();
     }
 
     public static void showDispatch() {
@@ -297,7 +314,7 @@ public class Principal extends javax.swing.JFrame {
         lblDispatchT.setText("" + listDispatch.getDispatchByTurn());
     }
 
-    public static void paintStateTaxy(ArrayList encab) {
+    public static void paintStateTaxy() {
         DataBase newdb = new DataBase(fileConfig, numHost);
         //Clave valor
         //[n_unidad]==>[id_codigo]
@@ -309,19 +326,20 @@ public class Principal extends javax.swing.JFrame {
         }
         newdb.closeConexion();
 
-        try {
-            DefaultTableCellRenderer tcr = new DefaultTableCellRenderer();
-            tcr.setHorizontalAlignment(SwingConstants.CENTER);
-            tcr.setVerticalAlignment(SwingConstants.CENTER);
+        tblStateVeh.setDefaultRenderer(tblStateVeh.getColumnClass(0), new Pintame(unidadCodigoBD, codeStateVeh, colorStateVeh));
+        /*try {
+         DefaultTableCellRenderer tcr = new DefaultTableCellRenderer();
+         tcr.setHorizontalAlignment(SwingConstants.CENTER);
+         tcr.setVerticalAlignment(SwingConstants.CENTER);
 
-            for (int i = 0, len = tblStateVeh.getColumnCount(); i < len; i++) {
-                TableColumn column = tblStateVeh.getColumn(tblStateVeh.getColumnName(i));
-                column.setCellRenderer(new FormatTable(encab, unidadCodigoBD, codeStateVeh, colorStateVeh));
-            }
-            tblStateVeh.repaint();
-        } catch (NullPointerException ex) {
-            System.err.println("Null al pintar estado del Taxi");
-        }
+         for (int i = 0, len = tblStateVeh.getColumnCount(); i < len; i++) {
+         TableColumn column = tblStateVeh.getColumn(tblStateVeh.getColumnName(i));
+         column.setCellRenderer(new FormatTable(encab, unidadCodigoBD, codeStateVeh, colorStateVeh));
+         }
+         tblStateVeh.repaint();
+         } catch (NullPointerException ex) {
+         System.err.println("Null al pintar estado del Taxi");
+         }*/
     }
 
     public static void loadComboStates() {
@@ -332,55 +350,58 @@ public class Principal extends javax.swing.JFrame {
         cbxStateVeh.setEditor(editor);
     }
 
-    public static String[] changeToArrayClient(Client client) {
-        if (client.getCode() == 0) {
-            client.setDirection("");
+    public static Object[] changeToArrayClient(Client client, String line) {
+        /*if (client.getCode() == 0) {
             client.setName("");
             client.setLastname("");
             client.setSector("");
-        }
-        String[] dataPerson = {
+            client.setDirection("");
+        }*/
+        Object dataPerson[] = new Object[]{
+            line,
             Functions.getTime(),
             client.getPhone(),
-            "" + client.getCode(),
+            client.getCode(),
             client.getName() + " " + client.getLastname(),
             client.getSector(),
             client.getDirection(),
-            "",
-            "",
-            "", "", "", ""
+            "", "", "", "", "", ""
         };
         return dataPerson;
     }
 
-    public String[] addNewClient(String phone) {
-        String[] dataClient = {Functions.getTime(), phone, "0", "", "", "", "", "", "", "", "", ""};
+    public Object[] addNewClient(String phone) {
+        Object dataClient[] = new Object[]{"",Functions.getTime(), phone, 0, "", "", "", "", "", "", "", "", ""};
         return dataClient;
     }
 
-    public String[] changeToArrayDispatch(ByDispatch dispatch) {
-        String[] dataDispatch = {
+    public Object[] changeToArrayDispatch(ByDispatch dispatch) {
+        Object dataDispatch[] = new Object[]{
+            dispatch.getLine(),
+            dispatch.getDate(),
             dispatch.getTime(),
             dispatch.getPhone(),
-            "" + dispatch.getCode(),
+            dispatch.getCode(),
             dispatch.getClient(),
             dispatch.getSector(),
             dispatch.getDirection(),
-            "" + dispatch.getVehiculo(),
-            "" + dispatch.getMinute(),
+            dispatch.getVehiculo(),
+            dispatch.getMinute(),
             dispatch.getTimeAsig(),
             dispatch.getPlaca(),
-            "" + dispatch.getAtraso(),
+            dispatch.getAtraso(),
             dispatch.getNote()
         };
         return dataDispatch;
     }
 
-    public String[] changeToArrayTrash(ByDispatch bd) {
-        String[] dataTrash = {
+    public Object[] changeToArrayTrash(ByDispatch bd) {
+        Object dataTrash[] = new Object[]{
+            bd.getLine(),
+            bd.getDate(),
             bd.getTime(),
             bd.getPhone(),
-            bd.getCode()+"",
+            bd.getCode(),
             bd.getClient(),
             bd.getSector(),
             bd.getDirection()
@@ -389,6 +410,11 @@ public class Principal extends javax.swing.JFrame {
     }
 
     public void dispatch() {
+        try {
+            tblByDispatch.getCellEditor().stopCellEditing();
+        } catch (NullPointerException e) {
+        }
+
         int rowSelected = tblByDispatch.getSelectedRow();
         if (rowSelected != -1) {
             String timeLastDipatch, dateLastDispatch;
@@ -403,45 +429,46 @@ public class Principal extends javax.swing.JFrame {
             if (Functions.getTime().compareTo(timeLastDipatch) < 0 && Functions.getDate().compareTo(dateLastDispatch) < 0) {
                 JOptionPane.showMessageDialog(this, "Iguale la Hora de Su Reloj Para Realizar Despachos", "ERROR", JOptionPane.ERROR_MESSAGE);
             } else {
-                if (!tblByDispatch.getValueAt(rowSelected, 3).toString().equals("")) {
+                if (!tblByDispatch.getValueAt(rowSelected, 4).toString().equals("")) {
                     try {
-                        int vehiculo = Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 6).toString());
-                        int code = Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 2).toString());
+                        int vehiculo = Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 7).toString());
+                        int code = Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 3).toString());
                         Client c = Principal.listClient.getClientByCode(code);
 
                         ByDispatch auxByDispatch = new ByDispatch(
-                                Functions.getDate(),
                                 tblByDispatch.getValueAt(rowSelected, 0).toString(),
+                                Functions.getDate(),
                                 tblByDispatch.getValueAt(rowSelected, 1).toString(),
+                                tblByDispatch.getValueAt(rowSelected, 2).toString(),
                                 code,
-                                tblByDispatch.getValueAt(rowSelected, 3).toString(),
                                 tblByDispatch.getValueAt(rowSelected, 4).toString(),
                                 tblByDispatch.getValueAt(rowSelected, 5).toString(),
+                                tblByDispatch.getValueAt(rowSelected, 6).toString(),
                                 vehiculo,
-                                Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 7).toString()),
-                                tblByDispatch.getValueAt(rowSelected, 8).toString(),
+                                Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 8).toString()),
                                 tblByDispatch.getValueAt(rowSelected, 9).toString(),
-                                Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 10).toString()),
-                                tblByDispatch.getValueAt(rowSelected, 11).toString()
+                                tblByDispatch.getValueAt(rowSelected, 10).toString(),
+                                Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 11).toString()),
+                                tblByDispatch.getValueAt(rowSelected, 12).toString(),
+                                c.getLatitud(), c.getLongitud()
                         );
 
                         Dispatch auxDispatch = new Dispatch(Functions.getDate(),
-                                tblByDispatch.getValueAt(rowSelected, 0).toString(),
-                                tblByDispatch.getValueAt(rowSelected, 1).toString(), code,
-                                tblByDispatch.getValueAt(rowSelected, 3).toString(),
-                                tblByDispatch.getValueAt(rowSelected, 4).toString(),
-                                tblByDispatch.getValueAt(rowSelected, 5).toString(),
-                                vehiculo, Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 7).toString()),
-                                tblByDispatch.getValueAt(rowSelected, 8).toString(),
-                                tblByDispatch.getValueAt(rowSelected, 9).toString(),
-                                Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 10).toString()),
-                                tblByDispatch.getValueAt(rowSelected, 11).toString(),
-                                c.getReference(), c.getNumHouse(), c.getDestino());
+                                auxByDispatch.getTime(),
+                                auxByDispatch.getPhone(), code,
+                                auxByDispatch.getClient(),
+                                auxByDispatch.getSector(),
+                                auxByDispatch.getDirection(),
+                                vehiculo, auxByDispatch.getMinute(),
+                                auxByDispatch.getTimeAsig(),
+                                auxByDispatch.getPlaca(),
+                                auxByDispatch.getAtraso(),
+                                auxByDispatch.getNote(),
+                                c.getReference(), c.getNumHouse(), c.getDestino(),
+                                tblByDispatch.getValueAt(rowSelected, 0).toString());
 
                         listByDispatch.addByDispatch(auxByDispatch);
                         listDispatch.addDispatch(auxDispatch);
-
-                        numDispatchs++;
 
                         bd.insertLifeAssigns(
                                 userLogin.getUser(),//user
@@ -463,6 +490,7 @@ public class Principal extends javax.swing.JFrame {
                         );
                         bd.insertAssigns(
                                 userLogin.getUser(),//user
+                                auxDispatch.getLine(), //linea
                                 auxDispatch.getTime(),//hora
                                 code,//code
                                 auxDispatch.getPhone(),//telefono                            
@@ -487,7 +515,7 @@ public class Principal extends javax.swing.JFrame {
                         bd.deleteClientMap(code);
 
                         listVehiculos.setCodeTaxyByEtiqueta(vehiculo, listCodesTaxy.getCodesTaxyById("OCU"));
-                        paintStateTaxy(listVehiculos.getEncabezadosTablaVehiculosArrayList());
+                        paintStateTaxy();
                         //redimencionarTableVehiculos();
                         showDispatch();
                     } catch (NumberFormatException e) {
@@ -504,45 +532,65 @@ public class Principal extends javax.swing.JFrame {
     }
 
     public void deleteRowByDispatch() {
+        try {
+            tblByDispatch.getCellEditor().stopCellEditing();
+        } catch (NullPointerException e) {
+        }
+
         int rowSelected = tblByDispatch.getSelectedRow();
         if (rowSelected == -1) {
             JOptionPane.showMessageDialog(null, "No ha seleccionado una Fila.");
         } else {
-            String vehiculo = tblByDispatch.getValueAt(rowSelected, 6).toString();
-            int code = Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 2).toString());
-            if (!vehiculo.equals("")) {
+            int code = Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 3).toString());
+            ByDispatch bds = new ByDispatch(tblByDispatch.getValueAt(rowSelected, 0).toString(),
+                    Functions.getDate(), tblByDispatch.getValueAt(rowSelected, 1).toString(),
+                    tblByDispatch.getValueAt(rowSelected, 2).toString(), code,
+                    tblByDispatch.getValueAt(rowSelected, 4).toString(), tblByDispatch.getValueAt(rowSelected, 5).toString(),
+                    tblByDispatch.getValueAt(rowSelected, 6).toString(), -1, 0, "", "", 0, "", 0.0, 0.0);
+            try {
+                String vehiculo = tblByDispatch.getValueAt(rowSelected, 7).toString();
+
                 listVehiculos.setCodeTaxyByEtiqueta(Integer.parseInt(vehiculo), listCodesTaxy.getCodesTaxyById("AC"));
-                paintStateTaxy(listVehiculos.getEncabezadosTablaVehiculosArrayList());
+                paintStateTaxy();
 
                 if (bd.insertLifeAssigns(
                         userLogin.getUser(),//user
-                        tblByDispatch.getValueAt(rowSelected, 0) + "",//hora
-                        Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 2) + ""),//code
-                        tblByDispatch.getValueAt(rowSelected, 1) + "",//telefono
+                        tblByDispatch.getValueAt(rowSelected, 1).toString(),//hora
+                        Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 3).toString()),//code
+                        tblByDispatch.getValueAt(rowSelected, 2).toString(),//telefono
                         "AC", 0,
                         "",
                         "",
                         "",
                         "",
-                        Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 6) + ""),//vehiculo
+                        Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 7).toString()),//vehiculo
                         0,//Integer.parseInt((String) tblByDispatch.getValueAt(rowSelected, 7)),//minute
-                        tblByDispatch.getValueAt(rowSelected, 9) + "",//id_vehiculo
+                        tblByDispatch.getValueAt(rowSelected, 10).toString(),//id_vehiculo
                         0,//Integer.parseInt((String) tblByDispatch.getValueAt(rowSelected, 10)),//atraso
                         "",
                         "",
                         0,
                         0.0, 0.0
                 )) {//si se ingresa en la base se borra en la tabla}
-                    modelTableByDispatch.removeRow(rowSelected);
                     bd.deleteClientMap(code);
-                    //listByDispatch.deleteByDispatch(code);
+                    if (bd.insertTrashAssign(userLogin.getUser(), bds.getTime() + "",
+                            code,//code
+                            bds.getPhone(),//telefono
+                            bds.getClient(),
+                            bds.getSector(),
+                            bds.getDirection(),
+                            bds.getLine()
+                    )) {
+                        modelTableTrash.insertRow(0, changeToArrayTrash(bds));
+                        modelTableByDispatch.removeRow(rowSelected);
+                        //listByDispatch.deleteByDispatch(code);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "No se pudo Eliminar el Despacho");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "No se pudo Guardar Time Life del Despacho");
                 }
-            } else {
-                ByDispatch bds = new ByDispatch("", tblByDispatch.getValueAt(rowSelected, 0).toString(),
-                        tblByDispatch.getValueAt(rowSelected, 1).toString(), code,
-                        tblByDispatch.getValueAt(rowSelected, 3).toString(), tblByDispatch.getValueAt(rowSelected, 4).toString(),
-                        tblByDispatch.getValueAt(rowSelected, 5).toString(), -1, 0, "", "", 0, "");
-
+            } catch (NullPointerException | NumberFormatException e) {
                 if (bd.insertLifeAssigns(
                         userLogin.getUser(),//user
                         bds.getTime(),//hora
@@ -555,16 +603,22 @@ public class Principal extends javax.swing.JFrame {
                         "", "", 0, 0.0, 0.0
                 )) {//si se ingresa en la base se borra en la tabla}
                     bd.deleteClientMap(code);
-                    bd.insertTrashAssign(userLogin.getUser(), bds.getTime() + "",
+                    if (bd.insertTrashAssign(userLogin.getUser(), bds.getTime() + "",
                             code,//code
                             bds.getPhone(),//telefono
                             bds.getClient(),
                             bds.getSector(),
-                            bds.getDirection()
-                    );
-                    modelTableTrash.insertRow(0, changeToArrayTrash(bds));
-                    modelTableByDispatch.removeRow(rowSelected);
-                    //listByDispatch.deleteByDispatch(code);
+                            bds.getDirection(),
+                            bds.getLine()
+                    )) {
+                        modelTableTrash.insertRow(0, changeToArrayTrash(bds));
+                        modelTableByDispatch.removeRow(rowSelected);
+                        //listByDispatch.deleteByDispatch(code);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "No se pudo Eliminar el Despacho");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "No se pudo Guardar Time Life del Despacho");
                 }
             }
         }
@@ -573,15 +627,15 @@ public class Principal extends javax.swing.JFrame {
     public static void updateTableByDispatch(Client client, String phoneOld, String note) {
         for (int fila = 0; fila < tblByDispatch.getRowCount(); fila++) {
             for (int columna = 0; columna < tblByDispatch.getColumnCount(); columna++) {
-                if (columna == 1) {
+                if (columna == 2) {
                     String phoneRow = modelTableByDispatch.getValueAt(fila, columna).toString();
                     if (phoneRow.equals(phoneOld)) {
-                        modelTableByDispatch.setValueAt(client.getPhone(), fila, 1);
-                        modelTableByDispatch.setValueAt(client.getCode(), fila, 2);
-                        modelTableByDispatch.setValueAt(client.getName() + " " + client.getLastname(), fila, 3);
-                        modelTableByDispatch.setValueAt(client.getSector(), fila, 4);
-                        modelTableByDispatch.setValueAt(client.getDirection(), fila, 5);
-                        modelTableByDispatch.setValueAt(note, fila, 11);
+                        modelTableByDispatch.setValueAt(client.getPhone(), fila, 2);
+                        modelTableByDispatch.setValueAt(client.getCode(), fila, 3);
+                        modelTableByDispatch.setValueAt(client.getName() + " " + client.getLastname(), fila, 4);
+                        modelTableByDispatch.setValueAt(client.getSector(), fila, 5);
+                        modelTableByDispatch.setValueAt(client.getDirection(), fila, 6);
+                        modelTableByDispatch.setValueAt(note, fila, 12);
                         bd.insertClientMap(client);
                     }
                 }
@@ -593,7 +647,7 @@ public class Principal extends javax.swing.JFrame {
         int rep = 0;
         for (int fila = 0; fila < tblByDispatch.getRowCount(); fila++) {
             for (int columna = 0; columna < tblByDispatch.getColumnCount(); columna++) {
-                if (columna == 6) {
+                if (columna == 7) {
                     String vehiculo = modelTableByDispatch.getValueAt(fila, columna).toString();
                     if (vehiculo.equals(veh)) {
                         rep++;
@@ -611,15 +665,15 @@ public class Principal extends javax.swing.JFrame {
         int rep = 0;
         for (int fila = 0; fila < tblByDispatch.getRowCount(); fila++) {
             for (int columna = 0; columna < tblByDispatch.getColumnCount(); columna++) {
-                if (columna == 6) {
+                if (columna == 7) {
                     String vehiculo = modelTableByDispatch.getValueAt(fila, columna).toString();
                     if (vehiculo.equals(veh)) {
-                        modelTableByDispatch.setValueAt("", fila, 6);
                         modelTableByDispatch.setValueAt("", fila, 7);
                         modelTableByDispatch.setValueAt("", fila, 8);
                         modelTableByDispatch.setValueAt("", fila, 9);
                         modelTableByDispatch.setValueAt("", fila, 10);
                         modelTableByDispatch.setValueAt("", fila, 11);
+                        modelTableByDispatch.setValueAt("", fila, 12);
                     }
                 }
             }
@@ -669,7 +723,7 @@ public class Principal extends javax.swing.JFrame {
         txtCode = new javax.swing.JTextField();
         lblCall = new javax.swing.JLabel();
         jpSlope = new javax.swing.JPanel();
-        jLabel5 = new javax.swing.JLabel();
+        lblTextPending = new javax.swing.JLabel();
         lblClientSlope = new javax.swing.JLabel();
         lblMinuteSlope = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
@@ -712,6 +766,14 @@ public class Principal extends javax.swing.JFrame {
         jPanel2 = new javax.swing.JPanel();
         jScrollPane7 = new javax.swing.JScrollPane();
         tblTrash = new javax.swing.JTable();
+        jPanel17 = new javax.swing.JPanel();
+        jPanel18 = new javax.swing.JPanel();
+        jLabel13 = new javax.swing.JLabel();
+        txtTrashClient = new javax.swing.JTextField();
+        jLabel14 = new javax.swing.JLabel();
+        txtTrashPhone = new javax.swing.JTextField();
+        jLabel15 = new javax.swing.JLabel();
+        txtTrashCode = new javax.swing.JTextField();
         jPanel7 = new javax.swing.JPanel();
         jPanel10 = new javax.swing.JPanel();
         btnSlope = new javax.swing.JButton();
@@ -728,6 +790,7 @@ public class Principal extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("SISTEMA DE DESPACHOS. V 3.0");
+        setExtendedState(6);
         setIconImage(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/logo.png")).getImage());
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosed(java.awt.event.WindowEvent evt) {
@@ -748,8 +811,10 @@ public class Principal extends javax.swing.JFrame {
             }
         ));
         tblStateVeh.setCellSelectionEnabled(true);
+        tblStateVeh.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(tblStateVeh);
         tblStateVeh.getAccessibleContext().setAccessibleDescription("");
+        tblStateVeh.getAccessibleContext().setAccessibleParent(tblStateVeh);
 
         cbxZonas.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Zona Norte", "Zona Centro", "Zona Sur" }));
         cbxZonas.addActionListener(new java.awt.event.ActionListener() {
@@ -787,8 +852,7 @@ public class Principal extends javax.swing.JFrame {
                         .addComponent(cbxZonas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(cbByTurn)
-                        .addGap(0, 8, Short.MAX_VALUE)))
-                .addContainerGap())
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
 
         jLabel2.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
@@ -829,8 +893,8 @@ public class Principal extends javax.swing.JFrame {
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(2, 2, 2)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addComponent(jLabel2)
@@ -839,29 +903,27 @@ public class Principal extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel3)
-                    .addComponent(txtCode, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addComponent(lblCall, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(6, 6, 6))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(txtCode, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(lblCall)))
+                .addGap(48, 48, 48))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel3))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel3))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txtPhone)
-                            .addComponent(txtCode))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(lblCall, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(txtPhone)
+                        .addComponent(txtCode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(lblCall)))
         );
 
-        jLabel5.setText("Se debe Despachar al Cliente a las:");
+        lblTextPending.setText("Se debe Despachar al Cliente a las:");
 
         lblClientSlope.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         lblClientSlope.setText("Cliente");
@@ -876,7 +938,7 @@ public class Principal extends javax.swing.JFrame {
             .addGroup(jpSlopeLayout.createSequentialGroup()
                 .addGroup(jpSlopeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jpSlopeLayout.createSequentialGroup()
-                        .addComponent(jLabel5)
+                        .addComponent(lblTextPending)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(lblMinuteSlope))
                     .addComponent(lblClientSlope))
@@ -885,13 +947,12 @@ public class Principal extends javax.swing.JFrame {
         jpSlopeLayout.setVerticalGroup(
             jpSlopeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jpSlopeLayout.createSequentialGroup()
-                .addGap(21, 21, 21)
                 .addGroup(jpSlopeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
+                    .addComponent(lblTextPending)
                     .addComponent(lblMinuteSlope))
                 .addGap(18, 18, 18)
                 .addComponent(lblClientSlope)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(0, 5, Short.MAX_VALUE))
         );
 
         lblTime.setFont(new java.awt.Font("Arial", 1, 36)); // NOI18N
@@ -917,8 +978,8 @@ public class Principal extends javax.swing.JFrame {
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1)
                     .addComponent(jLabel4)
@@ -929,27 +990,24 @@ public class Principal extends javax.swing.JFrame {
                     .addComponent(lblDispatchD, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(lblDispatchT, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(lblTime))
+                .addComponent(lblTime)
+                .addContainerGap(20, Short.MAX_VALUE))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                .addContainerGap(13, Short.MAX_VALUE)
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel1)
-                            .addComponent(lblDispatchG))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel4)
-                            .addComponent(lblDispatchD))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel6)
-                            .addComponent(lblDispatchT)))
-                    .addComponent(lblTime))
-                .addContainerGap())
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(lblDispatchG))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(lblDispatchD))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(lblDispatchT)))
+            .addComponent(lblTime, javax.swing.GroupLayout.Alignment.TRAILING)
         );
 
         jLabel9.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
@@ -972,25 +1030,24 @@ public class Principal extends javax.swing.JFrame {
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
-                .addGap(0, 11, Short.MAX_VALUE)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel9)
                     .addGroup(jPanel6Layout.createSequentialGroup()
                         .addComponent(cbxStateVeh, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnChangeState))))
+                        .addComponent(btnChangeState)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
-                .addContainerGap()
                 .addComponent(jLabel9)
                 .addGap(18, 18, 18)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cbxStateVeh, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnChangeState))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(btnChangeState)))
         );
 
         tblCall.setModel(new javax.swing.table.DefaultTableModel(
@@ -1001,14 +1058,22 @@ public class Principal extends javax.swing.JFrame {
                 "Linea", "Hora", "Telefono", "Cliente", "Direccion", "Referencia"
             }
         ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
             boolean[] canEdit = new boolean [] {
                 false, false, false, false, false, false
             };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
+        tblCall.getTableHeader().setReorderingAllowed(false);
         tblCall.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 tblCallMousePressed(evt);
@@ -1031,17 +1096,25 @@ public class Principal extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Hora", "Telefono", "Codigo", "Cliente", "Barrio o Sector", "Direccion", "Unidad", "Min.", "H. Asig.", "Placa", "Atr.", "Nota"
+                "Linea", "Hora", "Telefono", "Codigo", "Cliente", "Barrio o Sector", "Direccion", "Unidad", "Min.", "H. Asig.", "Placa", "Atr.", "Nota"
             }
         ) {
-            boolean[] canEdit = new boolean [] {
-                false, true, false, true, true, true, true, true, false, false, false, true
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.String.class
             };
+            boolean[] canEdit = new boolean [] {
+                false, false, true, false, true, true, true, true, true, false, false, false, true
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
+        tblByDispatch.getTableHeader().setReorderingAllowed(false);
         tblByDispatch.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 tblByDispatchMousePressed(evt);
@@ -1055,15 +1128,16 @@ public class Principal extends javax.swing.JFrame {
         jScrollPane2.setViewportView(tblByDispatch);
         if (tblByDispatch.getColumnModel().getColumnCount() > 0) {
             tblByDispatch.getColumnModel().getColumn(0).setPreferredWidth(50);
-            tblByDispatch.getColumnModel().getColumn(1).setPreferredWidth(65);
-            tblByDispatch.getColumnModel().getColumn(2).setPreferredWidth(40);
-            tblByDispatch.getColumnModel().getColumn(3).setPreferredWidth(150);
+            tblByDispatch.getColumnModel().getColumn(1).setPreferredWidth(50);
+            tblByDispatch.getColumnModel().getColumn(2).setPreferredWidth(65);
+            tblByDispatch.getColumnModel().getColumn(3).setPreferredWidth(40);
             tblByDispatch.getColumnModel().getColumn(4).setPreferredWidth(150);
-            tblByDispatch.getColumnModel().getColumn(5).setPreferredWidth(200);
-            tblByDispatch.getColumnModel().getColumn(6).setPreferredWidth(40);
-            tblByDispatch.getColumnModel().getColumn(7).setPreferredWidth(25);
-            tblByDispatch.getColumnModel().getColumn(10).setPreferredWidth(25);
-            tblByDispatch.getColumnModel().getColumn(11).setPreferredWidth(100);
+            tblByDispatch.getColumnModel().getColumn(5).setPreferredWidth(150);
+            tblByDispatch.getColumnModel().getColumn(6).setPreferredWidth(200);
+            tblByDispatch.getColumnModel().getColumn(7).setPreferredWidth(40);
+            tblByDispatch.getColumnModel().getColumn(8).setPreferredWidth(25);
+            tblByDispatch.getColumnModel().getColumn(11).setPreferredWidth(25);
+            tblByDispatch.getColumnModel().getColumn(12).setPreferredWidth(100);
         }
 
         btnDispatch2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/enviar.png"))); // NOI18N
@@ -1117,17 +1191,25 @@ public class Principal extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Hora", "Telefono", "Codigo", "Cliente", "Barrio o Sector", "Direccion", "Unidad", "Min.", "H. Asig.", "Placa", "Atr.", "Nota"
+                "Linea", "Fecha", "Hora", "Telefono", "Codigo", "Cliente", "Barrio o Sector", "Direccion", "Unidad", "Min.", "H. Asig.", "Placa", "Atr.", "Nota"
             }
         ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false, false
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.String.class
             };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false, false, false, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
+        tblDispatchs.getTableHeader().setReorderingAllowed(false);
         tblDispatchs.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 tblDispatchsMousePressed(evt);
@@ -1141,15 +1223,16 @@ public class Principal extends javax.swing.JFrame {
         jScrollPane6.setViewportView(tblDispatchs);
         if (tblDispatchs.getColumnModel().getColumnCount() > 0) {
             tblDispatchs.getColumnModel().getColumn(0).setPreferredWidth(50);
-            tblDispatchs.getColumnModel().getColumn(1).setPreferredWidth(65);
-            tblDispatchs.getColumnModel().getColumn(2).setPreferredWidth(40);
-            tblDispatchs.getColumnModel().getColumn(3).setPreferredWidth(150);
-            tblDispatchs.getColumnModel().getColumn(4).setPreferredWidth(150);
-            tblDispatchs.getColumnModel().getColumn(5).setPreferredWidth(200);
-            tblDispatchs.getColumnModel().getColumn(6).setPreferredWidth(40);
-            tblDispatchs.getColumnModel().getColumn(7).setPreferredWidth(25);
-            tblDispatchs.getColumnModel().getColumn(10).setPreferredWidth(25);
-            tblDispatchs.getColumnModel().getColumn(11).setPreferredWidth(100);
+            tblDispatchs.getColumnModel().getColumn(2).setPreferredWidth(50);
+            tblDispatchs.getColumnModel().getColumn(3).setPreferredWidth(65);
+            tblDispatchs.getColumnModel().getColumn(4).setPreferredWidth(40);
+            tblDispatchs.getColumnModel().getColumn(5).setPreferredWidth(150);
+            tblDispatchs.getColumnModel().getColumn(6).setPreferredWidth(150);
+            tblDispatchs.getColumnModel().getColumn(7).setPreferredWidth(200);
+            tblDispatchs.getColumnModel().getColumn(8).setPreferredWidth(40);
+            tblDispatchs.getColumnModel().getColumn(9).setPreferredWidth(25);
+            tblDispatchs.getColumnModel().getColumn(12).setPreferredWidth(25);
+            tblDispatchs.getColumnModel().getColumn(13).setPreferredWidth(100);
         }
 
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
@@ -1159,7 +1242,7 @@ public class Principal extends javax.swing.JFrame {
             .addGroup(jPanel8Layout.createSequentialGroup()
                 .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 783, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 482, Short.MAX_VALUE))
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 516, Short.MAX_VALUE))
             .addComponent(jScrollPane6)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel8Layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
@@ -1169,16 +1252,15 @@ public class Principal extends javax.swing.JFrame {
         jPanel8Layout.setVerticalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE)
-                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel16, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 161, Short.MAX_VALUE))
         );
 
         tabPanel.addTab("Principal", jPanel8);
@@ -1255,7 +1337,7 @@ public class Principal extends javax.swing.JFrame {
             jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel14Layout.createSequentialGroup()
                 .addComponent(jPanel15, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 727, Short.MAX_VALUE))
+                .addGap(0, 761, Short.MAX_VALUE))
         );
         jPanel14Layout.setVerticalGroup(
             jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1267,17 +1349,25 @@ public class Principal extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Hora", "Telefono", "Codigo", "Cliente", "Barrio", "Direccion", "Unidad", "Min.", "H. Asig.", "Placa", "Atr.", "Nota"
+                "Linea", "Fecha", "Hora", "Telefono", "Codigo", "Cliente", "Barrio", "Direccion", "Unidad", "Min.", "H. Asig.", "Placa", "Atr.", "Nota"
             }
         ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false, false
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.Object.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.String.class
             };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false, false, false, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
+        tblDispatchs2.getTableHeader().setReorderingAllowed(false);
         tblDispatchs2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 tblDispatchs2MousePressed(evt);
@@ -1286,21 +1376,16 @@ public class Principal extends javax.swing.JFrame {
         jScrollPane5.setViewportView(tblDispatchs2);
         if (tblDispatchs2.getColumnModel().getColumnCount() > 0) {
             tblDispatchs2.getColumnModel().getColumn(0).setPreferredWidth(50);
-            tblDispatchs2.getColumnModel().getColumn(1).setPreferredWidth(65);
-            tblDispatchs2.getColumnModel().getColumn(2).setPreferredWidth(40);
-            tblDispatchs2.getColumnModel().getColumn(3).setPreferredWidth(150);
-            tblDispatchs2.getColumnModel().getColumn(4).setPreferredWidth(150);
-            tblDispatchs2.getColumnModel().getColumn(5).setPreferredWidth(200);
-            tblDispatchs2.getColumnModel().getColumn(6).setPreferredWidth(40);
-            tblDispatchs2.getColumnModel().getColumn(6).setHeaderValue("Unidad");
-            tblDispatchs2.getColumnModel().getColumn(7).setPreferredWidth(25);
-            tblDispatchs2.getColumnModel().getColumn(7).setHeaderValue("Min.");
-            tblDispatchs2.getColumnModel().getColumn(8).setHeaderValue("H. Asig.");
-            tblDispatchs2.getColumnModel().getColumn(9).setHeaderValue("Placa");
-            tblDispatchs2.getColumnModel().getColumn(10).setPreferredWidth(25);
-            tblDispatchs2.getColumnModel().getColumn(10).setHeaderValue("Atr.");
-            tblDispatchs2.getColumnModel().getColumn(11).setPreferredWidth(100);
-            tblDispatchs2.getColumnModel().getColumn(11).setHeaderValue("Nota");
+            tblDispatchs2.getColumnModel().getColumn(2).setPreferredWidth(50);
+            tblDispatchs2.getColumnModel().getColumn(3).setPreferredWidth(65);
+            tblDispatchs2.getColumnModel().getColumn(4).setPreferredWidth(40);
+            tblDispatchs2.getColumnModel().getColumn(5).setPreferredWidth(150);
+            tblDispatchs2.getColumnModel().getColumn(6).setPreferredWidth(150);
+            tblDispatchs2.getColumnModel().getColumn(7).setPreferredWidth(200);
+            tblDispatchs2.getColumnModel().getColumn(8).setPreferredWidth(40);
+            tblDispatchs2.getColumnModel().getColumn(9).setPreferredWidth(25);
+            tblDispatchs2.getColumnModel().getColumn(12).setPreferredWidth(25);
+            tblDispatchs2.getColumnModel().getColumn(13).setPreferredWidth(100);
         }
 
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
@@ -1315,7 +1400,7 @@ public class Principal extends javax.swing.JFrame {
             .addGroup(jPanel9Layout.createSequentialGroup()
                 .addComponent(jPanel14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 359, Short.MAX_VALUE))
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 367, Short.MAX_VALUE))
         );
 
         tabPanel.addTab("Despachos", jPanel9);
@@ -1325,17 +1410,25 @@ public class Principal extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Hora", "Telefono", "Codigo", "Cliente", "Barrio", "Direccion"
+                "Linea", "Fecha", "Hora", "Telefono", "Codigo", "Cliente", "Barrio", "Direccion"
             }
         ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
+        tblTrash.getTableHeader().setReorderingAllowed(false);
         tblTrash.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 tblTrashMousePressed(evt);
@@ -1344,12 +1437,92 @@ public class Principal extends javax.swing.JFrame {
         jScrollPane7.setViewportView(tblTrash);
         if (tblTrash.getColumnModel().getColumnCount() > 0) {
             tblTrash.getColumnModel().getColumn(0).setPreferredWidth(50);
-            tblTrash.getColumnModel().getColumn(1).setPreferredWidth(65);
-            tblTrash.getColumnModel().getColumn(2).setPreferredWidth(40);
-            tblTrash.getColumnModel().getColumn(3).setPreferredWidth(150);
-            tblTrash.getColumnModel().getColumn(4).setPreferredWidth(150);
-            tblTrash.getColumnModel().getColumn(5).setPreferredWidth(200);
+            tblTrash.getColumnModel().getColumn(2).setPreferredWidth(50);
+            tblTrash.getColumnModel().getColumn(3).setPreferredWidth(65);
+            tblTrash.getColumnModel().getColumn(4).setPreferredWidth(40);
+            tblTrash.getColumnModel().getColumn(5).setPreferredWidth(150);
+            tblTrash.getColumnModel().getColumn(6).setPreferredWidth(150);
+            tblTrash.getColumnModel().getColumn(7).setPreferredWidth(200);
         }
+
+        jLabel13.setText("Cliente:");
+
+        txtTrashClient.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtTrashClientActionPerformed(evt);
+            }
+        });
+
+        jLabel14.setText("Telefono:");
+
+        txtTrashPhone.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtTrashPhoneActionPerformed(evt);
+            }
+        });
+        txtTrashPhone.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtTrashPhoneKeyTyped(evt);
+            }
+        });
+
+        jLabel15.setText("Codigo:");
+
+        txtTrashCode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtTrashCodeActionPerformed(evt);
+            }
+        });
+        txtTrashCode.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtTrashCodeKeyTyped(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel18Layout = new javax.swing.GroupLayout(jPanel18);
+        jPanel18.setLayout(jPanel18Layout);
+        jPanel18Layout.setHorizontalGroup(
+            jPanel18Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel18Layout.createSequentialGroup()
+                .addComponent(jLabel13)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txtTrashClient, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel14)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txtTrashPhone, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel15)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txtTrashCode, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 44, Short.MAX_VALUE))
+        );
+        jPanel18Layout.setVerticalGroup(
+            jPanel18Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel18Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel18Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel13)
+                    .addComponent(txtTrashClient, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel14)
+                    .addComponent(txtTrashPhone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel15)
+                    .addComponent(txtTrashCode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout jPanel17Layout = new javax.swing.GroupLayout(jPanel17);
+        jPanel17.setLayout(jPanel17Layout);
+        jPanel17Layout.setHorizontalGroup(
+            jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel17Layout.createSequentialGroup()
+                .addComponent(jPanel18, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 741, Short.MAX_VALUE))
+        );
+        jPanel17Layout.setVerticalGroup(
+            jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel18, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        );
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -1357,51 +1530,22 @@ public class Principal extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 801, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(460, Short.MAX_VALUE))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 890, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jPanel17, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 396, Short.MAX_VALUE))
+                .addComponent(jPanel17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 367, Short.MAX_VALUE))
         );
 
         tabPanel.addTab("No Despachados", jPanel2);
-
-        javax.swing.GroupLayout panelCenterLayout = new javax.swing.GroupLayout(panelCenter);
-        panelCenter.setLayout(panelCenterLayout);
-        panelCenterLayout.setHorizontalGroup(
-            panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelCenterLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(tabPanel)
-                    .addGroup(panelCenterLayout.createSequentialGroup()
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jpSlope, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(42, 42, 42)
-                        .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-        );
-        panelCenterLayout.setVerticalGroup(
-            panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelCenterLayout.createSequentialGroup()
-                .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelCenterLayout.createSequentialGroup()
-                        .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelCenterLayout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jpSlope, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addComponent(tabPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 435, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
 
         btnSlope.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/pendientes.png"))); // NOI18N
         btnSlope.setText("Pendientes");
@@ -1524,14 +1668,41 @@ public class Principal extends javax.swing.JFrame {
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel7Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(23, 23, 23))
-            .addGroup(jPanel7Layout.createSequentialGroup()
+            .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
+        javax.swing.GroupLayout panelCenterLayout = new javax.swing.GroupLayout(panelCenter);
+        panelCenter.setLayout(panelCenterLayout);
+        panelCenterLayout.setHorizontalGroup(
+            panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelCenterLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(22, 22, 22))
+                .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(tabPanel)
+                    .addGroup(panelCenterLayout.createSequentialGroup()
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jpSlope, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+        );
+        panelCenterLayout.setVerticalGroup(
+            panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelCenterLayout.createSequentialGroup()
+                .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jpSlope, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(panelCenterLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(tabPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 443, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -1541,10 +1712,7 @@ public class Principal extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(panelCenter, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -1552,10 +1720,7 @@ public class Principal extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelCenter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, 77, Short.MAX_VALUE)
-                .addGap(0, 0, 0))
+                .addComponent(panelCenter, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -1568,15 +1733,15 @@ public class Principal extends javax.swing.JFrame {
             } else {
                 int code = Integer.parseInt(txtCode.getText());
                 Client c = listClient.getClientByCode(code);
-                modelTableByDispatch.insertRow(0, changeToArrayClient(c));
+                modelTableByDispatch.insertRow(0, changeToArrayClient(c, ""));
                 bd.insertClientMap(c);
                 txtCode.setText("");
                 if (code == 0) {
-                    tblByDispatch.setColumnSelectionInterval(3, 3);
+                    tblByDispatch.setColumnSelectionInterval(4, 4);
                     tblByDispatch.setRowSelectionInterval(0, 0);
                     tblByDispatch.requestFocus();
                 } else {
-                    tblByDispatch.setColumnSelectionInterval(6, 6);
+                    tblByDispatch.setColumnSelectionInterval(7, 7);
                     tblByDispatch.setRowSelectionInterval(0, 0);
                     tblByDispatch.requestFocus();
                 }
@@ -1591,21 +1756,22 @@ public class Principal extends javax.swing.JFrame {
 
     private void txtPhoneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPhoneActionPerformed
         String phone = txtPhone.getText();
+        phone = Functions.validatePhone(phone);
         try {
             if (tblByDispatch.isEditing()) {
                 tblByDispatch.getCellEditor().cancelCellEditing();
             } else {
-                modelTableByDispatch.insertRow(0, changeToArrayClient(listClient.getClientByPhone(Functions.validatePhone(phone))));
+                modelTableByDispatch.insertRow(0, changeToArrayClient(listClient.getClientByPhone(phone), ""));
                 txtPhone.setText("");
-                tblByDispatch.setColumnSelectionInterval(6, 6);
+                tblByDispatch.setColumnSelectionInterval(7, 7);
                 tblByDispatch.setRowSelectionInterval(0, 0);
                 tblByDispatch.requestFocus();
             }
         } catch (NullPointerException ex) {
-            if (!Functions.validatePhone(phone).equals("")) {
+            if (!phone.equals("")) {
                 modelTableByDispatch.insertRow(0, addNewClient(phone));
                 txtPhone.setText("");
-                tblByDispatch.setColumnSelectionInterval(3, 3);
+                tblByDispatch.setColumnSelectionInterval(4, 4);
                 tblByDispatch.setRowSelectionInterval(0, 0);
                 tblByDispatch.requestFocus();
             }
@@ -1623,18 +1789,18 @@ public class Principal extends javax.swing.JFrame {
                 for (int i = 0; i < numCol.length; i++) {
                     int vehiculo = Integer.parseInt(listVehiculos.getEncabezadosTablaVehiculosArrayString()[numCol[i]]);
                     Vehiculo v = listVehiculos.getVehiculoByVehiculo(vehiculo);
-                    if (v.getCodesTaxy().getIdCodigo().equals("OCU") || v.getCodesTaxy().getIdCodigo().equals("ASI")) {
-                        int r = JOptionPane.showConfirmDialog(this, "\n<html><b>¿Esta seguro que quiere Activar esta unidad?</b></html>", "Error", 0);
+                    /*if (v.getCodesTaxy().getIdCodigo().equals("OCU") || v.getCodesTaxy().getIdCodigo().equals("ASI")) {
+                     int r = JOptionPane.showConfirmDialog(this, "\n<html><b>¿Esta seguro que quiere Activar esta unidad?</b></html>", "Error", 0);
 
-                        if (r == 0) {
-                            clearStateVehiculo(tblStateVeh.getColumnName(numCol[i]) + "");
-                            listVehiculos.setCodeTaxyByEtiqueta(vehiculo, ct);
-                        }
-                    } else {
-                        listVehiculos.setCodeTaxyByEtiqueta(vehiculo, ct);
-                    }
+                     if (r == 0) {*/
+                    clearStateVehiculo(tblStateVeh.getColumnName(numCol[i]) + "");
+                    listVehiculos.setCodeTaxyByEtiqueta(vehiculo, ct);
+                    /*}
+                     } else {
+                     listVehiculos.setCodeTaxyByEtiqueta(vehiculo, ct);
+                     }*/
                 }
-                paintStateTaxy(listVehiculos.getEncabezadosTablaVehiculosArrayList());
+                paintStateTaxy();
             } else {
                 JOptionPane.showMessageDialog(this, "Debe seleccionar una Unidad primero", "ERROR", JOptionPane.ERROR_MESSAGE);
             }
@@ -1656,31 +1822,31 @@ public class Principal extends javax.swing.JFrame {
             int rowSelected = tblByDispatch.getSelectedRow();
             int columnSelected = tblByDispatch.getSelectedColumn();
 
-            if (columnSelected == 6) {  //Cuando se Produce Cambio en la Celda de la Unidad
+            if (columnSelected == 7) {  //Cuando se Produce Cambio en la Celda de la Unidad
                 if (tblByDispatch.isEditing()) {
                     tblByDispatch.getCellEditor().cancelCellEditing();
                 } else {
                     try {
-                        int vehiculo = Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 6).toString());
+                        int vehiculo = Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 7).toString());
                         if (!vehiculoExisteTableByDispatch("" + vehiculo)) {
                             String placa = listVehiculos.getPlacaVeh(vehiculo);
                             if (placa == null) {
                                 JOptionPane.showMessageDialog(null, "Solo Puede Ingresar Numeros de Unidad Validos");
-                                tblByDispatch.setValueAt("", rowSelected, 6);
                                 tblByDispatch.setValueAt("", rowSelected, 7);
                                 tblByDispatch.setValueAt("", rowSelected, 8);
                                 tblByDispatch.setValueAt("", rowSelected, 9);
                                 tblByDispatch.setValueAt("", rowSelected, 10);
+                                tblByDispatch.setValueAt("", rowSelected, 11);
                             } else {
                                 if (listVehiculos.getBloqueoVehiculo(vehiculo)) {
                                     JOptionPane.showMessageDialog(this, "Esta unidad ha sido bloqueada por falta de PAGO, no se podrá despachar "
                                             + "más carreras hasta que no se comunique con KRADAC\n"
                                             + "para que sea habilitada nuevamente...", "ERROR", JOptionPane.ERROR_MESSAGE);
-                                    tblByDispatch.setValueAt("", rowSelected, 6);
                                     tblByDispatch.setValueAt("", rowSelected, 7);
                                     tblByDispatch.setValueAt("", rowSelected, 8);
                                     tblByDispatch.setValueAt("", rowSelected, 9);
                                     tblByDispatch.setValueAt("", rowSelected, 10);
+                                    tblByDispatch.setValueAt("", rowSelected, 11);
                                 } else {
 
                                     Vehiculo v = listVehiculos.getVehiculoByVehiculo(vehiculo);
@@ -1688,60 +1854,61 @@ public class Principal extends javax.swing.JFrame {
                                         int r = JOptionPane.showConfirmDialog(this, "\n<html><b>¿Esta seguro que quiere Activar esta unidad?</b></html>", "Error", 0);
 
                                         if (r == 0) {
-                                            tblByDispatch.setValueAt(placa, rowSelected, 9);
-                                            tblByDispatch.setValueAt(Functions.getTime(), rowSelected, 8);
+                                            tblByDispatch.setValueAt(placa, rowSelected, 10);
+                                            tblByDispatch.setValueAt(Functions.getTime(), rowSelected, 9);
 
                                             listVehiculos.setCodeTaxyByEtiqueta(vehiculo, listCodesTaxy.getCodesTaxyById("AC"));
-                                            paintStateTaxy(listVehiculos.getEncabezadosTablaVehiculosArrayList());
-                                            tblByDispatch.setValueAt("", rowSelected, 6);
+                                            paintStateTaxy();
                                             tblByDispatch.setValueAt("", rowSelected, 7);
                                             tblByDispatch.setValueAt("", rowSelected, 8);
                                             tblByDispatch.setValueAt("", rowSelected, 9);
                                             tblByDispatch.setValueAt("", rowSelected, 10);
+                                            tblByDispatch.setValueAt("", rowSelected, 11);
                                         } else {
-                                            tblByDispatch.setValueAt("", rowSelected, 6);
                                             tblByDispatch.setValueAt("", rowSelected, 7);
                                             tblByDispatch.setValueAt("", rowSelected, 8);
                                             tblByDispatch.setValueAt("", rowSelected, 9);
                                             tblByDispatch.setValueAt("", rowSelected, 10);
+                                            tblByDispatch.setValueAt("", rowSelected, 11);
                                         }
                                     } else {
-                                        tblByDispatch.setValueAt(placa, rowSelected, 9);
-                                        tblByDispatch.setValueAt(Functions.getTime(), rowSelected, 8);
+                                        tblByDispatch.setValueAt(Functions.getTime(), rowSelected, 9);
+                                        tblByDispatch.setValueAt(placa, rowSelected, 10);
 
                                         listVehiculos.setCodeTaxyByEtiqueta(vehiculo, listCodesTaxy.getCodesTaxyById("ASI"));
-                                        paintStateTaxy(listVehiculos.getEncabezadosTablaVehiculosArrayList());
-
+                                        paintStateTaxy();
                                         Principal.listMessageToServer.addMessageGarmin(new MessageToGarmin(vehiculo,
-                                                tblByDispatch.getValueAt(rowSelected, 3).toString(),
                                                 tblByDispatch.getValueAt(rowSelected, 4).toString(),
                                                 tblByDispatch.getValueAt(rowSelected, 5).toString(),
-                                                numDispatchs, Integer.parseInt((String) tblByDispatch.getValueAt(rowSelected, 2)),
+                                                tblByDispatch.getValueAt(rowSelected, 6).toString(),
+                                                numDispatchs, Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 3).toString()),
                                                 false)
                                         );
 
-                                        Call c = listCall.getCallByPhone(tblByDispatch.getValueAt(rowSelected, 1).toString());
+                                        numDispatchs++;
+
+                                        Call c = listCall.getCallByPhone(tblByDispatch.getValueAt(rowSelected, 2).toString());
 
                                         if (c != null) {
                                             Principal.listMessageToServer.addMessageAndroid(new MessageToAndroid(c.getIdSolicitud(),
-                                                    Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 6).toString()),
+                                                    Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 7).toString()),
                                                     false)
                                             );
                                         }
 
                                         bd.insertLifeAssigns(
                                                 userLogin.getUser(),//user
-                                                (String) tblByDispatch.getValueAt(rowSelected, 0),//hora
-                                                Integer.parseInt((String) tblByDispatch.getValueAt(rowSelected, 2)),//code
-                                                (String) tblByDispatch.getValueAt(rowSelected, 1),//telefono
+                                                tblByDispatch.getValueAt(rowSelected, 1).toString(),//hora
+                                                Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 3).toString()),//code
+                                                tblByDispatch.getValueAt(rowSelected, 2).toString(),//telefono
                                                 "ASI", 0,
                                                 "",
                                                 "",
                                                 "",
                                                 "",
-                                                Integer.parseInt((String) tblByDispatch.getValueAt(rowSelected, 6)),//vehiculo
+                                                Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 7).toString()),//vehiculo
                                                 0,//Integer.parseInt((String) tblByDispatch.getValueAt(rowSelected, 7)),//minute
-                                                (String) tblByDispatch.getValueAt(rowSelected, 9),//id_vehiculo
+                                                tblByDispatch.getValueAt(rowSelected, 10).toString(),//id_vehiculo
                                                 0,//Integer.parseInt((String) tblByDispatch.getValueAt(rowSelected, 10)),//atraso
                                                 "",
                                                 "",
@@ -1760,42 +1927,33 @@ public class Principal extends javax.swing.JFrame {
                             if (r == 0) {
                                 clearStateVehiculo(vehiculo + "");
                                 listVehiculos.setCodeTaxyByEtiqueta(vehiculo, listCodesTaxy.getCodesTaxyById("AC"));
-                                paintStateTaxy(listVehiculos.getEncabezadosTablaVehiculosArrayList());
+                                paintStateTaxy();
                             } else {
-                                tblByDispatch.setValueAt("", rowSelected, 6);
+                                tblByDispatch.setValueAt("", rowSelected, 7);
                             }
                         }
                     } catch (NumberFormatException e) {
-                        try {
-                            Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 6).toString());
-                        } catch (NumberFormatException ex) {
-                            JOptionPane.showMessageDialog(this, "Solo Puede Ingresar Numeros de Unidad Validos", "ERROR", JOptionPane.ERROR_MESSAGE);
-                            tblByDispatch.setValueAt("", rowSelected, 6);
-                        } finally {
-                            tblByDispatch.setValueAt("", rowSelected, 7);
-                            tblByDispatch.setValueAt("", rowSelected, 8);
-                            tblByDispatch.setValueAt("", rowSelected, 9);
-                            tblByDispatch.setValueAt("", rowSelected, 10);
-                        }
+                        //No hace nada ya que si el campo esta como Integer no te deja pasar
+                    } catch (NullPointerException e) {
                     }
                 }
             }
 
-            if (columnSelected == 7) { //Cuando se Produce Cambio en la Celda de Minutos de Llegada
+            if (columnSelected == 8) { //Cuando se Produce Cambio en la Celda de Minutos de Llegada
                 if (tblByDispatch.isEditing()) {
                     tblByDispatch.getCellEditor().cancelCellEditing();
                 } else {
-                    if (!tblByDispatch.getValueAt(rowSelected, 6).toString().equals("")) {
-                        try {
-                            int minute = Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 7).toString());
-                            tblByDispatch.setValueAt(minute * -1, rowSelected, 10);
-                        } catch (NumberFormatException e) {
-                            JOptionPane.showMessageDialog(this, "Solo Puede Ingresar Numeros", "ERROR", JOptionPane.ERROR_MESSAGE);
-                            tblByDispatch.setValueAt("", rowSelected, 7);
+                    try {
+                        if (!tblByDispatch.getValueAt(rowSelected, 7).toString().equals("")) {
+                            int minute = Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 8).toString());
+                            tblByDispatch.setValueAt(minute * -1, rowSelected, 11);
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Asigne Unidad al Despacho");
+                            tblByDispatch.setValueAt("", rowSelected, 8);
                         }
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Asigne Unidad al Despacho");
-                        tblByDispatch.setValueAt("", rowSelected, 7);
+                    } catch (NumberFormatException e) {
+                        //No hace nada ya que si el campo esta como Integer no te deja pasar
+                    } catch (NullPointerException e) {
                     }
                 }
             }
@@ -1822,17 +1980,22 @@ public class Principal extends javax.swing.JFrame {
             int rowSelected = tblByDispatch.getSelectedRow();
             int columnSelected = tblByDispatch.getSelectedColumn();
 
-            String value = tblByDispatch.getValueAt(rowSelected, 9).toString();
-            if (columnSelected == 9 && !value.equals("")) {
+            String value = "";
+            try {
+                tblByDispatch.getValueAt(rowSelected, 10).toString();
+            } catch (NullPointerException e) {
+            }
+
+            if (columnSelected == 10 && !value.equals("")) {
                 System.out.println("Vehiculo");
             } else {
                 if ((fc == null) || (!fc.isDisplayable())) {
-                    fc = new FrameClients(tblByDispatch.getValueAt(rowSelected, 1).toString(),
-                            Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 2).toString()),
-                            tblByDispatch.getValueAt(rowSelected, 3).toString(),
+                    fc = new FrameClients(tblByDispatch.getValueAt(rowSelected, 2).toString(),
+                            Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 3).toString()),
                             tblByDispatch.getValueAt(rowSelected, 4).toString(),
                             tblByDispatch.getValueAt(rowSelected, 5).toString(),
-                            tblByDispatch.getValueAt(rowSelected, 11).toString());
+                            tblByDispatch.getValueAt(rowSelected, 6).toString(),
+                            tblByDispatch.getValueAt(rowSelected, 12).toString());
                 }
                 fc.setVisible(true);
                 fc.setLocationRelativeTo(this);
@@ -1884,15 +2047,29 @@ public class Principal extends javax.swing.JFrame {
 
     private void tblDispatchs2MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblDispatchs2MousePressed
         int intClicks = evt.getClickCount();
+        int intAntiClicks = evt.getButton();
 
         if (intClicks == 2) {
             int rowSelected = tblDispatchs2.getSelectedRow();
 
             if ((fc == null) || (!fc.isDisplayable())) {
-                fc = new FrameClients(tblDispatchs2.getValueAt(rowSelected, 1).toString(),
-                        Integer.parseInt(tblDispatchs2.getValueAt(rowSelected, 2).toString()),
-                        tblDispatchs2.getValueAt(rowSelected, 3).toString(),
-                        tblDispatchs2.getValueAt(rowSelected, 0).toString());
+                fc = new FrameClients(tblDispatchs2.getValueAt(rowSelected, 3).toString(),
+                        Integer.parseInt(tblDispatchs2.getValueAt(rowSelected, 4).toString()),
+                        tblDispatchs2.getValueAt(rowSelected, 5).toString(),
+                        tblDispatchs2.getValueAt(rowSelected, 2).toString());
+            }
+            fc.setVisible(true);
+            fc.setLocationRelativeTo(this);
+        }
+
+        if (intClicks == 1 && intAntiClicks == 3) {
+            int rowSelected = tblDispatchs2.getSelectedRow();
+
+            if ((fc == null) || (!fc.isDisplayable())) {
+                fc = new FrameClients(tblDispatchs2.getValueAt(rowSelected, 3).toString(),
+                        Integer.parseInt(tblDispatchs2.getValueAt(rowSelected, 4).toString()),
+                        tblDispatchs2.getValueAt(rowSelected, 5).toString(),
+                        tblDispatchs2.getValueAt(rowSelected, 2).toString());
             }
             fc.setVisible(true);
             fc.setLocationRelativeTo(this);
@@ -1900,20 +2077,32 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_tblDispatchs2MousePressed
 
     private void txtSearchClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchClientActionPerformed
-        listDispatch.loadDispatchByClient(txtSearchClient.getText());
+        //listDispatch.loadDispatchByClient(txtSearchClient.getText());
+        String text = txtSearchClient.getText().toUpperCase();
+        if (text.length() == 0) {
+            sorter2.setRowFilter(null);
+        } else {
+            sorter2.setRowFilter(RowFilter.regexFilter(text, 5));
+        }
     }//GEN-LAST:event_txtSearchClientActionPerformed
 
     private void txtSearchPhoneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchPhoneActionPerformed
-        listDispatch.loadDispatchByPhone(txtSearchPhone.getText());
+        //listDispatch.loadDispatchByPhone(txtSearchPhone.getText());
+        String text = txtSearchPhone.getText();
+        if (text.length() == 0) {
+            sorter2.setRowFilter(null);
+        } else {
+            sorter2.setRowFilter(RowFilter.regexFilter(text, 3));
+        }
     }//GEN-LAST:event_txtSearchPhoneActionPerformed
 
     private void txtSearchCodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchCodeActionPerformed
-        try {
-            listDispatch.loadDispatchByCode(Integer.parseInt(txtSearchCode.getText()));
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Ingrese un Codigo Para Inicia la Busqueda");
+        String text = txtSearchCode.getText();
+        if (text.length() == 0) {
+            sorter2.setRowFilter(null);
+        } else {
+            sorter2.setRowFilter(RowFilter.numberFilter(RowFilter.ComparisonType.EQUAL, Integer.parseInt(text), 4));
         }
-
     }//GEN-LAST:event_txtSearchCodeActionPerformed
 
     private void txtSearchPhoneKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchPhoneKeyTyped
@@ -1940,15 +2129,29 @@ public class Principal extends javax.swing.JFrame {
 
     private void tblDispatchsMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblDispatchsMousePressed
         int intClicks = evt.getClickCount();
+        int intAntiClicks = evt.getButton();
 
         if (intClicks == 2) {
             int rowSelected = tblDispatchs.getSelectedRow();
 
             if ((fc == null) || (!fc.isDisplayable())) {
-                fc = new FrameClients(tblDispatchs.getValueAt(rowSelected, 1).toString(),
-                        Integer.parseInt(tblDispatchs.getValueAt(rowSelected, 2).toString()),
-                        tblDispatchs.getValueAt(rowSelected, 3).toString(),
-                        tblDispatchs.getValueAt(rowSelected, 0).toString());
+                fc = new FrameClients(tblDispatchs.getValueAt(rowSelected, 3).toString(),
+                        Integer.parseInt(tblDispatchs.getValueAt(rowSelected, 4).toString()),
+                        tblDispatchs.getValueAt(rowSelected, 5).toString(),
+                        tblDispatchs.getValueAt(rowSelected, 2).toString());
+            }
+            fc.setVisible(true);
+            fc.setLocationRelativeTo(this);
+        }
+
+        if (intClicks == 1 && intAntiClicks == 3) {
+            int rowSelected = tblDispatchs.getSelectedRow();
+
+            if ((fc == null) || (!fc.isDisplayable())) {
+                fc = new FrameClients(tblDispatchs.getValueAt(rowSelected, 3).toString(),
+                        Integer.parseInt(tblDispatchs.getValueAt(rowSelected, 4).toString()),
+                        tblDispatchs.getValueAt(rowSelected, 5).toString(),
+                        tblDispatchs.getValueAt(rowSelected, 2).toString());
             }
             fc.setVisible(true);
             fc.setLocationRelativeTo(this);
@@ -1978,22 +2181,22 @@ public class Principal extends javax.swing.JFrame {
             int rowSelected = tblCall.getSelectedRow();
 
             Call c = listCall.getCallByPhone(tblCall.getValueAt(rowSelected, 2).toString());
+
             try {
-                modelTableCall.removeRow(rowSelected);
+                Client cl = listClient.getClientByPhone(Functions.validatePhone(c.getPhone()));
+                
+                cl.setLatitud(c.getLatitud());
+                cl.setLongitud(c.getLongitud());
+
+                modelTableByDispatch.insertRow(0, changeToArrayClient(new Client(c.getClient(), "", c.getPhone(), c.getDirection(), cl.getSector(),
+                        cl.getCode(), "", cl.getLatitud(), cl.getLongitud(), c.getReference(), ""), tblCall.getValueAt(rowSelected, 0).toString()));
+                
             } catch (NullPointerException e) {
+                modelTableByDispatch.insertRow(0, changeToArrayClient(new Client(c.getClient(), "", c.getPhone(), c.getDirection(), "",
+                        0, "", c.getLatitud(), c.getLongitud(), c.getReference(), ""), tblCall.getValueAt(rowSelected, 0).toString()));
             }
 
-            Client cl = listClient.getClientByPhone(Functions.validatePhone(c.getPhone()));
-
-            if (cl == null) {
-                cl = listClient.getClientByCode(0);
-            }
-
-            cl.setLatitud(c.getLatitud());
-            cl.setLongitud(c.getLongitud());
-
-            modelTableByDispatch.insertRow(0, changeToArrayClient(new Client(c.getClient(), "", c.getPhone(), c.getDirection(), "",
-                    cl.getCode(), 0, cl.getLatitud(), cl.getLongitud(), c.getReference(), "")));
+            modelTableCall.removeRow(rowSelected);
         }
     }//GEN-LAST:event_tblCallMousePressed
 
@@ -2009,6 +2212,41 @@ public class Principal extends javax.swing.JFrame {
     private void tblTrashMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblTrashMousePressed
         // TODO add your handling code here:
     }//GEN-LAST:event_tblTrashMousePressed
+
+    private void txtTrashClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTrashClientActionPerformed
+        String text = txtTrashClient.getText().toUpperCase();
+        if (text.length() == 0) {
+            sorterTrash.setRowFilter(null);
+        } else {
+            sorterTrash.setRowFilter(RowFilter.regexFilter(text, 5));
+        }
+    }//GEN-LAST:event_txtTrashClientActionPerformed
+
+    private void txtTrashPhoneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTrashPhoneActionPerformed
+        String text = txtTrashPhone.getText();
+        if (text.length() == 0) {
+            sorterTrash.setRowFilter(null);
+        } else {
+            sorterTrash.setRowFilter(RowFilter.regexFilter(text, 3));
+        }
+    }//GEN-LAST:event_txtTrashPhoneActionPerformed
+
+    private void txtTrashPhoneKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtTrashPhoneKeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtTrashPhoneKeyTyped
+
+    private void txtTrashCodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTrashCodeActionPerformed
+        String text = txtTrashCode.getText();
+        if (text.length() == 0) {
+            sorterTrash.setRowFilter(null);
+        } else {
+            sorterTrash.setRowFilter(RowFilter.numberFilter(RowFilter.ComparisonType.EQUAL, Integer.parseInt(text), 4));
+        }
+    }//GEN-LAST:event_txtTrashCodeActionPerformed
+
+    private void txtTrashCodeKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtTrashCodeKeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtTrashCodeKeyTyped
 
     /**
      */
@@ -2063,10 +2301,12 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
@@ -2075,6 +2315,8 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel14;
     private javax.swing.JPanel jPanel15;
     private javax.swing.JPanel jPanel16;
+    private javax.swing.JPanel jPanel17;
+    private javax.swing.JPanel jPanel18;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel5;
@@ -2099,6 +2341,7 @@ public class Principal extends javax.swing.JFrame {
     public static javax.swing.JLabel lblDispatchT;
     public static javax.swing.JLabel lblMinuteSlope;
     public static javax.swing.JLabel lblSlope;
+    private javax.swing.JLabel lblTextPending;
     public static javax.swing.JLabel lblTime;
     private javax.swing.JList ltEvents;
     private javax.swing.JPanel panelCenter;
@@ -2114,5 +2357,8 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JTextField txtSearchClient;
     private javax.swing.JTextField txtSearchCode;
     private javax.swing.JTextField txtSearchPhone;
+    private javax.swing.JTextField txtTrashClient;
+    private javax.swing.JTextField txtTrashCode;
+    private javax.swing.JTextField txtTrashPhone;
     // End of variables declaration//GEN-END:variables
 }

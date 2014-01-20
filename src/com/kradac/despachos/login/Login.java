@@ -43,7 +43,14 @@ public class Login extends javax.swing.JFrame {
         lblMensaje.setVisible(false);
         
         fileConfig = Functions.getFileProperties("classes/com/kradac/despachos/configFiles/configsystem.properties");
-        int numHosts = Integer.parseInt(fileConfig.getProperty("numHosts"));
+        int numHosts = 1;
+        try {
+            numHosts = Integer.parseInt(fileConfig.getProperty("numHosts"));
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Host invalido, verifique el el numero de host sea correcto: "+fileConfig.getProperty("numHosts"));
+            System.exit(0);
+        }
+        
         bd = new DataBase();
         boolean isDbValid = false;
         

@@ -24,7 +24,8 @@ public class ThreadDispatch extends Thread{
                 DataBase db = new DataBase(Principal.fileConfig, Principal.numHost);
                 db.loadDispatchClient(Principal.listDispatch);
                 db.closeConexion();
-                sleep(2000);
+                
+                sleep(3000);
             } catch (InterruptedException ex) {
                 Logger.getLogger(ThreadDispatch.class.getName()).log(Level.SEVERE, null, ex);
             }

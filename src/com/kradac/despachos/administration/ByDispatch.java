@@ -11,6 +11,7 @@ package com.kradac.despachos.administration;
  * @author Dalton
  */
 public class ByDispatch {
+    private String line;
     private String date;
     private String time;
     private String phone;
@@ -27,7 +28,8 @@ public class ByDispatch {
     private double latitud;
     private double longitud;
 
-    public ByDispatch(String date, String time, String phone, int code, String client, String sector, String direction, int vehiculo, int minute, String timeAsig, String placa, int atraso, String note) {
+    public ByDispatch(String line, String date, String time, String phone, int code, String client, String sector, String direction, int vehiculo, int minute, String timeAsig, String placa, int atraso, String note, double latitud, double longitud) {
+        this.line = line;
         this.date = date;
         this.time = time;
         this.phone = phone;
@@ -41,6 +43,8 @@ public class ByDispatch {
         this.placa = placa;
         this.atraso = atraso;
         this.note = note;
+        this.latitud = latitud;
+        this.longitud = longitud;
     }
 
     /**
@@ -251,6 +255,20 @@ public class ByDispatch {
      */
     public void setDate(String date) {
         this.date = date;
+    }
+
+    /**
+     * @return the line
+     */
+    public String getLine() {
+        return line;
+    }
+
+    /**
+     * @param line the line to set
+     */
+    public void setLine(String line) {
+        this.line = line;
     }
     
     

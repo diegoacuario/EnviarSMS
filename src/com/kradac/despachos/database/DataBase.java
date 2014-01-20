@@ -218,7 +218,7 @@ public class DataBase {
 
             while (rs.next()) {
                 listAux.addPerson(new Person(rs.getString("ID_PERSON"), rs.getString("NAME"), rs.getString("LASTNAME"), rs.getString("PHONE"),
-                        rs.getString("EMAIL"), rs.getString("DIRECTION"), rs.getInt("NUM_HOUSE"), rs.getString("TYPE_SANGRE"),
+                        rs.getString("EMAIL"), rs.getString("DIRECTION"), rs.getString("NUM_HOUSE"), rs.getString("TYPE_SANGRE"),
                         lsc.getStateCivilById(rs.getInt("ID_STATE_CIVIL")), rs.getString("CONYUGUE"), rs.getString("IMAGE"), lj.getJobById(rs.getInt("ID_JOB"))));
             }
             return listAux;
@@ -239,7 +239,7 @@ public class DataBase {
 
             while (rs.next()) {
                 listAux.addClient(new Client(rs.getString("NAME"), rs.getString("LASTNAME"), rs.getString("PHONE"),
-                        rs.getString("DIRECTION"), rs.getString("SECTOR"), rs.getInt("CODE"), rs.getInt("NUM_HOUSE"),
+                        rs.getString("DIRECTION"), rs.getString("SECTOR"), rs.getInt("CODE"), rs.getString("NUM_HOUSE"),
                         rs.getDouble("LATITUD"), rs.getDouble("LONGITUD"), rs.getString("REFERENCE"), ""));
             }
             return listAux;
@@ -417,7 +417,7 @@ public class DataBase {
         ListDispatch listAux = new ListDispatch();
         try {
             String sql = "SELECT DATE, TIME, PHONE, CODE, CLIENT, SECTOR, DIRECTION, VEHICULO, "
-                    + "MINUTE, TIME_ASIG, ID_VEHICULO, ATRASO, NOTE, REFERENCE, NUM_HOUSE, DESTINO "
+                    + "MINUTE, TIME_ASIG, ID_VEHICULO, ATRASO, NOTE, REFERENCE, NUM_HOUSE, DESTINO, LINE "
                     + "FROM assigs "
                     + "WHERE DATE BETWEEN (SELECT DATE(SUBDATE(NOW(), INTERVAL 15 DAY))) AND DATE(NOW()) "
                     + "ORDER BY DATE, TIME";
@@ -428,13 +428,14 @@ public class DataBase {
                         rs.getInt("CODE"), rs.getString("CLIENT"),
                         rs.getString("SECTOR"), rs.getString("DIRECTION"), rs.getInt("VEHICULO"), rs.getInt("MINUTE"),
                         rs.getString("TIME_ASIG"), rs.getString("ID_VEHICULO"), rs.getInt("ATRASO"), rs.getString("NOTE"),
-                        rs.getString("REFERENCE"), rs.getInt("NUM_HOUSE"), rs.getString("DESTINO")
+                        rs.getString("REFERENCE"), rs.getString("NUM_HOUSE"), rs.getString("DESTINO"), rs.getString("LINE")
                 ));
             }
             return listAux;
         } catch (SQLException ex) {
             //Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
             JOptionPane.showMessageDialog(null, "Problemas al Cargar los Despachos Realizados");
+            System.exit(0);
         }
         return null;
     }
@@ -443,7 +444,7 @@ public class DataBase {
 
         try {
             String sql = "SELECT DATE, TIME, PHONE, CODE, CLIENT, SECTOR, DIRECTION, VEHICULO, "
-                    + "MINUTE, TIME_ASIG, ID_VEHICULO, ATRASO, NOTE, REFERENCE, NUM_HOUSE, DESTINO "
+                    + "MINUTE, TIME_ASIG, ID_VEHICULO, ATRASO, NOTE, REFERENCE, NUM_HOUSE, DESTINO, LINE "
                     + "FROM assigs "
                     + "WHERE DATE BETWEEN (SELECT DATE(SUBDATE(NOW(), INTERVAL 2 DAY))) AND DATE(NOW()) "
                     + "ORDER BY DATE DESC, TIME DESC LIMIT 10";
@@ -454,7 +455,7 @@ public class DataBase {
                         rs.getInt("CODE"), rs.getString("CLIENT"),
                         rs.getString("SECTOR"), rs.getString("DIRECTION"), rs.getInt("VEHICULO"), rs.getInt("MINUTE"),
                         rs.getString("TIME_ASIG"), rs.getString("ID_VEHICULO"), rs.getInt("ATRASO"), rs.getString("NOTE"),
-                        rs.getString("REFERENCE"), rs.getInt("NUM_HOUSE"), rs.getString("DESTINO")
+                        rs.getString("REFERENCE"), rs.getString("NUM_HOUSE"), rs.getString("DESTINO"), rs.getString("LINE")
                 ));
             }
         } catch (SQLException ex) {
@@ -466,17 +467,23 @@ public class DataBase {
     public void loadTrash() {
 
         try {
-            String sql = "SELECT DATE, TIME, PHONE, CODE, CLIENT, SECTOR, DIRECTION "
+            String sql = "SELECT DATE, TIME, PHONE, CODE, CLIENT, SECTOR, DIRECTION, LINE "
                     + "FROM trash "
                     + "WHERE DATE BETWEEN (SELECT DATE(SUBDATE(NOW(), INTERVAL 2 DAY))) AND DATE(NOW()) "
-                    + "ORDER BY DATE DESC, TIME DESC";
+                    + "ORDER BY DATE, TIME";
             rs = s.executeQuery(sql);
-
+            
+            for (int i = 0; i < Principal.modelTableTrash.getRowCount(); i++) {
+                Principal.modelTableTrash.removeRow(i);
+            }
+            
             while (rs.next()) {
-                String[] dataTrash = {
+                Object dataTrash[] = new Object[]{
+                    rs.getString("LINE"),
+                    rs.getString("DATE"),
                     rs.getString("TIME"),
                     rs.getString("PHONE"),
-                    rs.getInt("CODE")+"",
+                    rs.getInt("CODE"),
                     rs.getString("CLIENT"),
                     rs.getString("SECTOR"),
                     rs.getString("DIRECTION")
@@ -535,11 +542,12 @@ public class DataBase {
 
     public void getStateVehiculoPendientePago() {
         try {
-            String sql = "SELECT N_UNIDAD, ACTIVO FROM ultimos_gps";
+            String sql = "SELECT N_UNIDAD, ID_CODIGO, ACTIVO FROM ultimos_gps";
 
             rs = s.executeQuery(sql);
             while (rs.next()) {
                 Principal.listVehiculos.updateBloqueVehiculos(rs.getInt("N_UNIDAD"), rs.getBoolean("ACTIVO"));
+                Principal.listVehiculos.setCodeTaxyByEtiquetaThread(rs.getInt("N_UNIDAD"), Principal.listCodesTaxy.getCodesTaxyById(rs.getString("ID_CODIGO")));
             }
         } catch (SQLException ex) {
             Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
@@ -610,13 +618,14 @@ public class DataBase {
                     + "email,direction,num_house,type_sangre,id_state_civil,"
                     + "conyugue,image,id_job) VALUES('" + p.getCedula() + "','"
                     + p.getName() + "','" + p.getLastname() + "','" + p.getPhone()
-                    + "','" + p.getEmail() + "','" + p.getDirection() + "',"
-                    + p.getNumHouse() + ",'" + p.getTypeSangre() + "','"
+                    + "','" + p.getEmail() + "','" + p.getDirection() + "','"
+                    + p.getNumHouse() + "','" + p.getTypeSangre() + "','"
                     + p.getStateCivil().getIdStateCivil() + "','" + p.getConyuge()
                     + "','" + p.getImage() + "'," + p.getJob().getIdJob() + ")";
 
             s.executeUpdate(sql);
         } catch (SQLException ex) {
+            System.out.println(ex);
             inserto = false;
         }
         return inserto;
@@ -673,8 +682,8 @@ public class DataBase {
                     + "'" + c.getPhone() + "',"
                     + "'" + c.getDirection() + "',"
                     + "'" + c.getSector() + "',"
-                    + c.getCode() + ","
-                    + c.getNumHouse() + ","
+                    + c.getCode() + ",'"
+                    + c.getNumHouse() + "',"
                     + c.getLatitud() + ","
                     + c.getLongitud() + ","
                     + "'" + c.getReference() + "')";
@@ -709,37 +718,39 @@ public class DataBase {
         return inserto;
     }
 
-    public void insertTrashAssign(String id_user, String time, int code,
+    public boolean insertTrashAssign(String id_user, String time, int code,
             String phone, String client,
-            String sector, String direction) {
+            String sector, String direction, String line) {
 
         try {
             String sql = "INSERT INTO trash (id_user,date,time,phone,code,client,"
-                    + "sector,direction) VALUES("
+                    + "sector,direction, line) VALUES("
                     + "'" + id_user + "',Date(Now()),'" + time + "','" + phone + "',"
-                    + code + ",'" + client + "','" + sector + "','" + direction + "')";
+                    + code + ",'" + client + "','" + sector + "','" + direction + "','"+line+"')";
 
             s.executeUpdate(sql);
+            return true;
         } catch (SQLException ex) {
-            Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
         }
     }
 
-    public boolean insertAssigns(String id_user, String time, int code,
+    public boolean insertAssigns(String id_user, String line, String time, int code,
             String phone, String client,
             String sector, String direction, String destino, int vehiculo, int minute, String time_asig,
-            String id_vehiculo, int atraso, int numHouse, String reference, String note,
+            String id_vehiculo, int atraso, String numHouse, String reference, String note,
             int tiquete, double latitud, double longitud) {
         boolean inserto = true;
         String sql = "";
         try {
             sql = "INSERT INTO assigs (id_user,date,time,phone,code,client,"
                     + "sector,direction,destino,vehiculo,minute,time_asig,"
-                    + "id_vehiculo,atraso,num_house,reference,note,tiquete,latitud,longitud) VALUES("
+                    + "id_vehiculo,atraso,num_house,reference,note,tiquete,latitud,longitud,line) VALUES("
                     + "'" + id_user + "',Date(Now()),'" + time + "','" + phone + "',"
                     + code + ",'" + client + "','" + sector + "','" + direction + "','"
                     + destino + "'," + vehiculo + "," + minute + ",'" + time_asig + "','" + id_vehiculo + "',"
-                    + atraso + "," + numHouse + ",'" + reference + "','" + note + "'," + tiquete + "," + latitud + "," + longitud + ")";
+                    + atraso + ",'" + numHouse + "','" + reference + "','" + note + "'," + tiquete + "," + latitud + "," + longitud + ",'"+line+"')";
 
             s.executeUpdate(sql);
         } catch (SQLException ex) {
@@ -791,7 +802,7 @@ public class DataBase {
                     + "phone='" + p.getPhone() + "',"
                     + "email='" + p.getEmail() + "',"
                     + "direction='" + p.getDirection() + "',"
-                    + "num_house=" + p.getNumHouse() + ","
+                    + "num_house='" + p.getNumHouse() + "',"
                     + "type_sangre='" + p.getTypeSangre() + "',"
                     + "id_state_civil=" + p.getStateCivil().getIdStateCivil() + ","
                     + "conyugue='" + p.getConyuge() + "',"
@@ -831,7 +842,7 @@ public class DataBase {
                     + "direction='" + client.getDirection() + "',"
                     + "sector='" + client.getSector() + "',"
                     + "code=" + client.getCode() + ","
-                    + "num_house=" + client.getNumHouse() + ","
+                    + "num_house='" + client.getNumHouse() + "',"
                     + "latitud=" + client.getLatitud() + ","
                     + "longitud=" + client.getLongitud() + ","
                     + "reference='" + client.getReference() + "' WHERE code="
@@ -1017,5 +1028,58 @@ public class DataBase {
      */
     public void setServer(String server) {
         this.server = server;
+    }
+    
+    public double[] calcularPromedio(String sql) {
+        try {
+            com.mysql.jdbc.Statement st1 = (com.mysql.jdbc.Statement) conexion.createStatement();
+            rs = st1.executeQuery(sql);
+            int n = 0;
+            double dis[] = new double[8];
+            dis[0] = 0;
+            dis[2] = 0;
+            dis[4] = 0;
+            dis[6] = 0;
+            while (rs.next()) {
+                n++;
+                dis[0] += rs.getDouble("distancia");
+                dis[2] += rs.getDouble("costo");
+                dis[4] += rs.getDouble("paga");
+                dis[6] += rs.getDouble("tiempo_seg");
+
+            }
+            dis[1] = dis[0] / n;
+            dis[3] = dis[2] / n;
+            dis[5] = dis[4] / n;
+            dis[7] = dis[6] / n;
+            for (int i = 0; i < 8; i++) {
+                dis[i] = redondea(dis[i], 3);
+            }
+
+            return dis;
+        } catch (SQLException ex) {
+            System.out.println(ex);
+            return null;
+        }
+    }
+    
+     private double redondea(double x, int n) {
+        double dec = Math.pow(10, n);
+        double r = Math.round(x * dec) / dec;
+        return r;
+    }
+     
+         public ArrayList<String> getAniosBaseDatos() {
+        ArrayList<String> anios = new ArrayList<>();
+        String sql = "SELECT DISTINCT YEAR(date) AS ANIO FROM assigs ORDER BY ANIO DESC";
+        try {
+            rs = s.executeQuery(sql);
+            while (rs.next()) {
+                anios.add(rs.getString(1));
+            }
+        } catch (SQLException ex) {
+          //  log.info("[COD {}]", ex.getErrorCode(), ex);
+        }
+        return anios;
     }
 }

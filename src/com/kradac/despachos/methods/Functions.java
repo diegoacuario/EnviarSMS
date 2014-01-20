@@ -5,6 +5,7 @@
  */
 package com.kradac.despachos.methods;
 
+import com.kradac.despachos.interfaz.Principal;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -98,9 +99,17 @@ public class Functions {
         } else if (lon == 8) {
             return "0" + tel;
         } else if (lon == 7) {
-            return "02" + tel;
+            if (Principal.company.getIdCompany().equals("QLB") || Principal.company.getIdCompany().equals("QPR")) {
+                return "02" + tel;
+            } else {
+                return "07" + tel;
+            }
         } else if (lon == 6) {
-            return "022" + tel;
+            if (Principal.company.getIdCompany().equals("QLB") || Principal.company.getIdCompany().equals("QPR")) {
+                return "022" + tel;
+            } else {
+                return "072" + tel;
+            }
         } else {
             return "";
         }

@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package com.kradac.despachos.threads;
 
 import com.kradac.despachos.database.DataBase;
@@ -15,27 +14,21 @@ import java.util.logging.Logger;
  *
  * @author Dalton
  */
-public class ThreadBloqueos extends Thread{
-    int c = 0;
+public class ThreadBloqueos extends Thread {
 
     @Override
     public void run() {
-        while (true) {            
+        while (true) {
             try {
-                if (c == 0) {
-                    DataBase db = new DataBase(Principal.fileConfig, Principal.numHost);
-                    db.getStateVehiculoPendientePago();
-                    db.closeConexion();
-                }
-                c++;
-                if (c == 10) {
-                    c = 0;
-                }
-                sleep(1000);
+                DataBase db = new DataBase(Principal.fileConfig, Principal.numHost);
+                db.getStateVehiculoPendientePago();
+                db.closeConexion();
+
+                sleep(10000);
             } catch (InterruptedException ex) {
                 Logger.getLogger(ThreadBloqueos.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
-    
+
 }

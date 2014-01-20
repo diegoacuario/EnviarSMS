@@ -39,10 +39,10 @@ public class Time extends TimerTask{
     public void updateTimeByDispatch (String date, String time){
         for (int fila = 0; fila < Principal.tblByDispatch.getRowCount(); fila++) {
             for (int columna = 0; columna < Principal.tblByDispatch.getColumnCount(); columna++) {
-                if (columna == 10) {
+                if (columna == 11) {
                     String atraso = Principal.modelTableByDispatch.getValueAt(fila, columna).toString();
                     if (!atraso.equals("")) {
-                        String timeDispatch = Principal.modelTableByDispatch.getValueAt(fila, 8).toString();
+                        String timeDispatch = Principal.modelTableByDispatch.getValueAt(fila, 9).toString();
                         String [] date1 = date.split("-");
                         String [] time1 = time.split(":");
                         String [] time2 = timeDispatch.split(":");
@@ -66,7 +66,7 @@ public class Time extends TimerTask{
                         int minute = Integer.parseInt(new java.text.SimpleDateFormat("ss").format(new Date(diferencia)).toString());
                         if (minute == 59) {
                             int difAtraso = Integer.parseInt(atraso) + 1;
-                            Principal.modelTableByDispatch.setValueAt(difAtraso, fila, 10);
+                            Principal.modelTableByDispatch.setValueAt(difAtraso, fila, 11);
                         }
                     }
                 }

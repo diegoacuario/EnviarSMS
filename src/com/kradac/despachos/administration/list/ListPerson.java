@@ -64,7 +64,6 @@ public class ListPerson {
         if (existe == -1) {
             if (db.insertPerson(person)) {
                 existe = 1;
-                db.closeConexion();
                 persons.add(person);
             }
         }

@@ -6,10 +6,14 @@
 package com.kradac.despachos.interfaz;
 
 import com.kradac.despachos.database.DataBase;
+import com.kradac.despachos.reportes.GenerarReporteCarreras;
 import com.kradac.despachos.reportes.GenerarReporteClientes;
 import com.kradac.despachos.reportes.GenerarReporteDespachos;
+import com.kradac.despachos.reportes.GenerarReporteEstadosTaxi;
+import com.kradac.despachos.reportes.GenerarReporteEstadosTaximetro;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -30,7 +34,7 @@ public class FrameReports extends javax.swing.JFrame {
         initComponents();
         db = new DataBase(Principal.fileConfig, Principal.numHost);
         cargarComboUsuarios();
-        
+
         JFormattedTextField textField = ((JSpinner.DefaultEditor) jsTimeStart.getEditor()).getTextField();
         JFormattedTextField textField2 = ((JSpinner.DefaultEditor) jsTimeFinish.getEditor()).getTextField();
 
@@ -39,23 +43,24 @@ public class FrameReports extends javax.swing.JFrame {
 
         DateFormatter formatter = (DateFormatter) dff.getDefaultFormatter();
         DateFormatter formatter2 = (DateFormatter) dff2.getDefaultFormatter();
-        
+
         formatter.setFormat(formatTime);
         formatter2.setFormat(formatTime);
-        
+
         jsTimeStart.setValue(gc.getTime());
         jsTimeFinish.setValue(gc.getTime());
-        
+
         jdFechaIniDia.setFormats(formatDate);
         jdFechaIniDia.setDate(gc.getTime());
-        
+
         jdFechaIniDes.setFormats(formatDate);
         jdFechaIniDes.setDate(gc.getTime());
         jdFechaFinDes.setFormats(formatDate);
         jdFechaFinDes.setDate(gc.getTime());
-        
+
         jpFechas.setVisible(false);
         jpHoras.setVisible(false);
+     
     }
 
     private void cargarComboUsuarios() {
@@ -65,6 +70,65 @@ public class FrameReports extends javax.swing.JFrame {
             jcUsuariosDespachos.addItem(user);
         }
     }
+
+    private void cargarAniosCombo() {
+        ArrayList<String> anios = db.getAniosBaseDatos();
+        cbAnio.removeAllItems();
+        for (String anio : anios) {
+            cbAnio.addItem(anio);
+        }
+    }
+    
+//    private void CambiarEnfoqueEstadosTaxi(boolean en) {
+//        textEstadosUni.setText("");
+//        textEstadosUni.setEnabled(en);
+//    }
+
+    private void habilitarAnio(boolean activar) {
+        cargarAniosCombo();
+        cbAnio.setEnabled(activar);
+    }
+
+    private void LimpiarTabClientes() {
+        rTodoCli.setSelected(false);
+        textCodCli.setText("");
+        textTelCli.setText("");
+        textNomCli.setText("");
+    }
+
+    /**
+     * Limpia los campos del tab 1 --> clientes
+     */
+    private void LimpiarTabDespachos() {
+        jdFechaIniDia.setDate(new GregorianCalendar().getTime());
+        textCarrerasCli.setText("");
+        textCarrerasUni.setText("");
+    }
+
+    /**
+     * Limpia los campos del tab 2 --> carreras
+     */
+    private void LimpiarCarreras() {
+        jcCarrerasTotEmpresaMes.setEnabled(false);
+        jcCarrerasTotCliMes.setEnabled(false);
+        jcCarrerasTotUniMes.setEnabled(false);
+        habilitarAnio(false);
+    }
+    
+//      private void CambiarEnfoqueEstadosTiempo() {
+//        if (rEstadosTodoTiem.isSelected()) {
+//            jdEstadosDia.setEnabled(false);
+//            jcEstadosMes.setEnabled(false);
+//        } else {
+//            if (rEstadosDia.isSelected()) {
+//                jdEstadosDia.setEnabled(true);
+//                jcEstadosMes.setEnabled(false);
+//            } else {
+//                jdEstadosDia.setEnabled(false);
+//                jcEstadosMes.setEnabled(true);
+//            }
+//        }
+//    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -87,23 +151,40 @@ public class FrameReports extends javax.swing.JFrame {
         rNomCli = new javax.swing.JRadioButton();
         textNomCli = new javax.swing.JTextField();
         rTodoCli = new javax.swing.JRadioButton();
-        jPanel2 = new javax.swing.JPanel();
+        JTabCarreras = new javax.swing.JTabbedPane();
+        jPanel6 = new javax.swing.JPanel();
         rCarrerasPorDia = new javax.swing.JRadioButton();
         rDespachosTurno = new javax.swing.JRadioButton();
         jcUsuariosDespachos = new javax.swing.JComboBox();
         jdFechaIniDia = new org.jdesktop.swingx.JXDatePicker();
         jpFechas = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
         jdFechaIniDes = new org.jdesktop.swingx.JXDatePicker();
-        jLabel5 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
         jdFechaFinDes = new org.jdesktop.swingx.JXDatePicker();
         jpHoras = new javax.swing.JPanel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
         jsTimeStart = new javax.swing.JSpinner();
         jsTimeFinish = new javax.swing.JSpinner();
         rCarrerasFechHor = new javax.swing.JRadioButton();
-        jSeparator1 = new javax.swing.JSeparator();
+        jSeparator2 = new javax.swing.JSeparator();
+        rCarrerasCli = new javax.swing.JRadioButton();
+        rCarrerasUni = new javax.swing.JRadioButton();
+        textCarrerasCli = new javax.swing.JTextField();
+        textCarrerasUni = new javax.swing.JTextField();
+        jPanel7 = new javax.swing.JPanel();
+        rCarrerasTotEmpresa = new javax.swing.JRadioButton();
+        rCarrerasTotEmpresaMes = new javax.swing.JRadioButton();
+        jcCarrerasTotEmpresaMes = new javax.swing.JComboBox();
+        rCarrerasTotCli = new javax.swing.JRadioButton();
+        rCarrerasTotCliMes = new javax.swing.JRadioButton();
+        jcCarrerasTotCliMes = new javax.swing.JComboBox();
+        rCarrerasTotUni = new javax.swing.JRadioButton();
+        rCarrerasTotUniMes = new javax.swing.JRadioButton();
+        jcCarrerasTotUniMes = new javax.swing.JComboBox();
+        cbAnio = new javax.swing.JComboBox();
+        jLabel15 = new javax.swing.JLabel();
         btnGenerar = new javax.swing.JButton();
         btnSalir = new javax.swing.JButton();
 
@@ -114,6 +195,7 @@ public class FrameReports extends javax.swing.JFrame {
         btgDes.add(rCarrerasPorDia);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Reportes");
         setIconImage(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/reporte.png")).getImage());
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
@@ -169,6 +251,11 @@ public class FrameReports extends javax.swing.JFrame {
 
         btgCli.add(rNomCli);
         rNomCli.setText("Nombre Cliente:");
+        rNomCli.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rNomCliActionPerformed(evt);
+            }
+        });
 
         btgCli.add(rTodoCli);
         rTodoCli.setText("Todos los clientes");
@@ -178,7 +265,7 @@ public class FrameReports extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(56, Short.MAX_VALUE)
+                .addContainerGap(132, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(rTodoCli)
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -212,10 +299,20 @@ public class FrameReports extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(rNomCli)
                     .addComponent(textNomCli, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(98, Short.MAX_VALUE))
+                .addContainerGap(207, Short.MAX_VALUE))
         );
 
         JTabReporte.addTab("Clientes", new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/usuario.png")), jPanel1); // NOI18N
+
+        JTabCarreras.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                JTabCarrerasAncestorAdded(evt);
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
 
         btgDes.add(rCarrerasPorDia);
         rCarrerasPorDia.setText("Carreras del dia:");
@@ -249,7 +346,7 @@ public class FrameReports extends javax.swing.JFrame {
         jpFechas.setBorder(javax.swing.BorderFactory.createTitledBorder("Fechas"));
         jpFechas.setOpaque(false);
 
-        jLabel2.setText("Inicio:");
+        jLabel4.setText("Inicio:");
 
         jdFechaIniDes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -257,7 +354,7 @@ public class FrameReports extends javax.swing.JFrame {
             }
         });
 
-        jLabel5.setText("Fin:");
+        jLabel7.setText("Fin:");
 
         javax.swing.GroupLayout jpFechasLayout = new javax.swing.GroupLayout(jpFechas);
         jpFechas.setLayout(jpFechasLayout);
@@ -265,22 +362,22 @@ public class FrameReports extends javax.swing.JFrame {
             jpFechasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jpFechasLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel2)
+                .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jdFechaIniDes, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(48, 48, 48)
-                .addComponent(jLabel5)
+                .addComponent(jLabel7)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jdFechaFinDes, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(89, Short.MAX_VALUE))
         );
         jpFechasLayout.setVerticalGroup(
             jpFechasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jpFechasLayout.createSequentialGroup()
                 .addGroup(jpFechasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
+                    .addComponent(jLabel4)
                     .addComponent(jdFechaIniDes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel5)
+                    .addComponent(jLabel7)
                     .addComponent(jdFechaFinDes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -288,9 +385,9 @@ public class FrameReports extends javax.swing.JFrame {
         jpHoras.setBorder(javax.swing.BorderFactory.createTitledBorder("Horas"));
         jpHoras.setOpaque(false);
 
-        jLabel3.setText("Inicio:");
+        jLabel8.setText("Inicio:");
 
-        jLabel6.setText("Fin:");
+        jLabel11.setText("Fin:");
 
         jsTimeStart.setModel(new javax.swing.SpinnerDateModel(new java.util.Date(), null, null, java.util.Calendar.MINUTE));
 
@@ -302,11 +399,11 @@ public class FrameReports extends javax.swing.JFrame {
             jpHorasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jpHorasLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel3)
+                .addComponent(jLabel8)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jsTimeStart, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(53, 53, 53)
-                .addComponent(jLabel6)
+                .addComponent(jLabel11)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jsTimeFinish, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -315,8 +412,8 @@ public class FrameReports extends javax.swing.JFrame {
             jpHorasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jpHorasLayout.createSequentialGroup()
                 .addGroup(jpHorasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(jLabel6)
+                    .addComponent(jLabel8)
+                    .addComponent(jLabel11)
                     .addComponent(jsTimeStart, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jsTimeFinish, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -330,59 +427,218 @@ public class FrameReports extends javax.swing.JFrame {
             }
         });
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(66, 66, 66)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(rCarrerasFechHor)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(rDespachosTurno)
-                            .addComponent(rCarrerasPorDia))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jcUsuariosDespachos, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jdFechaIniDia, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        btgDes.add(rCarrerasCli);
+        rCarrerasCli.setText("Codigo Cliente:");
+        rCarrerasCli.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rCarrerasCliActionPerformed(evt);
+            }
+        });
+
+        btgDes.add(rCarrerasUni);
+        rCarrerasUni.setText("Por Unidad:");
+        rCarrerasUni.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rCarrerasUniActionPerformed(evt);
+            }
+        });
+
+        textCarrerasCli.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                textCarrerasCliFocusLost(evt);
+            }
+        });
+
+        textCarrerasUni.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                textCarrerasUniFocusLost(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jpFechas, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jpHoras, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jpHoras, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jpFechas, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 453, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGap(66, 66, 66)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(rCarrerasFechHor)
+                    .addGroup(jPanel6Layout.createSequentialGroup()
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(rDespachosTurno)
+                            .addComponent(rCarrerasPorDia)
+                            .addComponent(rCarrerasCli)
+                            .addComponent(rCarrerasUni))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jdFechaIniDia, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(textCarrerasUni, javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(textCarrerasCli, javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jcUsuariosDespachos, javax.swing.GroupLayout.Alignment.LEADING, 0, 123, Short.MAX_VALUE)))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jSeparator2)
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
                 .addGap(35, 35, 35)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(rCarrerasPorDia)
                     .addComponent(jdFechaIniDia, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(rDespachosTurno, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jcUsuariosDespachos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(rCarrerasFechHor)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(rCarrerasCli)
+                    .addComponent(textCarrerasCli, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(rCarrerasUni)
+                    .addComponent(textCarrerasUni, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(rCarrerasFechHor)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 12, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jpFechas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addGap(26, 26, 26)
                 .addComponent(jpHoras, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(29, 29, 29))
         );
 
-        jpFechas.getAccessibleContext().setAccessibleParent(jpFechas);
-        jpHoras.getAccessibleContext().setAccessibleParent(jpHoras);
+        JTabCarreras.addTab("Carreras Diarias", jPanel6);
 
-        JTabReporte.addTab("Carreras", new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/carreras.png")), jPanel2); // NOI18N
+        btgDes.add(rCarrerasTotEmpresa);
+        rCarrerasTotEmpresa.setText("Total de carreras de la empresa");
+        rCarrerasTotEmpresa.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rCarrerasTotEmpresaActionPerformed(evt);
+            }
+        });
+
+        btgDes.add(rCarrerasTotEmpresaMes);
+        rCarrerasTotEmpresaMes.setText("Total de carreras mensual:");
+        rCarrerasTotEmpresaMes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rCarrerasTotEmpresaMesActionPerformed(evt);
+            }
+        });
+
+        jcCarrerasTotEmpresaMes.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" }));
+
+        btgDes.add(rCarrerasTotCli);
+        rCarrerasTotCli.setText("Total de carreras de clientes");
+        rCarrerasTotCli.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rCarrerasTotCliActionPerformed(evt);
+            }
+        });
+
+        btgDes.add(rCarrerasTotCliMes);
+        rCarrerasTotCliMes.setText("Total de carreras de clientes por mes:");
+        rCarrerasTotCliMes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rCarrerasTotCliMesActionPerformed(evt);
+            }
+        });
+
+        jcCarrerasTotCliMes.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" }));
+
+        btgDes.add(rCarrerasTotUni);
+        rCarrerasTotUni.setText("Total de carreras por unidad");
+        rCarrerasTotUni.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rCarrerasTotUniActionPerformed(evt);
+            }
+        });
+
+        btgDes.add(rCarrerasTotUniMes);
+        rCarrerasTotUniMes.setText("Total de carreras de unidades por mes:");
+        rCarrerasTotUniMes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rCarrerasTotUniMesActionPerformed(evt);
+            }
+        });
+
+        jcCarrerasTotUniMes.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" }));
+
+        cbAnio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbAnioActionPerformed(evt);
+            }
+        });
+
+        jLabel15.setText("Año:");
+
+        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
+        jPanel7.setLayout(jPanel7Layout);
+        jPanel7Layout.setHorizontalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addGap(71, 71, 71)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(rCarrerasTotEmpresa)
+                    .addComponent(rCarrerasTotCli)
+                    .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel7Layout.createSequentialGroup()
+                            .addComponent(rCarrerasTotEmpresaMes)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jcCarrerasTotEmpresaMes, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel7Layout.createSequentialGroup()
+                            .addComponent(rCarrerasTotCliMes)
+                            .addGap(18, 18, 18)
+                            .addComponent(jcCarrerasTotCliMes, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(rCarrerasTotUni)
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addComponent(rCarrerasTotUniMes)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jcCarrerasTotUniMes, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addComponent(jLabel15)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(cbAnio, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(72, Short.MAX_VALUE))
+        );
+        jPanel7Layout.setVerticalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel7Layout.createSequentialGroup()
+                .addGap(73, 73, 73)
+                .addComponent(rCarrerasTotEmpresa)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(rCarrerasTotEmpresaMes)
+                    .addComponent(jcCarrerasTotEmpresaMes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(rCarrerasTotCli)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(rCarrerasTotCliMes)
+                    .addComponent(jcCarrerasTotCliMes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(rCarrerasTotUni)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(rCarrerasTotUniMes)
+                    .addComponent(jcCarrerasTotUniMes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(28, 28, 28)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel15)
+                    .addComponent(cbAnio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(64, Short.MAX_VALUE))
+        );
+
+        JTabCarreras.addTab("Total Carreras", jPanel7);
+
+        JTabReporte.addTab("Carreras", new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/carreras.png")), JTabCarreras); // NOI18N
 
         btnGenerar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/reporte.png"))); // NOI18N
         btnGenerar.setText("Generar");
@@ -404,37 +660,35 @@ public class FrameReports extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(JTabReporte)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(21, 21, 21)
                 .addComponent(btnSalir)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnGenerar)
-                .addGap(44, 44, 44))
+                .addGap(45, 45, 45))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addComponent(JTabReporte, javax.swing.GroupLayout.PREFERRED_SIZE, 534, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
-                .addGap(161, 161, 161)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(222, 222, 222)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(16, 16, 16)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap()
+                .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(JTabReporte)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnSalir)
-                    .addComponent(btnGenerar)))
+                    .addComponent(btnGenerar)
+                    .addComponent(btnSalir)))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void textCodCliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textCodCliActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_textCodCliActionPerformed
 
     private void btnSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalirActionPerformed
         this.dispose();
@@ -446,60 +700,133 @@ public class FrameReports extends javax.swing.JFrame {
         GenerarReporte(idx);
     }//GEN-LAST:event_btnGenerarActionPerformed
 
-    private void jcUsuariosDespachosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcUsuariosDespachosActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jcUsuariosDespachosActionPerformed
-
-    private void rCarrerasPorDiaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rCarrerasPorDiaActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_rCarrerasPorDiaActionPerformed
-
-    private void rDespachosTurnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rDespachosTurnoActionPerformed
-        // TODO add your handling code here:
-        if (rDespachosTurno.isSelected()) {
-            jpFechas.setVisible(true);
-            jpHoras.setVisible(true);
-            jsTimeStart.setValue(gc.getTime());
-            jsTimeFinish.setValue(gc.getTime());
-        }
-    }//GEN-LAST:event_rDespachosTurnoActionPerformed
-
     private void JTabReporteAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_JTabReporteAncestorAdded
         // TODO add your handling code here:
     }//GEN-LAST:event_JTabReporteAncestorAdded
 
-    private void jdFechaIniDiaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jdFechaIniDiaActionPerformed
+    private void JTabCarrerasAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_JTabCarrerasAncestorAdded
         // TODO add your handling code here:
-    }//GEN-LAST:event_jdFechaIniDiaActionPerformed
+    }//GEN-LAST:event_JTabCarrerasAncestorAdded
+
+    private void rCarrerasTotUniMesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rCarrerasTotUniMesActionPerformed
+        LimpiarCarreras();
+        jcCarrerasTotUniMes.setEnabled(true);
+        habilitarAnio(true);
+    }//GEN-LAST:event_rCarrerasTotUniMesActionPerformed
+
+    private void rCarrerasTotUniActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rCarrerasTotUniActionPerformed
+        LimpiarCarreras();
+    }//GEN-LAST:event_rCarrerasTotUniActionPerformed
+
+    private void rCarrerasTotCliMesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rCarrerasTotCliMesActionPerformed
+        LimpiarCarreras();
+        jcCarrerasTotCliMes.setEnabled(true);
+        habilitarAnio(true);
+    }//GEN-LAST:event_rCarrerasTotCliMesActionPerformed
+
+    private void rCarrerasTotCliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rCarrerasTotCliActionPerformed
+        LimpiarCarreras();
+    }//GEN-LAST:event_rCarrerasTotCliActionPerformed
+
+    private void rCarrerasTotEmpresaMesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rCarrerasTotEmpresaMesActionPerformed
+        LimpiarCarreras();
+        jcCarrerasTotEmpresaMes.setEnabled(true);
+        habilitarAnio(true);
+    }//GEN-LAST:event_rCarrerasTotEmpresaMesActionPerformed
+
+    private void rCarrerasTotEmpresaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rCarrerasTotEmpresaActionPerformed
+        LimpiarCarreras();
+    }//GEN-LAST:event_rCarrerasTotEmpresaActionPerformed
+
+    private void textCarrerasUniFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textCarrerasUniFocusLost
+        // TODO add your handling code here:
+    }//GEN-LAST:event_textCarrerasUniFocusLost
+
+    private void textCarrerasCliFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textCarrerasCliFocusLost
+        // TODO add your handling code here:
+    }//GEN-LAST:event_textCarrerasCliFocusLost
+
+    private void rCarrerasFechHorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rCarrerasFechHorActionPerformed
+        // TODO add your handling code here:
+        LimpiarTabDespachos();
+        if (rCarrerasFechHor.isSelected()) {
+            jpFechas.setVisible(true);
+            jpHoras.setVisible(true);
+            textCarrerasUni.setEditable(false);
+            textCarrerasCli.setEditable(false);
+            jcUsuariosDespachos.setEditable(false);
+            jdFechaIniDia.setEditable(false);
+
+        } else {
+            rCarrerasFechHor.setEnabled(false);
+        }
+
+    }//GEN-LAST:event_rCarrerasFechHorActionPerformed
 
     private void jdFechaIniDesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jdFechaIniDesActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jdFechaIniDesActionPerformed
 
-    private void rCarrerasFechHorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rCarrerasFechHorActionPerformed
+    private void jdFechaIniDiaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jdFechaIniDiaActionPerformed
         // TODO add your handling code here:
-        if (rCarrerasFechHor.isSelected()) {
+    }//GEN-LAST:event_jdFechaIniDiaActionPerformed
+
+    private void jcUsuariosDespachosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcUsuariosDespachosActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jcUsuariosDespachosActionPerformed
+
+    private void rDespachosTurnoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rDespachosTurnoActionPerformed
+        // TODO add your handling code here:
+        LimpiarTabDespachos();
+        if (rDespachosTurno.isSelected()) {
+            jcUsuariosDespachos.setEditable(true);
+            textCarrerasCli.setEditable(false);
+            textCarrerasUni.setEditable(false);
+            jdFechaIniDia.setEditable(false);
             jpFechas.setVisible(true);
             jpHoras.setVisible(true);
-        }
-    }//GEN-LAST:event_rCarrerasFechHorActionPerformed
 
-    private void rCodCliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rCodCliActionPerformed
+        } else {
+            rDespachosTurno.setEnabled(false);
+        }
+    }//GEN-LAST:event_rDespachosTurnoActionPerformed
+
+    private void rCarrerasPorDiaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rCarrerasPorDiaActionPerformed
         // TODO add your handling code here:
-        if (rCodCli.isSelected()) {
-            textTelCli.setText("");
-            textTelCli.setEditable(false);
-            textCodCli.setEditable(true);
+        LimpiarTabDespachos();
+        if (rCarrerasPorDia.isSelected()) {
+            jdFechaIniDia.setEditable(true);
+            jcUsuariosDespachos.setEditable(false);
+            textCarrerasCli.setEditable(false);
+            textCarrerasUni.setEditable(false);
+            jpFechas.setVisible(false);
+            jpHoras.setVisible(false);
+        } else {
+            rCarrerasPorDia.setEnabled(false);
         }
+    }//GEN-LAST:event_rCarrerasPorDiaActionPerformed
 
-    }//GEN-LAST:event_rCodCliActionPerformed
+    private void textTelCliFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textTelCliFocusLost
+        // TODO add your handling code here:
+        if (!textTelCli.getText().equals("")) {
+            try {
+                Integer.parseInt(textTelCli.getText());
+            } catch (NumberFormatException ex) {
+                textTelCli.setText("");
+                JOptionPane.showMessageDialog(this, "Solo se puede ingresar numeros...", "Error...", 0);
+            }
+        }
+    }//GEN-LAST:event_textTelCliFocusLost
 
     private void rTelCliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rTelCliActionPerformed
         // TODO add your handling code here:
+        LimpiarTabClientes();
         if (rTelCli.isSelected()) {
-            textCodCli.setText("");
-            textCodCli.setEditable(false);
             textTelCli.setEditable(true);
+            textCodCli.setEditable(false);
+            textNomCli.setEditable(false);
+        } else {
+            textTelCli.setEditable(false);
         }
     }//GEN-LAST:event_rTelCliActionPerformed
 
@@ -519,31 +846,80 @@ public class FrameReports extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_textCodCliFocusLost
 
-    private void textTelCliFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_textTelCliFocusLost
+    private void textCodCliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textCodCliActionPerformed
         // TODO add your handling code here:
-        if (!textTelCli.getText().equals("")) {
-            try {
-                Integer.parseInt(textTelCli.getText());
-            } catch (NumberFormatException ex) {
-                textTelCli.setText("");
-                JOptionPane.showMessageDialog(this, "Solo se puede ingresar numeros...", "Error...", 0);
-            }
+    }//GEN-LAST:event_textCodCliActionPerformed
+
+    private void rCodCliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rCodCliActionPerformed
+        // TODO add your handling code here:
+        LimpiarTabClientes();
+        if (rCodCli.isSelected()) {
+            textCodCli.setEditable(true);
+            textTelCli.setEditable(false);
+            textNomCli.setEditable(false);
+        } else {
+            textCodCli.setEditable(false);
         }
-    }//GEN-LAST:event_textTelCliFocusLost
+    }//GEN-LAST:event_rCodCliActionPerformed
+
+    private void cbAnioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbAnioActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbAnioActionPerformed
+
+    private void rCarrerasCliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rCarrerasCliActionPerformed
+        // TODO add your handling code here:
+        LimpiarTabDespachos();
+        if (rCarrerasCli.isSelected()) {
+            textCarrerasCli.setEditable(true);
+            jcUsuariosDespachos.setEditable(false);
+            textCarrerasUni.setEditable(false);
+            jdFechaIniDia.setEditable(false);
+            jpFechas.setVisible(true);
+            jpHoras.setVisible(true);
+
+        } else {
+            rCarrerasCli.setEnabled(false);
+        }
+    }//GEN-LAST:event_rCarrerasCliActionPerformed
+
+    private void rCarrerasUniActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rCarrerasUniActionPerformed
+        // TODO add your handling code here:
+            LimpiarTabDespachos();
+        if (rCarrerasUni.isSelected()) {
+            textCarrerasUni.setEditable(true);
+            jcUsuariosDespachos.setEditable(false);
+            textCarrerasCli.setEditable(false);
+            jdFechaIniDia.setEditable(false);
+            jpFechas.setVisible(true);
+            jpHoras.setVisible(true);
+        } else {
+            rCarrerasUni.setEnabled(false);
+        }
+    }//GEN-LAST:event_rCarrerasUniActionPerformed
+
+    private void rNomCliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rNomCliActionPerformed
+        LimpiarTabClientes();
+        if (rNomCli.isSelected()) {
+            textTelCli.setEditable(false);
+            textCodCli.setEditable(false);
+            textNomCli.setEditable(true);
+        } else {
+            textNomCli.setEditable(false);
+        }
+    }//GEN-LAST:event_rNomCliActionPerformed
 
     /**
-     * @param args the command line arguments
+     * @param args the command line argureents
      */
     private HashMap getDatosCliente() {
-        
+
         Date now = new Date(System.currentTimeMillis());
-        
+
         SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat hour = new SimpleDateFormat("HH:mm:ss");
-        
-         String fecha=date.format(now);
-        
-        
+
+        String fecha = date.format(now);
+
         HashMap map = new HashMap();
         String cod = textCodCli.getText();
         String tel = textTelCli.getText();
@@ -580,9 +956,9 @@ public class FrameReports extends javax.swing.JFrame {
         String fechaIni = dfFecha.format(jdFechaIniDia.getDate());
         String fechaIniDes = dfFecha.format(jdFechaIniDes.getDate());
         String fechaFinDes = dfFecha.format(jdFechaFinDes.getDate());
-        //String horaIni = txtHoraIni.getText();
-        //String horaFin = txtHoraFin.getText();
         String usuario = jcUsuariosDespachos.getSelectedItem().toString();
+        String cod = textCarrerasCli.getText();
+        String uni = textCarrerasUni.getText();
 
         map.put("user", usuario);
         map.put("fechaIniDes", fechaIniDes);
@@ -590,18 +966,18 @@ public class FrameReports extends javax.swing.JFrame {
         map.put("horaIni", formatTime.format((Date) jsTimeStart.getValue()));
         map.put("horaFin", formatTime.format((Date) jsTimeFinish.getValue()));
         map.put("fechaIni", fechaIni);
+        map.put("cod", cod);
+        map.put("uni", uni);
         try {
             map.put("nombre_user", this.db.getDatosUsuario(usuario).getString("id_user"));
         } catch (SQLException ex) {
             map.put("nombre_user", usuario);
         }
 
-        if (rCarrerasPorDia.isSelected()) {
-            
+        if (rCarrerasPorDia.isSelected())
             map.put("todo", true);
-        } else {
+        else             
             map.put("todo", false);
-        }
 
         if (rDespachosTurno.isSelected()) {
             if (!formatTime.format((Date) jsTimeStart.getValue()).equals("")) {
@@ -609,35 +985,160 @@ public class FrameReports extends javax.swing.JFrame {
             } else {
                 map.put("turno", false);
             }
-
         } else {
             map.put("turno", false);
         }
+        
+        if (rCarrerasCli.isSelected())
+            map.put("cod", cod);
+        else             
+            map.put("cod", "");
+        
+        
+        if (rCarrerasUni.isSelected())
+            map.put("uni", uni);
+        else             
+            map.put("uni", "");
 
-        if (rCarrerasFechHor.isSelected()) {
+        if (rCarrerasFechHor.isSelected())
             map.put("entre", true);
-        } else {
+        else
             map.put("entre", false);
-        }
 
         //map.put("turnotxt", jcTurnosDespachos.getSelectedItem().toString());
         return map;
     }
 
+    private HashMap getDatosCarreras() {
+        HashMap map = new HashMap();
+
+        if (rCarrerasTotEmpresa.isSelected()
+                || rCarrerasTotCli.isSelected()
+                || rCarrerasTotUni.isSelected()) {
+            map.put("todo", true);
+        } else {
+            map.put("todo", false);
+            String anio = cbAnio.getSelectedItem().toString();
+
+            System.out.println("" + anio);
+            map.put("anio", anio);
+            /**
+             * Datos de la empresa
+             */
+            String mesEmp = "" + (jcCarrerasTotEmpresaMes.getSelectedIndex() + 1);
+            String nomMesEmp = jcCarrerasTotEmpresaMes.getSelectedItem().toString();
+            map.put("mes", mesEmp);
+            map.put("NombreMes", nomMesEmp);
+            /**
+             * Datos de los clientes
+             */
+            String mesCli = "" + (jcCarrerasTotCliMes.getSelectedIndex() + 1);
+            String nomMesCli = jcCarrerasTotCliMes.getSelectedItem().toString();
+            map.put("mesCli", mesCli);
+            map.put("NombreMesCli", nomMesCli);
+            /**
+             * Datos de las unidades
+             */
+            String mesUni = "" + (jcCarrerasTotUniMes.getSelectedIndex() + 1);
+            String nomMesUni = jcCarrerasTotUniMes.getSelectedItem().toString();
+            map.put("mesUni", mesUni);
+            map.put("NombreMesUni", nomMesUni);
+        }
+
+        if (rCarrerasTotCli.isSelected() || rCarrerasTotCliMes.isSelected()) {
+            map.put("radio", "cliente");
+        } else if (rCarrerasTotEmpresa.isSelected() || rCarrerasTotEmpresaMes.isSelected()) {
+            map.put("radio", "empresa");
+        } else if (rCarrerasTotUni.isSelected() || rCarrerasTotUniMes.isSelected()) {
+            map.put("radio", "unidad");
+        }
+
+        return map;
+    }
+
+//    private HashMap getDatosEstadosTaxi() {
+//        HashMap map = new HashMap();
+//        map.put("cat", "EstadosTaxi");
+//
+//        if (rEstadosTodUni.isSelected()) {
+//            map.put("tEstado", "total");
+//        } else {
+//            map.put("tEstado", "unidad");
+//            if (rEstadosUni.isSelected()) {
+//                map.put("unidad", textEstadosUni.getText());
+//            }
+//        }
+//
+//        if (rEstadosTodoTiem.isSelected()) {
+//            map.put("tiempo", "total");
+//        } else {
+//            if (rEstadosDia.isSelected()) {
+//                map.put("tiempo", "dia");
+//                SimpleDateFormat dfFecha = new SimpleDateFormat("yyyy-MM-dd");
+//                String dia = dfFecha.format(jdEstadosDia.getDate());
+//                map.put("dia", dia);
+//            } else {
+//                map.put("tiempo", "mes");
+//                String mes = "" + (jcEstadosMes.getSelectedIndex() + 1);
+//                String nomMes = jcEstadosMes.getSelectedItem().toString();
+//                map.put("mes", mes);
+//                map.put("NombreMes", nomMes);
+//            }
+//        }
+//
+//        return map;
+//    }
+
+//    private HashMap getDatosEstadosTaximetro() {
+//        HashMap map = new HashMap();
+//        map.put("cat", "EstadosTaximetro");
+//
+//        if (rTaximetroTodUni.isSelected()) {
+//            map.put("tEstado", "total");
+//        } else {
+//            map.put("tEstado", "unidad");
+//            if (rTaximetroUni.isSelected()) {
+//                map.put("unidad", textTaximetroUni.getText());
+//            }
+//        }
+//
+//        if (rTaximetroTodTiem.isSelected()) {
+//            map.put("tiempo", "total");
+//        } else {
+//            if (rTaximetroDia.isSelected()) {
+//                map.put("tiempo", "dia");
+//                SimpleDateFormat dfFecha = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+//                String dia1 = dfFecha.format(jdTaximetroDia1.getValue());
+//                String dia2 = dfFecha.format(jdTaximetroDia2.getValue());
+//                map.put("dia", dia1);
+//                map.put("dia1", dia2);
+//            }
+//        }
+//
+//        return map;
+//    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTabbedPane JTabCarreras;
     private javax.swing.JTabbedPane JTabReporte;
     private javax.swing.ButtonGroup btgCli;
     private javax.swing.ButtonGroup btgDes;
     private javax.swing.JButton btnGenerar;
     private javax.swing.JButton btnSalir;
+    private javax.swing.JComboBox cbAnio;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
+    private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JComboBox jcCarrerasTotCliMes;
+    private javax.swing.JComboBox jcCarrerasTotEmpresaMes;
+    private javax.swing.JComboBox jcCarrerasTotUniMes;
     private javax.swing.JComboBox jcUsuariosDespachos;
     private org.jdesktop.swingx.JXDatePicker jdFechaFinDes;
     private org.jdesktop.swingx.JXDatePicker jdFechaIniDes;
@@ -646,13 +1147,23 @@ public class FrameReports extends javax.swing.JFrame {
     private javax.swing.JPanel jpHoras;
     private javax.swing.JSpinner jsTimeFinish;
     private javax.swing.JSpinner jsTimeStart;
+    private javax.swing.JRadioButton rCarrerasCli;
     private javax.swing.JRadioButton rCarrerasFechHor;
     private javax.swing.JRadioButton rCarrerasPorDia;
+    private javax.swing.JRadioButton rCarrerasTotCli;
+    private javax.swing.JRadioButton rCarrerasTotCliMes;
+    private javax.swing.JRadioButton rCarrerasTotEmpresa;
+    private javax.swing.JRadioButton rCarrerasTotEmpresaMes;
+    private javax.swing.JRadioButton rCarrerasTotUni;
+    private javax.swing.JRadioButton rCarrerasTotUniMes;
+    private javax.swing.JRadioButton rCarrerasUni;
     private javax.swing.JRadioButton rCodCli;
     private javax.swing.JRadioButton rDespachosTurno;
     private javax.swing.JRadioButton rNomCli;
     private javax.swing.JRadioButton rTelCli;
     private javax.swing.JRadioButton rTodoCli;
+    private javax.swing.JTextField textCarrerasCli;
+    private javax.swing.JTextField textCarrerasUni;
     private javax.swing.JTextField textCodCli;
     private javax.swing.JTextField textNomCli;
     private javax.swing.JTextField textTelCli;
@@ -665,9 +1176,40 @@ public class FrameReports extends javax.swing.JFrame {
                 clientes.Generar();
                 break;
             case 1:
-                GenerarReporteDespachos despachos = new GenerarReporteDespachos(db, getDatosDespacho());
-                despachos.Generar();
-                break;
+                int car = JTabCarreras.getSelectedIndex();
+                switch (car) {
+                    case 0:
+                        GenerarReporteDespachos despachos = new GenerarReporteDespachos(db, getDatosDespacho());
+                        despachos.Generar();
+                        break;
+                    case 1:
+                        GenerarReporteCarreras carreras = new GenerarReporteCarreras(db, getDatosCarreras());
+                        carreras.Generar();
+                        break;
+                }
+
+//            case 2:
+//                GenerarReporteEstadosTaxi estados = new GenerarReporteEstadosTaxi(db, getDatosEstadosTaxi());
+//                estados.Generar();
+//                break;
+//            case 3:
+//                boolean correcto = true;
+//                if (rTaximetroUni.isSelected()) {
+//
+//                    try {
+//                        int n = Integer.parseInt(textTaximetroUni.getText());
+//                    } catch (NumberFormatException e) {
+//                        System.out.println(e);
+//                        correcto = false;
+//                        JOptionPane.showMessageDialog(rootPane, "Numero de unidad solo puede ser numeros enteros");
+//                    }
+//                }
+//                if (correcto) {
+//                    GenerarReporteEstadosTaximetro estadosTaximetro = new GenerarReporteEstadosTaximetro(db, getDatosEstadosTaximetro());
+//                    estadosTaximetro.Generar();
+//                }
+//                break;
+
         }
     }
 }

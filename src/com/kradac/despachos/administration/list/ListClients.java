@@ -61,7 +61,7 @@ public class ListClients {
         if (!existe) {
             clients.add(client);
         } else {
-            JOptionPane.showMessageDialog(null, "La Clienta Ya Existe");
+            JOptionPane.showMessageDialog(null, "La Clienta Ya Existe: "+client.getCode());
         }
     }
 

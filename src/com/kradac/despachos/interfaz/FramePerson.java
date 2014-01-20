@@ -59,6 +59,7 @@ public class FramePerson extends javax.swing.JFrame {
     private void clear() {
         btnDelete.setEnabled(false);
         btnRefresh.setEnabled(false);
+        btnAdd.setEnabled(true);
 
         txtCedula.setText("");
         txtName.setText("");
@@ -84,15 +85,9 @@ public class FramePerson extends javax.swing.JFrame {
 
     private void add() {
         if (isValidCedula && isValidName && isValidLastName) {
-            int numHouse;
-            try {
-                numHouse = Integer.parseInt(txtNumHouse.getText());
-            } catch (NumberFormatException e) {
-                numHouse = 0;
-            }
-
+            
             Person p = new Person(txtCedula.getText(), txtName.getText().toUpperCase(), txtLastName.getText().toUpperCase(), txtPhone.getText(), txtEmail.getText(),
-                    txtDirection.getText(), numHouse, txtTypeSangre.getText(),
+                    txtDirection.getText(), txtNumHouse.getText(), txtTypeSangre.getText(),
                     Principal.listStateCivil.getStateCivilByState(cbxStateCivil.getSelectedItem().toString()), txtConyugue.getText().toUpperCase(), "",
                     Principal.listJob.getJobByName(cbxJobs.getSelectedItem().toString()));
             int insert = Principal.listPerson.addNewPerson(p);
@@ -486,6 +481,7 @@ public class FramePerson extends javax.swing.JFrame {
             txtConyugue.setText(p.getConyuge());
 
             btnRefresh.setEnabled(true);
+            btnAdd.setEnabled(false);
             btnDelete.setEnabled(true);
         }
     }//GEN-LAST:event_tblPersonMousePressed
@@ -501,15 +497,9 @@ public class FramePerson extends javax.swing.JFrame {
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
         int rowSelected = tblPerson.getSelectedRow();
         String cedula = txtCedula.getText(), name = txtName.getText().toUpperCase(), lastName = txtLastName.getText().toUpperCase();
-        int numHouse;
-        try {
-            numHouse = Integer.parseInt(txtNumHouse.getText());
-        } catch (NumberFormatException e) {
-            numHouse = 0;
-        }
 
         Person p = new Person(cedula, name, lastName, txtPhone.getText(), txtEmail.getText(),
-                txtDirection.getText(), numHouse, txtTypeSangre.getText(),
+                txtDirection.getText(), txtNumHouse.getText(), txtTypeSangre.getText(),
                 Principal.listStateCivil.getStateCivilByState(cbxStateCivil.getSelectedItem().toString()), txtConyugue.getText().toUpperCase(), "",
                 Principal.listJob.getJobByName(cbxJobs.getSelectedItem().toString()));
 
@@ -548,10 +538,7 @@ public class FramePerson extends javax.swing.JFrame {
     }//GEN-LAST:event_txtCedulaKeyTyped
 
     private void txtNumHouseKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNumHouseKeyTyped
-        if (!Character.isDigit(evt.getKeyChar()) && !Character.isISOControl(evt.getKeyChar())) {
-            Toolkit.getDefaultToolkit().beep();
-            evt.consume();
-        }
+        
     }//GEN-LAST:event_txtNumHouseKeyTyped
 
     private void txtCedulaKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCedulaKeyPressed

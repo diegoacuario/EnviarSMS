@@ -51,7 +51,7 @@ public class ChannelMessageFromServer extends Thread {
                     openConexion();
                     input = new BufferedReader(new InputStreamReader(s.getInputStream()));
                     output = new PrintStream(s.getOutputStream(), true);
-                    output.print("$$3##"+Principal.company.getIdCompany()+"$$\n");
+                    output.print("$$3##" + Principal.company.getIdCompany() + "$$\n");
                 }
 
                 try {
@@ -60,11 +60,14 @@ public class ChannelMessageFromServer extends Thread {
                         data = data.replace("$$", "");
                         String[] campos = data.split("##");
                         int typeMsg = Integer.parseInt(campos[0]);
-                        switch(typeMsg) {
-                            case 1 : 
+                        switch (typeMsg) {
+                            case 1:
                                 clientAndroid(campos[1]);
                                 break;
-                            default :
+                            case 2:
+                                stateTaximetro(campos[1]);
+                                break;
+                            default:
                                 System.err.println("Trama no procesada");
                                 break;
                         }
@@ -93,7 +96,6 @@ public class ChannelMessageFromServer extends Thread {
         try {
             try {
                 s = new Socket(ip, port);
-                changeIconSeñal(true);
                 isConected = true;
                 //System.out.println("Conexion Establecida Correctamente.");
             } catch (UnknownHostException ex) {
@@ -119,7 +121,6 @@ public class ChannelMessageFromServer extends Thread {
             }
             try {
                 s.close();
-                changeIconSeñal(false);
                 isConected = false;
                 //System.err.println("Canal Cerrado con el Servidor");
             } catch (NullPointerException ex) {
@@ -129,26 +130,20 @@ public class ChannelMessageFromServer extends Thread {
         }
     }
 
-    private void changeIconSeñal(boolean señal) {
-        if (señal) {
-            Principal.lblConection.setIcon(new javax.swing.ImageIcon(ChannelMessageFromServer.class.getResource("/com/kradac/despachos/img/senal.png")));
-            Principal.isConextion = true;
-            Principal.modelListEvents.add(0, "Conexion Establecida con el Servidor");
-        } else {
-            Principal.lblConection.setIcon(new javax.swing.ImageIcon(ChannelMessageFromServer.class.getResource("/com/kradac/despachos/img/nosenal.png")));
-            Principal.isConextion = false;
-            Principal.modelListEvents.add(0, "Conexion Perdida con el Servidor");
-        }
-    }
-    
-    private void clientAndroid(String messenge) {
-        String [] dataClient = messenge.split(";"); 
-        Call c = new Call(Integer.parseInt(dataClient[0]),Functions.getDate(),Functions.getTime(), dataClient[1], "Android", dataClient[2], 
+    private void clientAndroid(String message) {
+        String[] dataClient = message.split(";");
+        Call c = new Call(Integer.parseInt(dataClient[0]), Functions.getDate(), Functions.getTime(), dataClient[1], "Android", dataClient[2],
                 dataClient[3], dataClient[4],
                 Double.parseDouble(dataClient[5]), Double.parseDouble(dataClient[6]));
-        db.insertCall(c);        
+        db.insertCall(c);
         Principal.listCall.addCall(c);
         Principal.tblCall.setRowSelectionInterval(0, 0);
         Principal.tblCall.requestFocus();
+    }
+
+    private void stateTaximetro(String message) {
+        String[] dataVehiculo = message.split(";");
+        Principal.listVehiculos.setCodeTaxyByEtiqueta(Integer.parseInt(dataVehiculo[1]), Principal.listCodesTaxy.getCodesTaxyById(dataVehiculo[0]));
+        Principal.paintStateTaxy();
     }
 }

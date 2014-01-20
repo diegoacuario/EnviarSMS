@@ -37,6 +37,7 @@ public class FramePending extends javax.swing.JFrame {
     public FramePending() {
         initComponents();
         bd = new DataBase(Principal.fileConfig, Principal.numHost);
+        tabPanelPending.setEnabledAt(1, false);
         loadComponent();
     }
 
@@ -87,7 +88,7 @@ public class FramePending extends javax.swing.JFrame {
     private void initComponents() {
 
         jTabbedPane1 = new javax.swing.JTabbedPane();
-        jTabbedPane2 = new javax.swing.JTabbedPane();
+        tabPanelPending = new javax.swing.JTabbedPane();
         jPanel3 = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -405,7 +406,7 @@ public class FramePending extends javax.swing.JFrame {
                     .addContainerGap()))
         );
 
-        jTabbedPane2.addTab("Pendiente Unico", jPanel3);
+        tabPanelPending.addTab("Pendiente Unico", jPanel3);
 
         jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder("Información del cliente"));
 
@@ -692,7 +693,7 @@ public class FramePending extends javax.swing.JFrame {
                     .addContainerGap()))
         );
 
-        jTabbedPane2.addTab("Pendiente Diario", jPanel4);
+        tabPanelPending.addTab("Pendiente Diario", jPanel4);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -700,12 +701,12 @@ public class FramePending extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane2)
+                .addComponent(tabPanelPending)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane2)
+            .addComponent(tabPanelPending)
         );
 
         pack();
@@ -931,13 +932,13 @@ public class FramePending extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTabbedPane jTabbedPane2;
     private org.jdesktop.swingx.JXDatePicker jdDate;
     private org.jdesktop.swingx.JXDatePicker jdDateFinish;
     private org.jdesktop.swingx.JXDatePicker jdDateStart;
     private javax.swing.JSpinner jsRemember;
     private javax.swing.JSpinner jsTime;
     private javax.swing.JSpinner jsTimeDiiario;
+    private javax.swing.JTabbedPane tabPanelPending;
     private javax.swing.JTable tblPending;
     private javax.swing.JTable tblPendingDiario;
     private javax.swing.JTextField txtCantRemember;

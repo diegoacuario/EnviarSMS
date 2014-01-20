@@ -17,14 +17,14 @@ public class Person {
     private String phone;
     private String email;
     private String direction;
-    private int numHouse;
+    private String numHouse;
     private String typeSangre;
     private StateCivil stateCivil;
     private String conyuge;
     private String image;
     private Job job;
 
-    public Person(String cedula, String name, String lastname, String phone, String email, String direction, int numHouse, String typeSangre, StateCivil stateCivil, String conyuge, String image, Job job) {
+    public Person(String cedula, String name, String lastname, String phone, String email, String direction, String numHouse, String typeSangre, StateCivil stateCivil, String conyuge, String image, Job job) {
         this.cedula = cedula;
         this.name = name;
         this.lastname = lastname;
@@ -126,14 +126,14 @@ public class Person {
     /**
      * @return the numHouse
      */
-    public int getNumHouse() {
+    public String getNumHouse() {
         return numHouse;
     }
 
     /**
      * @param numHouse the numHouse to set
      */
-    public void setNumHouse(int numHouse) {
+    public void setNumHouse(String numHouse) {
         this.numHouse = numHouse;
     }
 

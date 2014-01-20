@@ -12,6 +12,7 @@ package com.kradac.despachos.interfaz;
  */
 import com.kradac.despachos.administration.Client;
 import com.kradac.despachos.administration.list.ListClients;
+import com.kradac.despachos.methods.Functions;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -37,11 +38,25 @@ public class SearchClients extends javax.swing.JDialog {
         int code = Integer.parseInt(tblClients.getValueAt(row, 1).toString());
         Client c = Principal.listClient.getClientByCode(code);
 
-        Principal.modelTableByDispatch.insertRow(0, Principal.changeToArrayClient(c));
-        Principal.tblByDispatch.setColumnSelectionInterval(6, 6);
+        Principal.modelTableByDispatch.insertRow(0, changeToArrayClient(c, ""));
+        Principal.tblByDispatch.setColumnSelectionInterval(7, 7);
         Principal.tblByDispatch.setRowSelectionInterval(0, 0);
         Principal.tblByDispatch.requestFocus();
         this.dispose();
+    }
+    
+    public Object[] changeToArrayClient(Client client, String line) {
+        Object dataPerson[] = new Object[]{
+            line,
+            Functions.getTime(),
+            client.getPhone(),
+            client.getCode(),
+            client.getName() + " " + client.getLastname(),
+            client.getSector(),
+            client.getDirection(),
+            "", "", "", "", "", ""
+        };
+        return dataPerson;
     }
 
     /**
@@ -243,20 +258,24 @@ public class SearchClients extends javax.swing.JDialog {
     private void FindClientByName(String nombre) {
         clearTableClients();
 
-        for (Client c : Principal.listClient.getClients()) {
-            String client = c.getName() + " " + c.getLastname();
-            if (client.toUpperCase().contains(nombre)) {
-                String[] dataClient = {
-                    c.getPhone(),
-                    c.getCode() + "",
-                    c.getName() + " " + c.getLastname(),
-                    c.getDirection(),
-                    c.getSector(),
-                    c.getNumHouse() + "",
-                    c.getReference()
-                };
-                modelTableClients.insertRow(0, dataClient);
+        try {
+            for (Client c : Principal.listClient.getClients()) {
+                String client = c.getName() + " " + c.getLastname();
+                if (client.toUpperCase().contains(nombre)) {
+                    String[] dataClient = {
+                        c.getPhone(),
+                        c.getCode() + "",
+                        c.getName() + " " + c.getLastname(),
+                        c.getDirection(),
+                        c.getSector(),
+                        c.getNumHouse(),
+                        c.getReference()
+                    };
+                    modelTableClients.insertRow(0, dataClient);
+                }
             }
+        } catch (NullPointerException e) {
+            JOptionPane.showMessageDialog(this, "Espere un momento aun no se han cargado todos los clientes");
         }
     }
 

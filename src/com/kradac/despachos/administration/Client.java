@@ -17,13 +17,13 @@ public class Client {
     private String direction;
     private String sector;
     private int code;
-    private int numHouse;
+    private String numHouse;
     private double latitud;
     private double longitud;
     private String reference;
     private String destino;
 
-    public Client(String name, String lastname, String phone, String direction, String sector, int code, int numHouse, double latitud, double longitud, String reference, String destino) {
+    public Client(String name, String lastname, String phone, String direction, String sector, int code, String numHouse, double latitud, double longitud, String reference, String destino) {
         this.name = name;
         this.lastname = lastname;
         this.phone = phone;
@@ -124,14 +124,14 @@ public class Client {
     /**
      * @return the numHouse
      */
-    public int getNumHouse() {
+    public String getNumHouse() {
         return numHouse;
     }
 
     /**
      * @param numHouse the numHouse to set
      */
-    public void setNumHouse(int numHouse) {
+    public void setNumHouse(String numHouse) {
         this.numHouse = numHouse;
     }
 

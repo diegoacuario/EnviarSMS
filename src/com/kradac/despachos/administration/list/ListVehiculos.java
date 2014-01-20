@@ -171,6 +171,15 @@ public class ListVehiculos {
             }
         }
     }
+    
+    public void setCodeTaxyByEtiquetaThread(int vehiculo, CodesTaxy ct) {
+        for (Vehiculo v : getVehiculos()) {
+            if (v.getVehiculo() == vehiculo && !v.getCodesTaxy().equals(ct)) {
+                v.setCodesTaxy(ct);
+                Principal.paintStateTaxy();
+            }
+        }
+    }
 
     public void updateBloqueVehiculos(int vehiculo, boolean state) {
         for (Vehiculo v : getVehiculos()) {

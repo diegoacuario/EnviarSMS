@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" 
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Multas" language="groovy" 
+              pageWidth="600" pageHeight="842" columnWidth="426" leftMargin="40" rightMargin="40" topMargin="70" bottomMargin="70">
+    <property name="ireport.zoom" value="1.0"/>
+    <property name="ireport.x" value="0"/>
+    <property name="ireport.y" value="0"/>
+    <parameter name="empresa" class="java.lang.String"/>
+    <parameter name="distanciaPro" class="java.lang.String"/>
+    <parameter name="distanciaSum" class="java.lang.String"/>
+    <parameter name="costoPro" class="java.lang.String"/>
+    <parameter name="costoSum" class="java.lang.String"/>
+    <parameter name="pagaPro" class="java.lang.String"/>
+    <parameter name="pagaSum" class="java.lang.String"/>
+    <parameter name="tiempoPro" class="java.lang.String"/>
+    <parameter name="tiempoSum" class="java.lang.String"/>
+    <parameter name="sql" class="java.lang.String">
+        <defaultValueExpression><![CDATA["SELECT *,COUNT(*) AS TOTAL FROM taximetro_data GROUP BY CONCAT(tiquete,taxi)"]]></defaultValueExpression>
+    </parameter>
+    <parameter name="usuario" class="java.lang.String">
+        <defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+    </parameter>
+	
+    <parameter name="unidad" class="java.lang.String"/>
+    <parameter name="dia" class="java.lang.String"/>
+    <parameter name="dia1" class="java.lang.String"/>
+    <queryString>
+		<![CDATA[$P!{sql}]]>
+    </queryString>
+    <field name="serial" class="java.lang.String"/>
+    <field name="id_empresa" class="java.lang.String"/>
+    <field name="ruc" class="java.lang.String"/>
+    <field name="taxi" class="java.lang.String"/>
+    <field name="tiquete" class="java.lang.String"/>
+    <field name="fecha" class="java.lang.String"/>
+    <field name="distancia" class="java.lang.String"/>
+    <field name="hora_inicial" class="java.lang.String"/>
+    <field name="hora_final" class="java.lang.String"/>
+    <field name="tarifa" class="java.lang.String"/>
+    <field name="costo" class="java.lang.String"/>
+    <field name="paga" class="java.lang.String"/>
+    <field name="tiempo_seg" class="java.lang.String"/>
+    <field name="TOTAL" class="java.lang.Long"/>
+    <variable name="total" class="java.lang.Integer" calculation="Sum">
+        <variableExpression><![CDATA[$F{TOTAL}]]></variableExpression>
+        <initialValueExpression><![CDATA[-1]]></initialValueExpression>
+    </variable>
+    
+    <background>
+        <band splitType="Stretch"/>
+    </background>
+    <title>
+        <band height="190" splitType="Stretch">
+            <textField>
+                <reportElement x="0" y="24" width="470" height="27"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="20"/>
+                </textElement>
+                <textFieldExpression class="java.lang.String"><![CDATA["\""+$P{empresa}+"\""]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="0" y="0" width="470" height="24"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="18"/>
+                </textElement>
+                <text><![CDATA[Cooperativa de Taxis]]></text>
+            </staticText>            
+            <staticText>
+                <reportElement x="0" y="65" width="180" height="20"/>
+                <textElement/>
+                <text><![CDATA[Suma de distancias recorridas:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="180" y="65" width="30" height="20"/>               
+                <textFieldExpression class="java.lang.String"><![CDATA[$P{distanciaSum}]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="220" y="65" width="180" height="20"/>
+                <textElement/>
+                <text><![CDATA[Promedio de distancias recorridas:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="400" y="65" width="30" height="20"/>               
+                <textFieldExpression class="java.lang.String"><![CDATA[$P{distanciaPro}]]></textFieldExpression>
+            </textField>
+            
+             <staticText>
+                <reportElement x="0" y="90" width="180" height="20"/>
+                <textElement/>
+                <text><![CDATA[Suma de costos:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="180" y="90" width="30" height="20"/>               
+                <textFieldExpression class="java.lang.String"><![CDATA[$P{costoSum}]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="220" y="90" width="180" height="20"/>
+                <textElement/>
+                <text><![CDATA[Promedio de costos:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="400" y="90" width="30" height="20"/>               
+                <textFieldExpression class="java.lang.String"><![CDATA[$P{costoPro}]]></textFieldExpression>
+            </textField>
+            
+            <staticText>
+                <reportElement x="0" y="115" width="180" height="20"/>
+                <textElement/>
+                <text><![CDATA[Suma de valores pagados:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="180" y="115" width="30" height="20"/>               
+                <textFieldExpression class="java.lang.String"><![CDATA[$P{pagaSum}]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="220" y="115" width="180" height="20"/>
+                <textElement/>
+                <text><![CDATA[Promedio de valores pagados:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="400" y="115" width="30" height="20"/>               
+                <textFieldExpression class="java.lang.String"><![CDATA[$P{pagaPro}]]></textFieldExpression>
+            </textField>
+            
+            <staticText>
+                <reportElement x="0" y="140" width="180" height="20"/>
+                <textElement/>
+                <text><![CDATA[Suma de tiempos:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="180" y="140" width="30" height="20"/>               
+                <textFieldExpression class="java.lang.String"><![CDATA[$P{tiempoSum}]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="220" y="140" width="180" height="20"/>
+                <textElement/>
+                <text><![CDATA[Promedio de tiempos:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="400" y="140" width="30" height="20"/>               
+                <textFieldExpression class="java.lang.String"><![CDATA[$P{tiempoPro}]]></textFieldExpression>
+            </textField>
+            
+            <staticText>
+                <reportElement x="0" y="165" width="180" height="20"/>
+                <textElement/>
+                <text><![CDATA[Reporte de datos del Taxímtero:]]></text>
+            </staticText>
+        </band>
+    </title>
+    <pageHeader>
+        <band splitType="Stretch"/>
+    </pageHeader>
+    <columnHeader>
+        <band height="21" splitType="Stretch">
+            <staticText>
+                <reportElement x="0" y="0" width="35" height="20"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[EMP.]]></text>
+            </staticText>
+            <!--<staticText>
+                <reportElement x="40" y="0" width="75" height="20"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[RUC]]></text>
+            </staticText>-->
+            <staticText>
+                <reportElement x="120" y="0" width="20" height="20"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[TA.]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="145" y="0" width="30" height="20"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[TIQ.]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="180" y="0" width="55" height="20"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[FECHA]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="240" y="0" width="45" height="20"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[H. INI.]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="290" y="0" width="45" height="20"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[H. FIN.]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="340" y="0" width="35" height="20"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[DIS.]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="380" y="0" width="40" height="20"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[TARIFA]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="425" y="0" width="35" height="20"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[COSTO]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="465" y="0" width="35" height="20"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[PAGA]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="505" y="0" width="40" height="20"/>
+                <textElement>
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[TIEMPO]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+    <detail>
+        <band height="20" splitType="Stretch">
+            <textField>
+                <reportElement x="0" y="0" width="35" height="20"/>
+                <textElement/>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{id_empresa}]]></textFieldExpression>
+            </textField>
+            <!--<textField>
+                <reportElement x="40" y="0" width="75" height="20"/>
+                <textElement/>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{ruc}]]></textFieldExpression>
+            </textField>-->
+            <textField>
+                <reportElement x="120" y="0" width="20" height="20"/>
+                <textElement textAlignment="Center"/>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{taxi}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="145" y="0" width="30" height="20"/>
+                <textElement/>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{tiquete}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="180" y="0" width="55" height="20"/>
+                <textElement/>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{fecha}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="240" y="0" width="45" height="20"/>
+                <textElement/>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{hora_inicial}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="290" y="0" width="45" height="20"/>
+                <textElement/>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{hora_final}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="340" y="0" width="35" height="20"/>
+                <textElement/>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{distancia}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="380" y="0" width="45" height="20"/>
+                <textElement/>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{tarifa}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="425" y="0" width="35" height="20"/>
+               <textElement textAlignment="Center"/>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{costo}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="465" y="0" width="35" height="20"/>
+               <textElement textAlignment="Center"/>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{paga}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="505" y="0" width="40" height="20"/>
+               <textElement textAlignment="Center"/>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{tiempo_seg}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+    <columnFooter>
+        <band splitType="Stretch"/>
+    </columnFooter>
+    <pageFooter>
+        <band height="23" splitType="Stretch">
+            <textField>
+                <reportElement x="326" y="0" width="100" height="22"/>
+                <textElement textAlignment="Right"/>
+                <textFieldExpression class="java.lang.String"><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+            </textField>
+            <textField pattern="yyyy/MM/dd">
+                <reportElement x="0" y="0" width="100" height="22"/>
+                <textElement/>
+                <textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageFooter>
+    <summary>
+        <band height="76" splitType="Stretch">
+            <staticText>
+                <reportElement x="1" y="19" width="120" height="20"/>
+                <textElement/>
+                <text><![CDATA[Reporte obtenido por:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="133" y="19" width="304" height="20"/>
+                <textElement>
+                    <font size="12" isBold="true" isItalic="false" isUnderline="false"/>
+                </textElement>
+                <textFieldExpression class="java.lang.String"><![CDATA[$P{usuario}]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="1" y="40" width="120" height="20"/>               
+                <text><![CDATA[Carreras realizadas:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="133" y="40" width="100" height="28"/>
+                <textElement>
+                    <font size="12" isBold="true" isItalic="false" isUnderline="false"/>
+                </textElement>
+                <textFieldExpression class="java.lang.String"><![CDATA[$V{total}]]></textFieldExpression>
+            </textField>
+        </band>
+    </summary>
+</jasperReport>

@@ -182,15 +182,27 @@
 				</textElement>
 				<text><![CDATA[Minutos para recogerlo:]]></text>
 			</staticText>
-			<staticText>
+                        <staticText>
 				<reportElement x="324" y="0" width="36" height="16"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fecha:]]></text>
+			</staticText>
+                        <textField>
+				<reportElement x="360" y="0" width="66" height="16"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{ASIGNADOS_FECHA}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="324" y="16" width="36" height="16"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Hora:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="360" y="0" width="66" height="16"/>
+				<reportElement x="360" y="16" width="66" height="16"/>
 				<textElement textAlignment="Right"/>
 				<textFieldExpression><![CDATA[$F{ASIGNADOS_HORA}]]></textFieldExpression>
 			</textField>
