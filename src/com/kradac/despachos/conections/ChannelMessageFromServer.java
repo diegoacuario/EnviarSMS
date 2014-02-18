@@ -59,17 +59,24 @@ public class ChannelMessageFromServer extends Thread {
                     if (data != null) {
                         data = data.replace("$$", "");
                         String[] campos = data.split("##");
-                        int typeMsg = Integer.parseInt(campos[0]);
-                        switch (typeMsg) {
-                            case 1:
-                                clientAndroid(campos[1]);
-                                break;
-                            case 2:
-                                stateTaximetro(campos[1]);
-                                break;
-                            default:
-                                System.err.println("Trama no procesada");
-                                break;
+                        try {
+                            int typeMsg = Integer.parseInt(campos[0]);
+                            switch (typeMsg) {
+                                case 1:
+                                    clientAndroid(campos[1]);
+                                    break;
+                                case 2:
+                                    stateTaximetro(campos[1]);
+                                    break;
+                                case 3:
+                                    showPanic(campos[1]);
+                                    break;
+                                default:
+                                    System.err.println("Trama no procesada");
+                                    break;
+                            }
+                        } catch (NumberFormatException e) {
+                            JOptionPane.showMessageDialog(null, "Obtencion de Ultimos GPS no encontro resultados.");
                         }
                     }
                     sleep(1000);
@@ -145,5 +152,13 @@ public class ChannelMessageFromServer extends Thread {
         String[] dataVehiculo = message.split(";");
         Principal.listVehiculos.setCodeTaxyByEtiqueta(Integer.parseInt(dataVehiculo[1]), Principal.listCodesTaxy.getCodesTaxyById(dataVehiculo[0]));
         Principal.paintStateTaxy();
+    }
+
+    private void showPanic(String message) {
+        Principal.modelListEvents.add(0, "*** Panico Generado por la Unidad: " + message + " ***");
+        if (!Principal.fileConfig.getProperty("comm_fastrack").equals("0")) {
+            Principal.cf.enviarDatos("AT+SEND=\""+Principal.listVehiculos.getIpVehiculo(Integer.parseInt(message))+"\",\"2141\",\"GPRMA\"");
+        }
+        JOptionPane.showMessageDialog(null, "Panico Generado por la Unidad: " + message);
     }
 }

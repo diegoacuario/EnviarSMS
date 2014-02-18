@@ -150,17 +150,19 @@
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="jLabel10" alignment="0" min="-2" max="-2" attributes="0"/>
                               <Component id="jLabel11" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel13" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace min="-2" pref="53" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" max="-2" attributes="0">
                               <Component id="txtRegMun" pref="113" max="32767" attributes="0"/>
                               <Component id="txtSoat" max="32767" attributes="0"/>
+                              <Component id="txtIp" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="btnLoadImage" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Component id="lblImage" min="-2" pref="119" max="-2" attributes="0"/>
+                          <Component id="lblImage" min="-2" pref="91" max="-2" attributes="0"/>
                       </Group>
                       <Component id="jLabel12" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Group type="102" attributes="0">
@@ -180,15 +182,11 @@
                               <Component id="cbxConductor" alignment="0" pref="227" max="32767" attributes="0"/>
                               <Component id="cbxPropietario" alignment="0" max="32767" attributes="0"/>
                               <Component id="txtAnio" alignment="0" min="-2" pref="78" max="-2" attributes="0"/>
-                              <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
-                                  <Component id="txtnumCha" alignment="0" max="32767" attributes="0"/>
-                                  <Component id="txtNumMot" alignment="0" max="32767" attributes="0"/>
-                                  <Component id="cbxModelo" alignment="0" pref="170" max="32767" attributes="0"/>
-                              </Group>
-                              <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
-                                  <Component id="cbxZona" alignment="0" pref="97" max="32767" attributes="0"/>
-                                  <Component id="txtPlaca" alignment="0" max="32767" attributes="0"/>
-                              </Group>
+                              <Component id="txtnumCha" alignment="0" max="32767" attributes="0"/>
+                              <Component id="txtNumMot" alignment="0" max="32767" attributes="0"/>
+                              <Component id="cbxModelo" alignment="0" pref="227" max="32767" attributes="0"/>
+                              <Component id="cbxZona" alignment="0" pref="227" max="32767" attributes="0"/>
+                              <Component id="txtPlaca" alignment="0" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
@@ -254,12 +252,17 @@
                       <Component id="jLabel11" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="txtSoat" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="jLabel13" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="txtIp" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="btnLoadImage" min="-2" max="-2" attributes="0"/>
-                      <Component id="lblImage" min="-2" pref="114" max="-2" attributes="0"/>
+                      <Component id="lblImage" min="-2" pref="84" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="28" max="32767" attributes="0"/>
+                  <EmptySpace pref="22" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -332,7 +335,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel10">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Registro Municipal"/>
+            <Property name="text" type="java.lang.String" value="Registro Municipal:"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="txtRegMun">
@@ -342,7 +345,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel11">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Soat"/>
+            <Property name="text" type="java.lang.String" value="Soat:"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="lblImage">
@@ -397,6 +400,13 @@
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="txtSoat">
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel13">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="IP:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JTextField" name="txtIp">
         </Component>
       </SubComponents>
     </Container>

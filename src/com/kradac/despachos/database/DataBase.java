@@ -394,7 +394,7 @@ public class DataBase {
         ListVehiculos listAux = new ListVehiculos();
         try {
             String sql = "SELECT ID_VEHICULO, ID_ZONA, ID_CONDUCTOR, ID_PROPIETARIO, ID_CODIGO, VEHICULO, ID_MODELO_VEHICULO, YEAR, "
-                    + "NUM_MOTOR, NUM_CHASIS, REG_MUNICIPAL, SOAT ,IMAGE "
+                    + "NUM_MOTOR, NUM_CHASIS, REG_MUNICIPAL, SOAT ,IMAGE, IP "
                     + "FROM vehiculos ORDER BY VEHICULO";
             rs = s.executeQuery(sql);
 
@@ -402,7 +402,8 @@ public class DataBase {
                 listAux.addVehiculo(new Vehiculo(rs.getString("ID_VEHICULO"), listZona.getZonaById(rs.getInt("ID_ZONA")),
                         listPerson.getPersonByCedula(rs.getString("ID_CONDUCTOR")), listPerson.getPersonByCedula(rs.getString("ID_PROPIETARIO")),
                         rs.getInt("VEHICULO"), listModelo.getModeloById(rs.getInt("ID_MODELO_VEHICULO")), rs.getInt("YEAR"), rs.getString("NUM_MOTOR"),
-                        rs.getString("NUM_CHASIS"), rs.getInt("REG_MUNICIPAL"), rs.getString("SOAT"), listCodesTaxy.getCodesTaxyById(rs.getString("ID_CODIGO")), rs.getString("IMAGE"))
+                        rs.getString("NUM_CHASIS"), rs.getInt("REG_MUNICIPAL"), rs.getString("SOAT"), listCodesTaxy.getCodesTaxyById(rs.getString("ID_CODIGO")), 
+                        rs.getString("IMAGE"), rs.getString("IP"))
                 );
             }
             return listAux;
@@ -547,7 +548,7 @@ public class DataBase {
             rs = s.executeQuery(sql);
             while (rs.next()) {
                 Principal.listVehiculos.updateBloqueVehiculos(rs.getInt("N_UNIDAD"), rs.getBoolean("ACTIVO"));
-                Principal.listVehiculos.setCodeTaxyByEtiquetaThread(rs.getInt("N_UNIDAD"), Principal.listCodesTaxy.getCodesTaxyById(rs.getString("ID_CODIGO")));
+                //Principal.listVehiculos.setCodeTaxyByEtiquetaThread(rs.getInt("N_UNIDAD"), Principal.listCodesTaxy.getCodesTaxyById(rs.getString("ID_CODIGO")));
             }
         } catch (SQLException ex) {
             Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
@@ -650,7 +651,7 @@ public class DataBase {
         try {
             String sql = "INSERT INTO vehiculos (id_vehiculo,id_zona,id_conductor,"
                     + "id_propietario,id_codigo,vehiculo,id_modelo_vehiculo,"
-                    + "year,num_motor,num_chasis,reg_municipal,soat,image) "
+                    + "year,num_motor,num_chasis,reg_municipal,soat,image,ip) "
                     + "VALUES('" + v.getPlaca() + "',"
                     + v.getZona().getIdZona() + ","
                     + "'" + v.getConductor().getCedula() + "',"
@@ -663,6 +664,7 @@ public class DataBase {
                     + "'" + v.getNumChasis() + "',"
                     + v.getRegMunicipal() + ","
                     + "'" + v.getSoat() + "',"
+                    + "'" + v.getIp()+ "',"
                     + "'')";
             s.executeUpdate(sql);
         } catch (SQLException ex) {
@@ -870,7 +872,9 @@ public class DataBase {
                     + "num_chasis='" + v.getNumChasis() + "',"
                     + "reg_municipal=" + v.getRegMunicipal() + ","
                     + "soat='" + v.getSoat() + "',"
-                    + "image='" + v.getImage() + "' WHERE id_vehiculo='"
+                    + "image='" + v.getImage() + "',"
+                    + "ip='" + v.getIp()+ "'"
+                    + " WHERE id_vehiculo='"
                     + placa + "'";
 
             s.executeUpdate(sql);

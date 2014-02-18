@@ -25,8 +25,9 @@ public class Vehiculo {
     private CodesTaxy codesTaxy;
     private String image;
     private boolean bloqueo;
+    private String ip;
 
-    public Vehiculo(String placa, Zona zona, Person conductor, Person propietario, int vehiculo, Modelo modelo, int year, String numMotor, String numChasis, int regMunicipal, String soat, CodesTaxy codesTaxy,String image) {
+    public Vehiculo(String placa, Zona zona, Person conductor, Person propietario, int vehiculo, Modelo modelo, int year, String numMotor, String numChasis, int regMunicipal, String soat, CodesTaxy codesTaxy,String image, String ip) {
         this.placa = placa;
         this.zona = zona;
         this.conductor = conductor;
@@ -40,6 +41,7 @@ public class Vehiculo {
         this.soat = soat;
         this.codesTaxy = codesTaxy;
         this.image = image;
+        this.ip = ip;
     }
     
     /**
@@ -55,7 +57,7 @@ public class Vehiculo {
     public void setPlaca(String placa) {
         this.placa = placa;
     }
-
+    
     /**
      * @return the zona
      */
@@ -231,4 +233,13 @@ public class Vehiculo {
     public void setBloqueo(boolean bloqueo) {
         this.bloqueo = bloqueo;
     }
+    
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
 }

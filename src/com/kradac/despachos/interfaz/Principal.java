@@ -35,6 +35,7 @@ import com.kradac.despachos.administration.list.ListPending;
 import com.kradac.despachos.administration.list.ListTurn;
 import com.kradac.despachos.administration.list.ListZona;
 import com.kradac.despachos.comm.central.CentralTelefonica;
+import com.kradac.despachos.comm.central.ConexionFastrack;
 import com.kradac.despachos.conections.ChannelLastGps;
 import com.kradac.despachos.conections.ChannelMessageFromServer;
 import com.kradac.despachos.conections.ChannelMessageToServer;
@@ -109,6 +110,7 @@ public class Principal extends javax.swing.JFrame {
     public static ArrayList<String> codeStateVeh;
     public static ArrayList<String> etiquetaStateVeh;
     public static ArrayList<Integer> colorStateVeh;
+    public static ConexionFastrack cf;
 
     private Menu menu;
     private FrameClients fc;
@@ -165,7 +167,7 @@ public class Principal extends javax.swing.JFrame {
 
         ThreadBloqueos tb = new ThreadBloqueos();
         tb.start();
-        
+
         ThreadTrash tt = new ThreadTrash();
         tt.start();
 
@@ -180,6 +182,9 @@ public class Principal extends javax.swing.JFrame {
 
         CentralTelefonica ct = new CentralTelefonica();
         ct.start();
+
+        cf = new ConexionFastrack();
+        cf.start();
 
         setLocationRelativeTo(null);
         codeStateVeh = listCodesTaxy.getIdCodigo();
@@ -210,7 +215,7 @@ public class Principal extends javax.swing.JFrame {
 
         sorter2 = new TableRowSorter<TableModel>(modelTableDispatch2);
         tblDispatchs2.setRowSorter(sorter2);
-        
+
         sorterTrash = new TableRowSorter<TableModel>(modelTableTrash);
         tblTrash.setRowSorter(sorterTrash);
 
@@ -352,11 +357,11 @@ public class Principal extends javax.swing.JFrame {
 
     public static Object[] changeToArrayClient(Client client, String line) {
         /*if (client.getCode() == 0) {
-            client.setName("");
-            client.setLastname("");
-            client.setSector("");
-            client.setDirection("");
-        }*/
+         client.setName("");
+         client.setLastname("");
+         client.setSector("");
+         client.setDirection("");
+         }*/
         Object dataPerson[] = new Object[]{
             line,
             Functions.getTime(),
@@ -371,7 +376,7 @@ public class Principal extends javax.swing.JFrame {
     }
 
     public Object[] addNewClient(String phone) {
-        Object dataClient[] = new Object[]{"",Functions.getTime(), phone, 0, "", "", "", "", "", "", "", "", ""};
+        Object dataClient[] = new Object[]{"", Functions.getTime(), phone, 0, "", "", "", "", "", "", "", "", ""};
         return dataClient;
     }
 
@@ -1915,6 +1920,25 @@ public class Principal extends javax.swing.JFrame {
                                                 0,
                                                 0.0, 0.0
                                         );
+
+                                        if (!fileConfig.getProperty("comm_fastrack").equals("0")) {
+                                            Client client = listClient.getClientByCode(Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 3).toString()));
+                                            String dataClient = tblByDispatch.getValueAt(rowSelected, 4).toString()+"::"+tblByDispatch.getValueAt(rowSelected, 6).toString()+""+client.getNumHouse();
+                                            String newDireccion = "";
+                                            if (dataClient.length() > 20) {
+                                                for (int i = 0; i < dataClient.length(); i++) {
+                                                    newDireccion += dataClient.charAt(i);
+                                                    if (i == 20) {
+                                                        newDireccion += "$";
+                                                    }
+                                                    if (i == 40) {
+                                                        newDireccion += "$";
+                                                    }
+                                                }
+                                            }
+
+                                            cf.enviarDatos("AT+SEND=\""+listVehiculos.getIpVehiculo(vehiculo)+"\",\"2141\",\"GPRME"+newDireccion+"\"\r\n");
+                                        }
                                     }
 
                                 }
@@ -2184,13 +2208,13 @@ public class Principal extends javax.swing.JFrame {
 
             try {
                 Client cl = listClient.getClientByPhone(Functions.validatePhone(c.getPhone()));
-                
+
                 cl.setLatitud(c.getLatitud());
                 cl.setLongitud(c.getLongitud());
 
                 modelTableByDispatch.insertRow(0, changeToArrayClient(new Client(c.getClient(), "", c.getPhone(), c.getDirection(), cl.getSector(),
                         cl.getCode(), "", cl.getLatitud(), cl.getLongitud(), c.getReference(), ""), tblCall.getValueAt(rowSelected, 0).toString()));
-                
+
             } catch (NullPointerException e) {
                 modelTableByDispatch.insertRow(0, changeToArrayClient(new Client(c.getClient(), "", c.getPhone(), c.getDirection(), "",
                         0, "", c.getLatitud(), c.getLongitud(), c.getReference(), ""), tblCall.getValueAt(rowSelected, 0).toString()));

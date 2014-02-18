@@ -116,7 +116,7 @@ public class FrameVehiculos extends javax.swing.JFrame {
                 anio,
                 numMoto,
                 numChasis,
-                regis, soat, Principal.listCodesTaxy.getCodesTaxyById("AC"),"");
+                regis, soat, Principal.listCodesTaxy.getCodesTaxyById("AC"),"",txtIp.getText());
         Principal.listVehiculos.addNewVehiculo(v);
         modelTableVehiculo.addRow(changeToArrayVehiculo(v));
         clear();
@@ -159,6 +159,8 @@ public class FrameVehiculos extends javax.swing.JFrame {
         cbxPropietario = new javax.swing.JComboBox();
         cbxModelo = new javax.swing.JComboBox();
         txtSoat = new javax.swing.JTextField();
+        jLabel13 = new javax.swing.JLabel();
+        txtIp = new javax.swing.JTextField();
         btnRefresh = new javax.swing.JButton();
         btnAdd = new javax.swing.JButton();
         btnDelete = new javax.swing.JButton();
@@ -254,7 +256,7 @@ public class FrameVehiculos extends javax.swing.JFrame {
 
         jLabel9.setText("Número de chasis:");
 
-        jLabel10.setText("Registro Municipal");
+        jLabel10.setText("Registro Municipal:");
 
         txtRegMun.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
@@ -262,7 +264,7 @@ public class FrameVehiculos extends javax.swing.JFrame {
             }
         });
 
-        jLabel11.setText("Soat");
+        jLabel11.setText("Soat:");
 
         lblImage.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
@@ -271,6 +273,8 @@ public class FrameVehiculos extends javax.swing.JFrame {
         btnLoadImage.setEnabled(false);
 
         jLabel12.setText("Zona: ");
+
+        jLabel13.setText("IP:");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -282,15 +286,17 @@ public class FrameVehiculos extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel10)
-                            .addComponent(jLabel11))
+                            .addComponent(jLabel11)
+                            .addComponent(jLabel13))
                         .addGap(53, 53, 53)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(txtRegMun, javax.swing.GroupLayout.DEFAULT_SIZE, 113, Short.MAX_VALUE)
-                            .addComponent(txtSoat)))
+                            .addComponent(txtSoat)
+                            .addComponent(txtIp)))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(btnLoadImage)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(lblImage, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(lblImage, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel12)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -308,13 +314,11 @@ public class FrameVehiculos extends javax.swing.JFrame {
                             .addComponent(cbxConductor, 0, 227, Short.MAX_VALUE)
                             .addComponent(cbxPropietario, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(txtAnio, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(txtnumCha, javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(txtNumMot, javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(cbxModelo, javax.swing.GroupLayout.Alignment.LEADING, 0, 170, Short.MAX_VALUE))
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(cbxZona, javax.swing.GroupLayout.Alignment.LEADING, 0, 97, Short.MAX_VALUE)
-                                .addComponent(txtPlaca, javax.swing.GroupLayout.Alignment.LEADING)))))
+                            .addComponent(txtnumCha)
+                            .addComponent(txtNumMot)
+                            .addComponent(cbxModelo, 0, 227, Short.MAX_VALUE)
+                            .addComponent(cbxZona, 0, 227, Short.MAX_VALUE)
+                            .addComponent(txtPlaca))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -364,11 +368,15 @@ public class FrameVehiculos extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel11)
                     .addComponent(txtSoat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel13)
+                    .addComponent(txtIp, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnLoadImage)
-                    .addComponent(lblImage, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(28, Short.MAX_VALUE))
+                    .addComponent(lblImage, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(22, Short.MAX_VALUE))
         );
 
         btnRefresh.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/actualizar.png"))); // NOI18N
@@ -476,6 +484,7 @@ public class FrameVehiculos extends javax.swing.JFrame {
             txtnumCha.setText(v.getNumChasis());
             txtRegMun.setText(v.getRegMunicipal() + "");
             txtSoat.setText(v.getSoat() + "");
+            txtIp.setText(v.getIp());
             btnRefresh.setEnabled(true);
             btnAdd.setEnabled(false);
             btnDelete.setEnabled(true);
@@ -522,7 +531,7 @@ public class FrameVehiculos extends javax.swing.JFrame {
                 anio,
                 numMoto,
                 numChasis,
-                regis, soat, Principal.listCodesTaxy.getCodesTaxyById("AC"),"");
+                regis, soat, Principal.listCodesTaxy.getCodesTaxyById("AC"),"",txtIp.getText());
 
         if (Principal.listVehiculos.updateVehiculo(v, tblVehiculo.getValueAt(rowSelected, 1).toString())) {
             modelTableVehiculo.setValueAt(unidad, rowSelected, 0);
@@ -638,6 +647,7 @@ public class FrameVehiculos extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -651,6 +661,7 @@ public class FrameVehiculos extends javax.swing.JFrame {
     private javax.swing.JLabel lblImage;
     private javax.swing.JTable tblVehiculo;
     private javax.swing.JTextField txtAnio;
+    private javax.swing.JTextField txtIp;
     private javax.swing.JTextField txtNumMot;
     private javax.swing.JTextField txtPlaca;
     private javax.swing.JTextField txtRegMun;

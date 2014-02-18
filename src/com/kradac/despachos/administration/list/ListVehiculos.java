@@ -197,4 +197,13 @@ public class ListVehiculos {
         }
         return false;
     }
+    
+    public String getIpVehiculo(int vehiculo) {
+        for (Vehiculo v : getVehiculos()) {
+            if (v.getVehiculo() == vehiculo) {
+                return v.getIp();
+            }
+        }
+        return null;
+    }
 }
