@@ -206,7 +206,7 @@ public class Principal extends javax.swing.JFrame {
         tcll.start();
         //}
         jpSlope.setVisible(false);
-        lblSlope.setVisible(false);
+        lblPanic.setVisible(false);
         btnImport.setVisible(false);
         btnHistorical.setVisible(false);
 
@@ -791,7 +791,7 @@ public class Principal extends javax.swing.JFrame {
         jPanel12 = new javax.swing.JPanel();
         lblDate = new javax.swing.JLabel();
         lblConection = new javax.swing.JLabel();
-        lblSlope = new javax.swing.JLabel();
+        lblPanic = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("SISTEMA DE DESPACHOS. V 3.0");
@@ -1640,7 +1640,9 @@ public class Principal extends javax.swing.JFrame {
 
         lblConection.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/nosenal.png"))); // NOI18N
 
-        lblSlope.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/alarma.png"))); // NOI18N
+        lblPanic.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        lblPanic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/alarma.png"))); // NOI18N
+        lblPanic.setText("Panico Unidad: ####");
 
         javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
         jPanel12.setLayout(jPanel12Layout);
@@ -1648,15 +1650,15 @@ public class Principal extends javax.swing.JFrame {
             jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel12Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(lblSlope, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblPanic, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(lblConection, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lblDate, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         jPanel12Layout.setVerticalGroup(
             jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(lblSlope, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(lblPanic, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(lblConection, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(lblDate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
@@ -1705,7 +1707,7 @@ public class Principal extends javax.swing.JFrame {
                         .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(tabPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 443, Short.MAX_VALUE)
+                .addComponent(tabPanel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -1790,7 +1792,7 @@ public class Principal extends javax.swing.JFrame {
         String etiqueta = editor.getText();
         CodesTaxy ct = listCodesTaxy.getCodeTaxyByEtiqueta(etiqueta);
         if (!ct.getIdCodigo().equals("OCU") && !ct.getIdCodigo().equals("ASI")) {
-            if (numCol.length > 0) {
+            if (numCol.length > 1) {
                 for (int i = 0; i < numCol.length; i++) {
                     int vehiculo = Integer.parseInt(listVehiculos.getEncabezadosTablaVehiculosArrayString()[numCol[i]]);
                     Vehiculo v = listVehiculos.getVehiculoByVehiculo(vehiculo);
@@ -1806,6 +1808,18 @@ public class Principal extends javax.swing.JFrame {
                      }*/
                 }
                 paintStateTaxy();
+            } else if (numCol.length == 1) {
+                int vehiculo = Integer.parseInt(listVehiculos.getEncabezadosTablaVehiculosArrayString()[numCol[0]]);
+                Vehiculo v = listVehiculos.getVehiculoByVehiculo(vehiculo);
+                if (v.getCodesTaxy().getIdCodigo().equals("OCU") || v.getCodesTaxy().getIdCodigo().equals("ASI") || v.getCodesTaxy().getIdCodigo().equals("DES") || v.getCodesTaxy().getIdCodigo().equals("SUS")) {
+                    int r = JOptionPane.showConfirmDialog(this, "\n<html><b>¿Esta seguro que quiere Activar esta unidad?</b></html>", "Mensaje", 0);
+
+                    if (r == 0) {
+                        clearStateVehiculo(tblStateVeh.getColumnName(numCol[0]) + "");
+                        listVehiculos.setCodeTaxyByEtiqueta(vehiculo, ct);
+                        paintStateTaxy();
+                    }
+                } 
             } else {
                 JOptionPane.showMessageDialog(this, "Debe seleccionar una Unidad primero", "ERROR", JOptionPane.ERROR_MESSAGE);
             }
@@ -1923,7 +1937,7 @@ public class Principal extends javax.swing.JFrame {
 
                                         if (!fileConfig.getProperty("comm_fastrack").equals("0")) {
                                             Client client = listClient.getClientByCode(Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 3).toString()));
-                                            String dataClient = tblByDispatch.getValueAt(rowSelected, 4).toString()+"::"+tblByDispatch.getValueAt(rowSelected, 6).toString()+""+client.getNumHouse();
+                                            String dataClient = tblByDispatch.getValueAt(rowSelected, 4).toString() + "::" + tblByDispatch.getValueAt(rowSelected, 6).toString() + "" + client.getNumHouse();
                                             String newDireccion = "";
                                             if (dataClient.length() > 20) {
                                                 for (int i = 0; i < dataClient.length(); i++) {
@@ -1937,7 +1951,7 @@ public class Principal extends javax.swing.JFrame {
                                                 }
                                             }
 
-                                            cf.enviarDatos("AT+SEND=\""+listVehiculos.getIpVehiculo(vehiculo)+"\",\"2141\",\"GPRME"+newDireccion+"\"\r\n");
+                                            cf.enviarDatos("AT+SEND=\"" + listVehiculos.getIpVehiculo(vehiculo) + "\",\"2141\",\"GPRME" + newDireccion + "\"\r\n");
                                         }
                                     }
 
@@ -2364,7 +2378,7 @@ public class Principal extends javax.swing.JFrame {
     public static javax.swing.JLabel lblDispatchG;
     public static javax.swing.JLabel lblDispatchT;
     public static javax.swing.JLabel lblMinuteSlope;
-    public static javax.swing.JLabel lblSlope;
+    public static javax.swing.JLabel lblPanic;
     private javax.swing.JLabel lblTextPending;
     public static javax.swing.JLabel lblTime;
     private javax.swing.JList ltEvents;

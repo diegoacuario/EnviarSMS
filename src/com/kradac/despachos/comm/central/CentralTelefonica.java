@@ -52,84 +52,6 @@ public class CentralTelefonica extends Thread {
 
     @Override
     public void run() {
-        //Proper
-        /*int caracAssi;
-        String dato;
-        String trama = "";
-        String tramaFecha;
-        String incognito = "";
-        int incognito2 = 0;
-
-        while (true) {
-            caracAssi = leerDatosCode();
-            dato = "" + (char) caracAssi;
-            trama = trama + dato;
-
-            if (caracAssi == 10 && trama.length() > 10) {
-                if (trama.contains("Fecha") || trama.contains("Hora") || trama.contains("-")) {
-                    trama = "";
-                } else {
-                    tramaFecha = trama.substring(0, 10);
-                    trama = trama.substring(11);
-                    trama = trama.replace(" ", "%");
-                    trama = trama.replace("%%%%%%%", "%");
-                    trama = trama.replace("%%%", "%");
-                    trama = trama.replace("%%", "%");
-                    trama = trama.replace("%<%E%>", "%");
-                    trama = trama.replace("'", ":");
-                    
-                    String parte[] = trama.split("%");
-
-                    String fecha = procesoFecha(tramaFecha);
-                    String hora = parte[0].substring(0, parte[0].length() - 2);
-                    int extension = 0;
-                    String linea = parte[1];
-                    String telefono = parte[2];
-                    String duracion = "00:00:00";
-
-                    if (telefono.length() > 8) {
-                        if (parte.length == 7) {
-                            fecha = procesoFecha(tramaFecha);
-                            hora = parte[0].substring(0, parte[0].length() - 2);
-                            extension = Integer.parseInt(parte[1]);
-                            linea = parte[2];
-                            telefono = parte[3];
-                            duracion = parte[4].substring(0, parte[4].length() - 1);
-                        }
-
-                        if (parte.length == 9) {
-                            fecha = procesoFecha("secundaria: " + tramaFecha);
-                            hora = parte[0].substring(0, parte[0].length() - 2);
-                            extension = Integer.parseInt(parte[1]);
-                            linea = parte[2];
-                            telefono = parte[3];
-                            duracion = parte[4].substring(0, parte[4].length() - 1);
-                            incognito = parte[5];
-                            incognito2 = Integer.parseInt(parte[6]);
-                        }
-
-                        if (parte.length != 9) {
-                            timbrar(true, telefono, linea);
-                        }
-
-                        if (extension != 0) {
-                            if (parte.length == 9) { //Llamada realizada
-                                Principal.modelListEvents.add(0, "=> Llamada Realizada de la linea '" + linea + "' al numero: " + telefono);
-                            } else {
-                                timbrar(false, telefono, linea);
-                            }
-                        } else {
-                            Principal.modelListEvents.add(0, "=> Llamada Recibida del numero: " + telefono);
-                        }
-
-                        trama = "";
-                    } else {
-                        trama = "";
-                    }
-                }
-            }
-        }*/
-        //Libertaxi
         int caracAssi;
         String dato;
         String trama = "";
@@ -152,9 +74,14 @@ public class CentralTelefonica extends Thread {
                     trama = trama.replace("%%%%%%%", "%");
                     trama = trama.replace("%%%", "%");
                     trama = trama.replace("%%", "%");
-                    trama = trama.replace("%<%entrada%%>", "%");
+                    if (trama.contains("entrada")) {
+                        trama = trama.replace("%<%entrada%%>", "%");
+                    } else {
+                        trama = trama.replace("%<%E%>", "%");
+                    }
+                    
                     trama = trama.replace("'", ":");
-
+                    
                     String parte[] = trama.split("%");
 
                     String fecha = procesoFecha(tramaFecha);

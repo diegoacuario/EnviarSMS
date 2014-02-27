@@ -159,6 +159,8 @@ public class ChannelMessageFromServer extends Thread {
         if (!Principal.fileConfig.getProperty("comm_fastrack").equals("0")) {
             Principal.cf.enviarDatos("AT+SEND=\""+Principal.listVehiculos.getIpVehiculo(Integer.parseInt(message))+"\",\"2141\",\"GPRMA\"");
         }
-        JOptionPane.showMessageDialog(null, "Panico Generado por la Unidad: " + message);
+        //JOptionPane.showMessageDialog(null, "Panico Generado por la Unidad: " + message);
+        Principal.lblPanic.setText("Panico Unidad: "+message);
+        Principal.lblPanic.setVisible(true);
     }
 }

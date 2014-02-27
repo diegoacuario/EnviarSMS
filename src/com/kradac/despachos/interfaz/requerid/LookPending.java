@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author dalton
+ * @author Dalton
  */
 public class LookPending extends Thread{
     private final String hora;
@@ -33,11 +33,9 @@ public class LookPending extends Thread{
                 if (c <= 69) {                    
                     Principal.lblMinuteSlope.setText(hora);
                     Principal.lblClientSlope.setText(code+" :: "+nombre_apellido);
-                    Principal.lblSlope.setVisible(true);
                     Principal.jpSlope.setVisible(true);
                     c++;
                 } else {
-                    Principal.lblSlope.setVisible(false);
                     Principal.jpSlope.setVisible(false);
                 }
                 sleep(1000);
