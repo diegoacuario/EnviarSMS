@@ -115,6 +115,7 @@ public class Principal extends javax.swing.JFrame {
     private Menu menu;
     private FrameClients fc;
     private FramePending fp;
+    private FrameTaximetro ft;
     private SearchClients sc;
 
     /**
@@ -207,8 +208,6 @@ public class Principal extends javax.swing.JFrame {
         //}
         jpSlope.setVisible(false);
         lblPanic.setVisible(false);
-        btnImport.setVisible(false);
-        btnHistorical.setVisible(false);
 
         sorter = new TableRowSorter<TableModel>(modelTableDispatch);
         tblDispatchs.setRowSorter(sorter);
@@ -787,7 +786,6 @@ public class Principal extends javax.swing.JFrame {
         btnSearchClients = new javax.swing.JButton();
         btnAddClients = new javax.swing.JButton();
         btnImport = new javax.swing.JButton();
-        btnHistorical = new javax.swing.JButton();
         jPanel12 = new javax.swing.JPanel();
         lblDate = new javax.swing.JLabel();
         lblConection = new javax.swing.JLabel();
@@ -1594,11 +1592,11 @@ public class Principal extends javax.swing.JFrame {
 
         btnImport.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/guardar.png"))); // NOI18N
         btnImport.setText("Importar");
-        btnImport.setEnabled(false);
-
-        btnHistorical.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/carreras.png"))); // NOI18N
-        btnHistorical.setText("Historico");
-        btnHistorical.setEnabled(false);
+        btnImport.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnImportActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
         jPanel10.setLayout(jPanel10Layout);
@@ -1615,23 +1613,20 @@ public class Principal extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnAddClients)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnHistorical)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnImport)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(129, Short.MAX_VALUE))
         );
         jPanel10Layout.setVerticalGroup(
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(btnHistorical, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(btnSlope, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btnSlope, javax.swing.GroupLayout.DEFAULT_SIZE, 47, Short.MAX_VALUE)
             .addComponent(btnExit, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(btnMenu, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
+            .addGroup(jPanel10Layout.createSequentialGroup()
                 .addGap(1, 1, 1)
-                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnAddClients, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnImport, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnAddClients, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnSearchClients, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-            .addComponent(btnImport, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         lblDate.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
@@ -2286,6 +2281,14 @@ public class Principal extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtTrashCodeKeyTyped
 
+    private void btnImportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImportActionPerformed
+        if ((ft == null) || (!ft.isDisplayable())) {
+            ft = new FrameTaximetro();
+        }
+        ft.setVisible(true);
+        ft.setLocationRelativeTo(this);
+    }//GEN-LAST:event_btnImportActionPerformed
+
     /**
      */
     public void main() {
@@ -2326,7 +2329,6 @@ public class Principal extends javax.swing.JFrame {
     private javax.swing.JButton btnDelete2;
     private javax.swing.JButton btnDispatch2;
     private javax.swing.JButton btnExit;
-    private javax.swing.JButton btnHistorical;
     private javax.swing.JButton btnImport;
     private javax.swing.JButton btnMenu;
     private javax.swing.JButton btnNoDispatch2;

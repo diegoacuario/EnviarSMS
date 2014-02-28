@@ -60,7 +60,7 @@ public class FrameReports extends javax.swing.JFrame {
 
         jpFechas.setVisible(false);
         jpHoras.setVisible(false);
-     
+
     }
 
     private void cargarComboUsuarios() {
@@ -78,12 +78,11 @@ public class FrameReports extends javax.swing.JFrame {
             cbAnio.addItem(anio);
         }
     }
-    
+
 //    private void CambiarEnfoqueEstadosTaxi(boolean en) {
 //        textEstadosUni.setText("");
 //        textEstadosUni.setEnabled(en);
 //    }
-
     private void habilitarAnio(boolean activar) {
         cargarAniosCombo();
         cbAnio.setEnabled(activar);
@@ -114,7 +113,7 @@ public class FrameReports extends javax.swing.JFrame {
         jcCarrerasTotUniMes.setEnabled(false);
         habilitarAnio(false);
     }
-    
+
 //      private void CambiarEnfoqueEstadosTiempo() {
 //        if (rEstadosTodoTiem.isSelected()) {
 //            jdEstadosDia.setEnabled(false);
@@ -129,7 +128,6 @@ public class FrameReports extends javax.swing.JFrame {
 //            }
 //        }
 //    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -185,6 +183,18 @@ public class FrameReports extends javax.swing.JFrame {
         jcCarrerasTotUniMes = new javax.swing.JComboBox();
         cbAnio = new javax.swing.JComboBox();
         jLabel15 = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        jLabel9 = new javax.swing.JLabel();
+        jrEstadosTaximetroTotal = new javax.swing.JRadioButton();
+        jrEstadosTaximetroUnidad = new javax.swing.JRadioButton();
+        jtEstadosTaximetroUnidad = new javax.swing.JTextField();
+        jPanel10 = new javax.swing.JPanel();
+        jrEstadosTaximetroDia = new javax.swing.JRadioButton();
+        jrEstadosTaximetroTodoTiempo = new javax.swing.JRadioButton();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jdEstadoTaximetroDia1 = new javax.swing.JSpinner();
+        jdEstadoTaximetroDia2 = new javax.swing.JSpinner();
         btnGenerar = new javax.swing.JButton();
         btnSalir = new javax.swing.JButton();
 
@@ -640,6 +650,123 @@ public class FrameReports extends javax.swing.JFrame {
 
         JTabReporte.addTab("Carreras", new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/carreras.png")), JTabCarreras); // NOI18N
 
+        jLabel9.setText("Consulta de estados del taxímetro");
+
+        jrEstadosTaximetroTotal.setSelected(true);
+        jrEstadosTaximetroTotal.setText("Todas la unidades");
+        jrEstadosTaximetroTotal.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jrEstadosTaximetroTotalActionPerformed(evt);
+            }
+        });
+
+        jrEstadosTaximetroUnidad.setText("Unidad");
+        jrEstadosTaximetroUnidad.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jrEstadosTaximetroUnidadActionPerformed(evt);
+            }
+        });
+
+        jtEstadosTaximetroUnidad.setEnabled(false);
+
+        jPanel10.setBorder(javax.swing.BorderFactory.createTitledBorder("Cuando"));
+
+        jrEstadosTaximetroDia.setText("Entre");
+        jrEstadosTaximetroDia.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jrEstadosTaximetroDiaActionPerformed(evt);
+            }
+        });
+
+        jrEstadosTaximetroTodoTiempo.setSelected(true);
+        jrEstadosTaximetroTodoTiempo.setText("Todo el tiempo");
+        jrEstadosTaximetroTodoTiempo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jrEstadosTaximetroTodoTiempoActionPerformed(evt);
+            }
+        });
+
+        jLabel10.setText("Desde:");
+
+        jLabel12.setText("Hasta:");
+
+        jdEstadoTaximetroDia1.setModel(new javax.swing.SpinnerDateModel(new java.util.Date(), null, new java.util.Date(), java.util.Calendar.HOUR));
+        jdEstadoTaximetroDia1.setEnabled(false);
+
+        jdEstadoTaximetroDia2.setModel(new javax.swing.SpinnerDateModel(new java.util.Date(), null, new java.util.Date(), java.util.Calendar.HOUR));
+        jdEstadoTaximetroDia2.setEnabled(false);
+
+        javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
+        jPanel10.setLayout(jPanel10Layout);
+        jPanel10Layout.setHorizontalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jrEstadosTaximetroTodoTiempo)
+                    .addComponent(jrEstadosTaximetroDia)
+                    .addGroup(jPanel10Layout.createSequentialGroup()
+                        .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jdEstadoTaximetroDia1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jdEstadoTaximetroDia2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel10Layout.setVerticalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jrEstadosTaximetroTodoTiempo)
+                .addGap(18, 18, 18)
+                .addComponent(jrEstadosTaximetroDia)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel10)
+                    .addComponent(jLabel12)
+                    .addComponent(jdEstadoTaximetroDia1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jdEstadoTaximetroDia2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(30, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(jPanel2Layout.createSequentialGroup()
+                            .addComponent(jrEstadosTaximetroUnidad)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jtEstadosTaximetroUnidad, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(20, 20, 20))
+                        .addComponent(jLabel9)
+                        .addComponent(jrEstadosTaximetroTotal))
+                    .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(59, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel9)
+                .addGap(18, 18, 18)
+                .addComponent(jrEstadosTaximetroTotal)
+                .addGap(20, 20, 20)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jrEstadosTaximetroUnidad)
+                    .addComponent(jtEstadosTaximetroUnidad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(172, Short.MAX_VALUE))
+        );
+
+        JTabReporte.addTab("Taximetro", new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/taxym.png")), jPanel2); // NOI18N
+
         btnGenerar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/kradac/despachos/img/reporte.png"))); // NOI18N
         btnGenerar.setText("Generar");
         btnGenerar.addActionListener(new java.awt.event.ActionListener() {
@@ -884,7 +1011,7 @@ public class FrameReports extends javax.swing.JFrame {
 
     private void rCarrerasUniActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rCarrerasUniActionPerformed
         // TODO add your handling code here:
-            LimpiarTabDespachos();
+        LimpiarTabDespachos();
         if (rCarrerasUni.isSelected()) {
             textCarrerasUni.setEditable(true);
             jcUsuariosDespachos.setEditable(false);
@@ -907,6 +1034,24 @@ public class FrameReports extends javax.swing.JFrame {
             textNomCli.setEditable(false);
         }
     }//GEN-LAST:event_rNomCliActionPerformed
+
+    private void jrEstadosTaximetroTotalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jrEstadosTaximetroTotalActionPerformed
+        jtEstadosTaximetroUnidad.setEnabled(false);
+    }//GEN-LAST:event_jrEstadosTaximetroTotalActionPerformed
+
+    private void jrEstadosTaximetroUnidadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jrEstadosTaximetroUnidadActionPerformed
+        jtEstadosTaximetroUnidad.setEnabled(true);
+    }//GEN-LAST:event_jrEstadosTaximetroUnidadActionPerformed
+
+    private void jrEstadosTaximetroDiaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jrEstadosTaximetroDiaActionPerformed
+        jdEstadoTaximetroDia1.setEnabled(true);
+        jdEstadoTaximetroDia2.setEnabled(true);
+    }//GEN-LAST:event_jrEstadosTaximetroDiaActionPerformed
+
+    private void jrEstadosTaximetroTodoTiempoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jrEstadosTaximetroTodoTiempoActionPerformed
+        jdEstadoTaximetroDia1.setEnabled(false);
+        jdEstadoTaximetroDia2.setEnabled(false);
+    }//GEN-LAST:event_jrEstadosTaximetroTodoTiempoActionPerformed
 
     /**
      * @param args the command line argureents
@@ -974,10 +1119,11 @@ public class FrameReports extends javax.swing.JFrame {
             map.put("nombre_user", usuario);
         }
 
-        if (rCarrerasPorDia.isSelected())
+        if (rCarrerasPorDia.isSelected()) {
             map.put("todo", true);
-        else             
+        } else {
             map.put("todo", false);
+        }
 
         if (rDespachosTurno.isSelected()) {
             if (!formatTime.format((Date) jsTimeStart.getValue()).equals("")) {
@@ -988,22 +1134,24 @@ public class FrameReports extends javax.swing.JFrame {
         } else {
             map.put("turno", false);
         }
-        
-        if (rCarrerasCli.isSelected())
-            map.put("cod", cod);
-        else             
-            map.put("cod", "");
-        
-        
-        if (rCarrerasUni.isSelected())
-            map.put("uni", uni);
-        else             
-            map.put("uni", "");
 
-        if (rCarrerasFechHor.isSelected())
+        if (rCarrerasCli.isSelected()) {
+            map.put("cod", cod);
+        } else {
+            map.put("cod", "");
+        }
+
+        if (rCarrerasUni.isSelected()) {
+            map.put("uni", uni);
+        } else {
+            map.put("uni", "");
+        }
+
+        if (rCarrerasFechHor.isSelected()) {
             map.put("entre", true);
-        else
+        } else {
             map.put("entre", false);
+        }
 
         //map.put("turnotxt", jcTurnosDespachos.getSelectedItem().toString());
         return map;
@@ -1056,67 +1204,67 @@ public class FrameReports extends javax.swing.JFrame {
         return map;
     }
 
-//    private HashMap getDatosEstadosTaxi() {
-//        HashMap map = new HashMap();
-//        map.put("cat", "EstadosTaxi");
-//
-//        if (rEstadosTodUni.isSelected()) {
-//            map.put("tEstado", "total");
-//        } else {
-//            map.put("tEstado", "unidad");
-//            if (rEstadosUni.isSelected()) {
-//                map.put("unidad", textEstadosUni.getText());
-//            }
-//        }
-//
-//        if (rEstadosTodoTiem.isSelected()) {
-//            map.put("tiempo", "total");
-//        } else {
-//            if (rEstadosDia.isSelected()) {
-//                map.put("tiempo", "dia");
-//                SimpleDateFormat dfFecha = new SimpleDateFormat("yyyy-MM-dd");
-//                String dia = dfFecha.format(jdEstadosDia.getDate());
-//                map.put("dia", dia);
-//            } else {
-//                map.put("tiempo", "mes");
-//                String mes = "" + (jcEstadosMes.getSelectedIndex() + 1);
-//                String nomMes = jcEstadosMes.getSelectedItem().toString();
-//                map.put("mes", mes);
-//                map.put("NombreMes", nomMes);
-//            }
-//        }
-//
-//        return map;
-//    }
+    /*private HashMap getDatosEstadosTaxi() {
+        HashMap map = new HashMap();
+        map.put("cat", "EstadosTaxi");
 
-//    private HashMap getDatosEstadosTaximetro() {
-//        HashMap map = new HashMap();
-//        map.put("cat", "EstadosTaximetro");
-//
-//        if (rTaximetroTodUni.isSelected()) {
-//            map.put("tEstado", "total");
-//        } else {
-//            map.put("tEstado", "unidad");
-//            if (rTaximetroUni.isSelected()) {
-//                map.put("unidad", textTaximetroUni.getText());
-//            }
-//        }
-//
-//        if (rTaximetroTodTiem.isSelected()) {
-//            map.put("tiempo", "total");
-//        } else {
-//            if (rTaximetroDia.isSelected()) {
-//                map.put("tiempo", "dia");
-//                SimpleDateFormat dfFecha = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-//                String dia1 = dfFecha.format(jdTaximetroDia1.getValue());
-//                String dia2 = dfFecha.format(jdTaximetroDia2.getValue());
-//                map.put("dia", dia1);
-//                map.put("dia1", dia2);
-//            }
-//        }
-//
-//        return map;
-//    }
+        if (rEstadosTodUni.isSelected()) {
+            map.put("tEstado", "total");
+        } else {
+            map.put("tEstado", "unidad");
+            if (rEstadosUni.isSelected()) {
+                map.put("unidad", textEstadosUni.getText());
+            }
+        }
+
+        if (rEstadosTodoTiem.isSelected()) {
+            map.put("tiempo", "total");
+        } else {
+            if (rEstadosDia.isSelected()) {
+                map.put("tiempo", "dia");
+                SimpleDateFormat dfFecha = new SimpleDateFormat("yyyy-MM-dd");
+                String dia = dfFecha.format(jdEstadosDia.getDate());
+                map.put("dia", dia);
+            } else {
+                map.put("tiempo", "mes");
+                String mes = "" + (jcEstadosMes.getSelectedIndex() + 1);
+                String nomMes = jcEstadosMes.getSelectedItem().toString();
+                map.put("mes", mes);
+                map.put("NombreMes", nomMes);
+            }
+        }
+
+        return map;
+    }*/
+    
+    private HashMap getDatosEstadosTaximetro() {
+        HashMap map = new HashMap();
+        map.put("cat", "EstadosTaximetro");
+
+        if (jrEstadosTaximetroTotal.isSelected()) {
+            map.put("tEstado", "total");
+        } else {
+            map.put("tEstado", "unidad");
+            if (jrEstadosTaximetroUnidad.isSelected()) {
+                map.put("unidad", jtEstadosTaximetroUnidad.getText());
+            }
+        }
+
+        if (jrEstadosTaximetroTodoTiempo.isSelected()) {
+            map.put("tiempo", "total");
+        } else {
+            if (jrEstadosTaximetroDia.isSelected()) {
+                map.put("tiempo", "dia");
+                SimpleDateFormat dfFecha = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                String dia1 = dfFecha.format(jdEstadoTaximetroDia1.getValue());
+                String dia2 = dfFecha.format(jdEstadoTaximetroDia2.getValue());
+                map.put("dia", dia1);
+                map.put("dia1", dia2);
+            }
+        }
+
+        return map;
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTabbedPane JTabCarreras;
@@ -1127,12 +1275,17 @@ public class FrameReports extends javax.swing.JFrame {
     private javax.swing.JButton btnSalir;
     private javax.swing.JComboBox cbAnio;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel10;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JSeparator jSeparator2;
@@ -1140,13 +1293,20 @@ public class FrameReports extends javax.swing.JFrame {
     private javax.swing.JComboBox jcCarrerasTotEmpresaMes;
     private javax.swing.JComboBox jcCarrerasTotUniMes;
     private javax.swing.JComboBox jcUsuariosDespachos;
+    private javax.swing.JSpinner jdEstadoTaximetroDia1;
+    private javax.swing.JSpinner jdEstadoTaximetroDia2;
     private org.jdesktop.swingx.JXDatePicker jdFechaFinDes;
     private org.jdesktop.swingx.JXDatePicker jdFechaIniDes;
     private org.jdesktop.swingx.JXDatePicker jdFechaIniDia;
     private javax.swing.JPanel jpFechas;
     private javax.swing.JPanel jpHoras;
+    private javax.swing.JRadioButton jrEstadosTaximetroDia;
+    private javax.swing.JRadioButton jrEstadosTaximetroTodoTiempo;
+    private javax.swing.JRadioButton jrEstadosTaximetroTotal;
+    private javax.swing.JRadioButton jrEstadosTaximetroUnidad;
     private javax.swing.JSpinner jsTimeFinish;
     private javax.swing.JSpinner jsTimeStart;
+    private javax.swing.JTextField jtEstadosTaximetroUnidad;
     private javax.swing.JRadioButton rCarrerasCli;
     private javax.swing.JRadioButton rCarrerasFechHor;
     private javax.swing.JRadioButton rCarrerasPorDia;
@@ -1188,28 +1348,26 @@ public class FrameReports extends javax.swing.JFrame {
                         break;
                 }
 
-//            case 2:
-//                GenerarReporteEstadosTaxi estados = new GenerarReporteEstadosTaxi(db, getDatosEstadosTaxi());
-//                estados.Generar();
-//                break;
-//            case 3:
-//                boolean correcto = true;
-//                if (rTaximetroUni.isSelected()) {
-//
-//                    try {
-//                        int n = Integer.parseInt(textTaximetroUni.getText());
-//                    } catch (NumberFormatException e) {
-//                        System.out.println(e);
-//                        correcto = false;
-//                        JOptionPane.showMessageDialog(rootPane, "Numero de unidad solo puede ser numeros enteros");
-//                    }
-//                }
-//                if (correcto) {
-//                    GenerarReporteEstadosTaximetro estadosTaximetro = new GenerarReporteEstadosTaximetro(db, getDatosEstadosTaximetro());
-//                    estadosTaximetro.Generar();
-//                }
-//                break;
+            /*case 2:
+                GenerarReporteEstadosTaxi estados = new GenerarReporteEstadosTaxi(db, getDatosEstadosTaxi());
+                estados.Generar();
+                break;*/
+            case 2:
+                boolean correcto = true;
+                if (jrEstadosTaximetroUnidad.isSelected()) {
 
+                    try {
+                        int n = Integer.parseInt(jtEstadosTaximetroUnidad.getText());
+                    } catch (NumberFormatException e) {
+                        correcto=false;
+                        JOptionPane.showMessageDialog(rootPane, "Número de unidad solo puede ser números enteros");
+                    }
+                }
+                if (correcto) {
+                    GenerarReporteEstadosTaximetro estadosTaximetro = new GenerarReporteEstadosTaximetro(db, getDatosEstadosTaximetro());
+                    estadosTaximetro.Generar();
+                }
+                break;
         }
     }
 }

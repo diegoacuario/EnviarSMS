@@ -70,7 +70,7 @@ public class GenerarReporteEstadosTaximetro {
      * funcionar el sistema de todas las unidades
      */
     private void GenerarTodosEstadosTaxi() {
-        String sqlCodigo = "SELECT *,COUNT(*) AS TOTAL FROM taximetro_data GROUP BY CONCAT(tiquete,taxi)";
+        String sqlCodigo = "SELECT *,COUNT(*) AS TOTAL FROM taximetro_data GROUP BY tiquete";
         System.out.println("SQL: " + sqlCodigo);
         Map parametro = new HashMap();
         parametro.put("empresa", empresa);
@@ -104,12 +104,12 @@ public class GenerarReporteEstadosTaximetro {
     private void GenerarReporteTodasUnidadesDia() {
         String sqlCodigo = "SELECT *,COUNT(*) AS TOTAL FROM taximetro_data WHERE "
                 + "concat(fecha, ' ' ,hora_inicial) >= '$P!{dia}' "
-                + "and concat(fecha, ' ' ,hora_inicial) <= '$P!{dia1}' GROUP BY CONCAT(tiquete,taxi)";
+                + "and concat(fecha, ' ' ,hora_inicial) <= '$P!{dia1}' GROUP BY tiquete";
 
 
         String sqlCodigo1 = "SELECT *,COUNT(*) AS TOTAL FROM taximetro_data WHERE "
                 + "concat(fecha, ' ' ,hora_inicial) >= '" + campos.get("dia") + "' "
-                + "and concat(fecha, ' ' ,hora_inicial) <= '" + campos.get("dia1") + "' GROUP BY CONCAT(tiquete,taxi)";
+                + "and concat(fecha, ' ' ,hora_inicial) <= '" + campos.get("dia1") + "' GROUP BY tiquete";
         double pro[] = bd.calcularPromedio(sqlCodigo1);
         String dis = pro[1] + "";
         String disSum = pro[0] + "";
@@ -143,9 +143,9 @@ public class GenerarReporteEstadosTaximetro {
      */
     private void GenerarTodosEstadosTaxiUnaUnidad() {
         String sqlCodigo = "SELECT *,COUNT(*) AS TOTAL FROM taximetro_data "
-                + "WHERE taxi= $P!{unidad} GROUP BY CONCAT(tiquete,taxi)";
+                + "WHERE taxi= $P!{unidad} GROUP BY tiquete";
         String sqlCodigo1 = "SELECT *,COUNT(*) AS TOTAL FROM taximetro_data "
-                + "WHERE taxi= " + campos.get("unidad") + " GROUP BY CONCAT(tiquete,taxi)";
+                + "WHERE taxi= " + campos.get("unidad") + " GROUP BY tiquete";
 
 
 
@@ -185,12 +185,12 @@ public class GenerarReporteEstadosTaximetro {
         String sqlCodigo = "SELECT *,COUNT(*) AS TOTAL FROM taximetro_data WHERE "
                 + "concat(fecha, ' ' ,hora_inicial) >= '$P!{dia}' "
                 + "and concat(fecha, ' ' ,hora_inicial) <= '$P!{dia1}' "
-                + "and taxi= $P!{unidad} GROUP BY CONCAT(tiquete,taxi)";
+                + "and taxi= $P!{unidad} GROUP BY tiquete";
 
         String sqlCodigo1 = "SELECT *,COUNT(*) AS TOTAL FROM taximetro_data WHERE "
                 + "concat(fecha, ' ' ,hora_inicial) >= '" + campos.get("dia") + "' "
                 + "and concat(fecha, ' ' ,hora_inicial) <= '" + campos.get("dia1") + "' "
-                + "and taxi= " + campos.get("unidad") + " GROUP BY CONCAT(tiquete,taxi)";
+                + "and taxi= " + campos.get("unidad") + " GROUP BY tiquete";
 
         Map parametro = new HashMap();
         parametro.put("sql", sqlCodigo);
