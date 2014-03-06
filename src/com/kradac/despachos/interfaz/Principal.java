@@ -1814,7 +1814,11 @@ public class Principal extends javax.swing.JFrame {
                         listVehiculos.setCodeTaxyByEtiqueta(vehiculo, ct);
                         paintStateTaxy();
                     }
-                } 
+                } else {
+                    clearStateVehiculo(tblStateVeh.getColumnName(numCol[0]) + "");
+                    listVehiculos.setCodeTaxyByEtiqueta(vehiculo, ct);
+                    paintStateTaxy();
+                }
             } else {
                 JOptionPane.showMessageDialog(this, "Debe seleccionar una Unidad primero", "ERROR", JOptionPane.ERROR_MESSAGE);
             }
