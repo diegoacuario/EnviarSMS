@@ -27,9 +27,12 @@ public class Dispatch {
     private String reference;
     private String num_house;
     private String destino;
+    private double latitud;
+    private double longitud;
     private String line;
+    private boolean send;
 
-    public Dispatch(String date, String time, String phone, int code, String client, String sector, String direction, int vehiculo, int minute, String timeAsig, String placa, int atraso, String note, String reference, String num_house, String destino, String line) {
+    public Dispatch(String date, String time, String phone, int code, String client, String sector, String direction, int vehiculo, int minute, String timeAsig, String placa, int atraso, String note, String reference, String num_house, String destino, double latitud, double longitud, String line, boolean send) {
         this.date = date;
         this.time = time;
         this.phone = phone;
@@ -46,7 +49,10 @@ public class Dispatch {
         this.reference = reference;
         this.num_house = num_house;
         this.destino = destino;
+        this.latitud = latitud;
+        this.longitud = longitud;
         this.line = line;
+        this.send = send;
     }
 
     /**
@@ -285,6 +291,48 @@ public class Dispatch {
      */
     public void setLine(String line) {
         this.line = line;
+    }
+
+    /**
+     * @return the send
+     */
+    public boolean isSend() {
+        return send;
+    }
+
+    /**
+     * @param send the send to set
+     */
+    public void setSend(boolean send) {
+        this.send = send;
+    }
+
+    /**
+     * @return the latitud
+     */
+    public double getLatitud() {
+        return latitud;
+    }
+
+    /**
+     * @param latitud the latitud to set
+     */
+    public void setLatitud(double latitud) {
+        this.latitud = latitud;
+    }
+
+    /**
+     * @return the longitud
+     */
+    public double getLongitud() {
+        return longitud;
+    }
+
+    /**
+     * @param longitud the longitud to set
+     */
+    public void setLongitud(double longitud) {
+        this.longitud = longitud;
     }
 
     

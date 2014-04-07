@@ -418,7 +418,7 @@ public class DataBase {
         ListDispatch listAux = new ListDispatch();
         try {
             String sql = "SELECT DATE, TIME, PHONE, CODE, CLIENT, SECTOR, DIRECTION, VEHICULO, "
-                    + "MINUTE, TIME_ASIG, ID_VEHICULO, ATRASO, NOTE, REFERENCE, NUM_HOUSE, DESTINO, LINE "
+                    + "MINUTE, TIME_ASIG, ID_VEHICULO, ATRASO, NOTE, REFERENCE, NUM_HOUSE, DESTINO, LATITUD, LONGITUD, LINE "
                     + "FROM assigs "
                     + "WHERE DATE BETWEEN (SELECT DATE(SUBDATE(NOW(), INTERVAL 15 DAY))) AND DATE(NOW()) "
                     + "ORDER BY DATE, TIME";
@@ -429,7 +429,8 @@ public class DataBase {
                         rs.getInt("CODE"), rs.getString("CLIENT"),
                         rs.getString("SECTOR"), rs.getString("DIRECTION"), rs.getInt("VEHICULO"), rs.getInt("MINUTE"),
                         rs.getString("TIME_ASIG"), rs.getString("ID_VEHICULO"), rs.getInt("ATRASO"), rs.getString("NOTE"),
-                        rs.getString("REFERENCE"), rs.getString("NUM_HOUSE"), rs.getString("DESTINO"), rs.getString("LINE")
+                        rs.getString("REFERENCE"), rs.getString("NUM_HOUSE"), rs.getString("DESTINO"), rs.getDouble("LATITUD"),
+                        rs.getDouble("LONGITUD"),rs.getString("LINE"), true
                 ));
             }
             return listAux;
@@ -445,7 +446,7 @@ public class DataBase {
 
         try {
             String sql = "SELECT DATE, TIME, PHONE, CODE, CLIENT, SECTOR, DIRECTION, VEHICULO, "
-                    + "MINUTE, TIME_ASIG, ID_VEHICULO, ATRASO, NOTE, REFERENCE, NUM_HOUSE, DESTINO, LINE "
+                    + "MINUTE, TIME_ASIG, ID_VEHICULO, ATRASO, NOTE, REFERENCE, NUM_HOUSE, DESTINO, LATITUD, LONGITUD, LINE "
                     + "FROM assigs "
                     + "WHERE DATE BETWEEN (SELECT DATE(SUBDATE(NOW(), INTERVAL 2 DAY))) AND DATE(NOW()) "
                     + "ORDER BY DATE DESC, TIME DESC LIMIT 10";
@@ -456,7 +457,8 @@ public class DataBase {
                         rs.getInt("CODE"), rs.getString("CLIENT"),
                         rs.getString("SECTOR"), rs.getString("DIRECTION"), rs.getInt("VEHICULO"), rs.getInt("MINUTE"),
                         rs.getString("TIME_ASIG"), rs.getString("ID_VEHICULO"), rs.getInt("ATRASO"), rs.getString("NOTE"),
-                        rs.getString("REFERENCE"), rs.getString("NUM_HOUSE"), rs.getString("DESTINO"), rs.getString("LINE")
+                        rs.getString("REFERENCE"), rs.getString("NUM_HOUSE"), rs.getString("DESTINO"), rs.getDouble("LATITUD"),
+                        rs.getDouble("LONGITUD"), rs.getString("LINE"), true
                 ));
             }
         } catch (SQLException ex) {

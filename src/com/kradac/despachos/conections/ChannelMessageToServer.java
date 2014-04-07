@@ -5,6 +5,7 @@
  */
 package com.kradac.despachos.conections;
 
+import com.kradac.despachos.administration.Dispatch;
 import com.kradac.despachos.administration.MessageToAndroid;
 import com.kradac.despachos.database.DataBase;
 import com.kradac.despachos.interfaz.Principal;
@@ -57,6 +58,7 @@ public class ChannelMessageToServer extends Thread {
                 try {
                     String[] paquete = Principal.listMessageToServer.getMessageToSendGarmin();
                     MessageToAndroid mta = Principal.listMessageToServer.getMessageToSendAndroid();
+                    Dispatch dispatch = Principal.listMessageToServer.getMessageToSendAssigs();
                     if (paquete != null) {
                         output.print("$$2##"+Principal.company.getIdCompany()+"##" + paquete[0] + "##" + paquete[1] + "$$\n");
                         String response = input.readLine();
@@ -67,6 +69,20 @@ public class ChannelMessageToServer extends Thread {
                     
                     if (mta != null) {
                         output.print("$$2##"+Principal.company.getIdCompany()+"##" + mta.getVehiculo() + "##" + mta.getIdSolicitud() + "$$\n");
+                        String response = input.readLine();
+                        if (response != null) {
+                            Principal.modelListEvents.add(0, "=> "+response);
+                        }
+                    }
+                    
+                    if (dispatch != null) {
+                        String message = Principal.company.getIdCompany()+";"+Principal.userLogin.getUser()+ ";" +dispatch.getDate()+ " "+dispatch.getTime()+ ";" +
+                                dispatch.getPhone()+";"+dispatch.getCode()+";"+dispatch.getClient()+";"+dispatch.getSector()+";"+
+                                dispatch.getDirection()+";"+dispatch.getDestino()+";"+dispatch.getVehiculo()+";"+dispatch.getMinute()+";"+
+                                dispatch.getTimeAsig()+";"+dispatch.getPlaca()+";"+dispatch.getAtraso()+";"+dispatch.getNum_house()+";"+
+                                dispatch.getReference()+";"+dispatch.getNote()+";"+dispatch.getLine()+";"+dispatch.getLatitud()+";"+dispatch.getLongitud();
+                        
+                        output.print("$$4##"+Principal.company.getIdCompany()+"##" + dispatch.getVehiculo() + "##" + message + "$$\n");
                         String response = input.readLine();
                         if (response != null) {
                             Principal.modelListEvents.add(0, "=> "+response);

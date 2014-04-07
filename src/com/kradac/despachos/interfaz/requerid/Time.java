@@ -63,7 +63,7 @@ public class Time extends TimerTask{
                                 Integer.parseInt(time2[2])).getTimeInMillis();
                         
                         long diferencia = dateTimeActual - dateTimeDispatch;
-                        int minute = Integer.parseInt(new java.text.SimpleDateFormat("ss").format(new Date(diferencia)).toString());
+                        int minute = Integer.parseInt(new java.text.SimpleDateFormat("ss").format(new Date(diferencia)));
                         if (minute == 59) {
                             int difAtraso = Integer.parseInt(atraso) + 1;
                             Principal.modelTableByDispatch.setValueAt(difAtraso, fila, 11);

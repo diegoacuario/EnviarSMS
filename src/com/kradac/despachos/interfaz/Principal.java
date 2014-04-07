@@ -469,10 +469,13 @@ public class Principal extends javax.swing.JFrame {
                                 auxByDispatch.getAtraso(),
                                 auxByDispatch.getNote(),
                                 c.getReference(), c.getNumHouse(), c.getDestino(),
-                                tblByDispatch.getValueAt(rowSelected, 0).toString());
+                                c.getLatitud(), c.getLongitud(),
+                                tblByDispatch.getValueAt(rowSelected, 0).toString(),
+                                false);
 
                         listByDispatch.addByDispatch(auxByDispatch);
                         listDispatch.addDispatch(auxDispatch);
+                        listMessageToServer.addMessageAssigs(auxDispatch);
 
                         bd.insertLifeAssigns(
                                 userLogin.getUser(),//user
@@ -1895,7 +1898,7 @@ public class Principal extends javax.swing.JFrame {
 
                                         listVehiculos.setCodeTaxyByEtiqueta(vehiculo, listCodesTaxy.getCodesTaxyById("ASI"));
                                         paintStateTaxy();
-                                        Principal.listMessageToServer.addMessageGarmin(new MessageToGarmin(vehiculo,
+                                        listMessageToServer.addMessageGarmin(new MessageToGarmin(vehiculo,
                                                 tblByDispatch.getValueAt(rowSelected, 4).toString(),
                                                 tblByDispatch.getValueAt(rowSelected, 5).toString(),
                                                 tblByDispatch.getValueAt(rowSelected, 6).toString(),
@@ -1908,7 +1911,7 @@ public class Principal extends javax.swing.JFrame {
                                         Call c = listCall.getCallByPhone(tblByDispatch.getValueAt(rowSelected, 2).toString());
 
                                         if (c != null) {
-                                            Principal.listMessageToServer.addMessageAndroid(new MessageToAndroid(c.getIdSolicitud(),
+                                            listMessageToServer.addMessageAndroid(new MessageToAndroid(c.getIdSolicitud(),
                                                     Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 7).toString()),
                                                     false)
                                             );

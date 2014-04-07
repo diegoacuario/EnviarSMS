@@ -6,6 +6,7 @@
 package com.kradac.despachos.administration.list;
 
 import com.kradac.despachos.administration.Client;
+import com.kradac.despachos.administration.Dispatch;
 import com.kradac.despachos.administration.MessageToAndroid;
 import com.kradac.despachos.administration.MessageToGarmin;
 import com.kradac.despachos.interfaz.Principal;
@@ -20,10 +21,12 @@ public class ListMessageToServer {
 
     private List<MessageToGarmin> postsGarmin;
     private List<MessageToAndroid> postsAndroid;
+    private List<Dispatch> postsAssigs;
 
     public ListMessageToServer() {
         postsGarmin = new ArrayList();
         postsAndroid = new ArrayList();
+        postsAssigs = new ArrayList();
     }
 
     public void addMessageGarmin(MessageToGarmin message) {
@@ -33,12 +36,25 @@ public class ListMessageToServer {
     public void addMessageAndroid(MessageToAndroid message) {
         postsAndroid.add(message);
     }
+    public void addMessageAssigs(Dispatch message) {
+        postsAssigs.add(message);
+    }
     
     public MessageToAndroid getMessageToSendAndroid() {
         for (MessageToAndroid m : postsAndroid) {
             if (!m.isSend()) {
                 m.setSend(true);
                 return m;
+            }
+        }
+        return null;
+    }
+    
+    public Dispatch getMessageToSendAssigs() {
+        for (Dispatch d : postsAssigs) {
+            if (!d.isSend()) {
+                d.setSend(true);
+                return d;
             }
         }
         return null;
