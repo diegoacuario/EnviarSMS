@@ -51,10 +51,10 @@ public class ChannelMessageFromServer extends Thread {
                     openConexion();
                     input = new BufferedReader(new InputStreamReader(s.getInputStream()));
                     output = new PrintStream(s.getOutputStream(), true);
-                    output.print("$$3##" + Principal.company.getIdCompany() + "$$\n");
                 }
 
                 try {
+                    output.print("$$3##" + Principal.company.getIdCompany() + "$$\n");
                     String data = input.readLine();
                     if (data != null) {
                         data = data.replace("$$", "");
@@ -76,10 +76,12 @@ public class ChannelMessageFromServer extends Thread {
                                     break;
                             }
                         } catch (NumberFormatException e) {
-                            JOptionPane.showMessageDialog(null, "Obtencion de Ultimos GPS no encontro resultados.");
+                            //JOptionPane.showMessageDialog(null, "Obtencion de Ultimos GPS no encontro resultados.");
                         }
+                    } else {
+                        openConexion();
                     }
-                    sleep(1000);
+                    sleep(3000);
                 } catch (IOException ex) {
                     //System.err.println("Conexion Perdida con el Servidor");
                     closeConexion();
@@ -110,6 +112,7 @@ public class ChannelMessageFromServer extends Thread {
             } catch (IOException ex) {
                 //System.err.println("No es posible conectarse con el Servidor");
                 try {
+                    closeConexion();
                     sleep(5000);
                     openConexion();
                 } catch (InterruptedException ex1) {

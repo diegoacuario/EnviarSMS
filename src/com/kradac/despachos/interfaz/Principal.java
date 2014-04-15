@@ -171,12 +171,12 @@ public class Principal extends javax.swing.JFrame {
 
         ThreadTrash tt = new ThreadTrash();
         tt.start();
+        
+        ChannelLastGps cos = new ChannelLastGps();
+        cos.start();
 
         ChannelMessageFromServer cmfs = new ChannelMessageFromServer();
         cmfs.start();
-
-        ChannelLastGps cos = new ChannelLastGps();
-        cos.start();
 
         ChannelMessageToServer cmts = new ChannelMessageToServer();
         cmts.start();
