@@ -16,6 +16,7 @@ import com.kradac.despachos.administration.Company;
 import com.kradac.despachos.administration.Dispatch;
 import com.kradac.despachos.administration.MessageToAndroid;
 import com.kradac.despachos.administration.MessageToGarmin;
+import com.kradac.despachos.administration.Person;
 import com.kradac.despachos.administration.list.ListClients;
 import com.kradac.despachos.administration.list.ListCodesTaxy;
 import com.kradac.despachos.administration.list.ListByDispatch;
@@ -51,7 +52,9 @@ import java.awt.Frame;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -171,7 +174,7 @@ public class Principal extends javax.swing.JFrame {
 
         ThreadTrash tt = new ThreadTrash();
         tt.start();
-        
+
         ChannelLastGps cos = new ChannelLastGps();
         cos.start();
 
@@ -706,6 +709,12 @@ public class Principal extends javax.swing.JFrame {
         } else {
             this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         }
+    }
+
+    private boolean enviarSMS(String celular, String comm, String mensaje) {
+        System.out.println("ENVIANDO A " + celular + " POR EL " + comm);
+        System.out.println("MENSAJE: " + mensaje);
+        return true;
     }
 
     /**
@@ -1936,10 +1945,9 @@ public class Principal extends javax.swing.JFrame {
                                                 0,
                                                 0.0, 0.0
                                         );
-
+                                        Client client = listClient.getClientByCode(Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 3).toString()));
+                                        String dataClient = tblByDispatch.getValueAt(rowSelected, 4).toString() + "::" + tblByDispatch.getValueAt(rowSelected, 6).toString() + "" + client.getNumHouse();
                                         if (!fileConfig.getProperty("comm_fastrack").equals("0")) {
-                                            Client client = listClient.getClientByCode(Integer.parseInt(tblByDispatch.getValueAt(rowSelected, 3).toString()));
-                                            String dataClient = tblByDispatch.getValueAt(rowSelected, 4).toString() + "::" + tblByDispatch.getValueAt(rowSelected, 6).toString() + "" + client.getNumHouse();
                                             String newDireccion = "";
                                             if (dataClient.length() > 20) {
                                                 for (int i = 0; i < dataClient.length(); i++) {
@@ -1954,6 +1962,46 @@ public class Principal extends javax.swing.JFrame {
                                             }
 
                                             cf.enviarDatos("AT+SEND=\"" + listVehiculos.getIpVehiculo(vehiculo) + "\",\"2141\",\"GPRME" + newDireccion + "\"\r\n");
+                                        }
+                                        String comm_sms = fileConfig.getProperty("comm_sms");
+                                        if (!comm_sms.equals("0")) {
+                                            int res = JOptionPane.showConfirmDialog(this,
+                                                    "Desea enviar datos por sms a celular");
+                                            if (res == 0) {
+                                                int seleccion = JOptionPane.showOptionDialog(
+                                                        this,
+                                                        "A celular que desea enviar mensaje sms?",
+                                                        "Envío de sms a celular",
+                                                        JOptionPane.YES_NO_CANCEL_OPTION,
+                                                        JOptionPane.QUESTION_MESSAGE,
+                                                        null,
+                                                        new Object[]{"De propietario",
+                                                            "De conductor",
+                                                            "Cancelar"},
+                                                        "De propietario");
+                                                Person proCon = null;
+                                                if (seleccion == 0) {
+                                                    proCon = listPerson.getPersonByCedula(v.getPropietario().getCedula());
+                                                    //System.out.println("Enviando a propietario");
+                                                } else if (seleccion == 1) {
+                                                    proCon = listPerson.getPersonByCedula(v.getConductor().getCedula());
+                                                    //System.out.println("Enviando a conductor");
+                                                }
+                                                if (proCon != null) {
+                                                    String phone = proCon.getPhone();
+                                                    if (!phone.isEmpty()) {
+                                                        if (enviarSMS(placa, phone, dataClient)) {
+                                                            modelListEvents.addElement("=> Mensaje SMS enviado a " + phone
+                                                                    + " a las " + new SimpleDateFormat("HH:mm:ss").format(new Date()));
+                                                        }
+                                                    } else {
+                                                        JOptionPane.showMessageDialog(this, "Verifique número de celular de "
+                                                                + proCon.getName() + " " + proCon.getLastname());
+                                                    }
+                                                }
+
+                                            }
+
                                         }
                                     }
 

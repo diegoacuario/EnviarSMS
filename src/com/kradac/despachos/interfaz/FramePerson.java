@@ -41,7 +41,7 @@ public class FramePerson extends javax.swing.JFrame {
         for (StateCivil sc : Principal.listStateCivil.getStateCivils()) {
             cbxStateCivil.addItem(sc.getStateCivil());
         }
-        
+
         for (Job j : Principal.listJob.getJobs()) {
             cbxJobs.addItem(j.getJob());
         }
@@ -51,7 +51,8 @@ public class FramePerson extends javax.swing.JFrame {
         String[] dataPerson = {
             person.getCedula(),
             person.getName(),
-            "" + person.getLastname()
+            "" + person.getLastname(),
+            "" + person.getPhone()
         };
         return dataPerson;
     }
@@ -85,7 +86,7 @@ public class FramePerson extends javax.swing.JFrame {
 
     private void add() {
         if (isValidCedula && isValidName && isValidLastName) {
-            
+
             Person p = new Person(txtCedula.getText(), txtName.getText().toUpperCase(), txtLastName.getText().toUpperCase(), txtPhone.getText(), txtEmail.getText(),
                     txtDirection.getText(), txtNumHouse.getText(), txtTypeSangre.getText(),
                     Principal.listStateCivil.getStateCivilByState(cbxStateCivil.getSelectedItem().toString()), txtConyugue.getText().toUpperCase(), "",
@@ -158,11 +159,11 @@ public class FramePerson extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Cedula", "Nombres", "Apellidos"
+                "Cedula", "Nombres", "Apellidos", "Celular"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false
+                false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -234,7 +235,7 @@ public class FramePerson extends javax.swing.JFrame {
             }
         });
 
-        jLabel5.setText("Telefono:");
+        jLabel5.setText("Celular:");
 
         txtPhone.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
@@ -538,7 +539,7 @@ public class FramePerson extends javax.swing.JFrame {
     }//GEN-LAST:event_txtCedulaKeyTyped
 
     private void txtNumHouseKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNumHouseKeyTyped
-        
+
     }//GEN-LAST:event_txtNumHouseKeyTyped
 
     private void txtCedulaKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCedulaKeyPressed

@@ -15,6 +15,8 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -55,7 +57,8 @@ public class ChannelMessageToServer extends Thread {
                     output.print("$$2##" + Principal.company.getIdCompany() + "##" + paquete[0] + "##" + paquete[1] + "$$\n");
                     String response = input.readLine();
                     if (response != null) {
-                        Principal.modelListEvents.add(0, "=> " + response);
+                        Principal.modelListEvents.add(0, "=> " + response
+                                + " a las " + new SimpleDateFormat("HH:mm:ss").format(new Date()));
                         closeConexion();
                     }
                 }
@@ -68,7 +71,8 @@ public class ChannelMessageToServer extends Thread {
                     output.print("$$2##" + Principal.company.getIdCompany() + "##" + mta.getVehiculo() + "##" + mta.getIdSolicitud() + "$$\n");
                     String response = input.readLine();
                     if (response != null) {
-                        Principal.modelListEvents.add(0, "=> " + response);
+                        Principal.modelListEvents.add(0, "=> " + response
+                                + " a las " + new SimpleDateFormat("HH:mm:ss").format(new Date()));
                         closeConexion();
                     }
                 }
@@ -87,7 +91,8 @@ public class ChannelMessageToServer extends Thread {
                     output.print("$$4##" + Principal.company.getIdCompany() + "##" + dispatch.getVehiculo() + "##" + message + "$$\n");
                     String response = input.readLine();
                     if (response != null) {
-                        Principal.modelListEvents.add(0, "=> " + response);
+                        Principal.modelListEvents.add(0, "=> " + response
+                                + " a las " + new SimpleDateFormat("HH:mm:ss").format(new Date()));
                         closeConexion();
                     }
                 }

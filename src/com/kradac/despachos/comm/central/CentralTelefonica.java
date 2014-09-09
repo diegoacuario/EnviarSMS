@@ -12,6 +12,8 @@ import com.kradac.despachos.interfaz.Principal;
 import com.kradac.despachos.methods.Functions;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Enumeration;
 import javax.comm.CommPortIdentifier;
 import javax.comm.NoSuchPortException;
@@ -118,12 +120,14 @@ public class CentralTelefonica extends Thread {
 
                         if (extension != 0) {
                             if (parte.length == 9) { //Llamada realizada
-                                Principal.modelListEvents.add(0, "=> Llamada Realizada de la linea '" + linea + "' al numero: " + telefono);
+                                Principal.modelListEvents.add(0, "=> Llamada Realizada de la linea '" + linea + "' al numero: " + telefono
+                                        + " a las " + new SimpleDateFormat("HH:mm:ss").format(new Date()));
                             } else {
                                 timbrar(false, telefono, linea);
                             }
                         } else {
-                            Principal.modelListEvents.add(0, "=> Llamada Recibida del numero: " + telefono);
+                            Principal.modelListEvents.add(0, "=> Llamada Recibida del numero: " + telefono
+                                    + " a las " + new SimpleDateFormat("HH:mm:ss").format(new Date()));
                         }
 
                         trama = "";

@@ -13,8 +13,10 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -54,22 +56,22 @@ public class ChannelLastGps extends Thread {
                 }
 
                 try {
-                    output.print("$$1##"+Principal.company.getIdCompany()+"$$\n");
+                    output.print("$$1##" + Principal.company.getIdCompany() + "$$\n");
                     String response = input.readLine();
                     //System.out.println(response);
                     if (response != null) {
                         ArrayList<String> newData = new ArrayList();
-                        
+
                         if (response.contains("#")) {
                             String[] pos = response.split("#");
                             newData.addAll(Arrays.asList(pos));
                         }
-                        
+
                         for (String trama : newData) {
-                            saveDataVehiculo(trama);                                                               
+                            saveDataVehiculo(trama);
                         }
                     } else {
-                        openConexion();                        
+                        openConexion();
                     }
                     sleep(10000);
                 } catch (IOException ex) {
@@ -102,10 +104,10 @@ public class ChannelLastGps extends Thread {
                 //System.out.println("Aqui: " + ex.getMessage());
             } catch (IOException ex) {
                 //System.err.println("No es posible conectarse con el Servidor");
-                try {                    
+                try {
                     closeConexion();
                     sleep(30000);
-                    openConexion();                    
+                    openConexion();
                 } catch (InterruptedException ex1) {
                 }
             }
@@ -131,19 +133,19 @@ public class ChannelLastGps extends Thread {
             //System.out.println(ex.getMessage());
         }
     }
-    
+
     private void saveDataVehiculo(String datoVehiculo) {
         String[] recorrido = datoVehiculo.split(",");
-        
+
         /**
          * ---- ID PARTICION: 20100909 N_UNIDAD: 43 ID_EMPRESA: LN LAT: -3.99473
          * LON: -79.2105116666667 FECHA: 2010-09-09 HORA: 09:44:36 VEL: 0.14 G1:
          * estado del TAXIMETRO pudiendo ser 1 (ON) || 0 (OFF) G2: estado del
-         * TAXI pudiendo ser 0 (LIBRE) || 1 (OCUPADO)
-         * UNIDAD_BLOQUEADA pudiendo ser 1 (ACTIVO) || 0 (BLOQUEADO)
-         */                
+         * TAXI pudiendo ser 0 (LIBRE) || 1 (OCUPADO) UNIDAD_BLOQUEADA pudiendo
+         * ser 1 (ACTIVO) || 0 (BLOQUEADO)
+         */
         try {
-            
+
             db.insertLastGps(
                     recorrido[1],
                     recorrido[3],
@@ -155,18 +157,20 @@ public class ChannelLastGps extends Thread {
                     recorrido[9],
                     recorrido[10]);
         } catch (ArrayIndexOutOfBoundsException ex) {
-        } 
+        }
     }
-    
+
     private void changeIconSeñal(boolean señal) {
         if (señal) {
             Principal.lblConection.setIcon(new javax.swing.ImageIcon(ChannelMessageFromServer.class.getResource("/com/kradac/despachos/img/senal.png")));
             Principal.isConextion = true;
-            Principal.modelListEvents.add(0, "Conexion Establecida con el Servidor");
+            Principal.modelListEvents.add(0, "Conexion establecida con el servidor"
+                    + " a las " + new SimpleDateFormat("HH:mm:ss").format(new Date()));
         } else {
             Principal.lblConection.setIcon(new javax.swing.ImageIcon(ChannelMessageFromServer.class.getResource("/com/kradac/despachos/img/nosenal.png")));
             Principal.isConextion = false;
-            Principal.modelListEvents.add(0, "Conexion Perdida con el Servidor");
+            Principal.modelListEvents.add(0, "Conexion perdida con el servidor"
+                    + " a las " + new SimpleDateFormat("HH:mm:ss").format(new Date()));
         }
     }
 }
