@@ -37,6 +37,7 @@ import com.kradac.despachos.administration.list.ListTurn;
 import com.kradac.despachos.administration.list.ListZona;
 import com.kradac.despachos.comm.central.CentralTelefonica;
 import com.kradac.despachos.comm.central.ConexionFastrack;
+import com.kradac.despachos.comm.central.ConexionModem;
 import com.kradac.despachos.conections.ChannelLastGps;
 import com.kradac.despachos.conections.ChannelMessageFromServer;
 import com.kradac.despachos.conections.ChannelMessageToServer;
@@ -120,6 +121,7 @@ public class Principal extends javax.swing.JFrame {
     private FramePending fp;
     private FrameTaximetro ft;
     private SearchClients sc;
+    private ConexionModem cm;
 
     /**
      * Creates new form Principal
@@ -189,6 +191,9 @@ public class Principal extends javax.swing.JFrame {
 
         cf = new ConexionFastrack();
         cf.start();
+
+        cm = new ConexionModem();
+        cm.start();
 
         setLocationRelativeTo(null);
         codeStateVeh = listCodesTaxy.getIdCodigo();
@@ -712,6 +717,7 @@ public class Principal extends javax.swing.JFrame {
     }
 
     private boolean enviarSMS(String celular, String comm, String mensaje) {
+        cm.enviarDatos("AT+CMGS=\"" + celular + "\"\n" + mensaje + "\n");
         System.out.println("ENVIANDO A " + celular + " POR EL " + comm);
         System.out.println("MENSAJE: " + mensaje);
         return true;
