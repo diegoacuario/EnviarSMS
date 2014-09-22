@@ -30,7 +30,7 @@ public class ConexionModem extends Thread {
     private CommPortIdentifier id_Puerto;
     private SerialPort sPuerto;
     public Enumeration listaPuertos;
-    private DataBase db;
+    //private DataBase db;
     private String port;
     private OutputStream os;
 
@@ -39,8 +39,8 @@ public class ConexionModem extends Thread {
     String strProp = "javax.comm.properties";
 
     public ConexionModem() {
-        db = new DataBase(Principal.fileConfig, Principal.numHost);
-        port = Principal.fileConfig.getProperty("comm_sms");
+       // db = new DataBase(Principal.fileConfig, Principal.numHost);
+        port ="COM3";
         if (!port.equals("0")) {
             if (!AbrirPuerto(port)) {
                 JOptionPane.showMessageDialog(null, "No se pudo abrir el puerto COM: " + port, "ERROR", JOptionPane.ERROR_MESSAGE);

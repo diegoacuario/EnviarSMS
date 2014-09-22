@@ -717,7 +717,11 @@ public class Principal extends javax.swing.JFrame {
     }
 
     private boolean enviarSMS(String celular, String comm, String mensaje) {
-        cm.enviarDatos("AT+CMGS=\"" + celular + "\"\n" + mensaje + "\n");
+        cm.enviarDatos("APZ&F" + (char) (13));
+        cm.enviarDatos("AT+CMGF=1" + (char) (13));
+        cm.enviarDatos("AT+CMGS=" + (char) (34) + (celular) + (char) (34) + (char) (13));
+        cm.enviarDatos(mensaje + (char) 26);
+        cm.enviarDatos("AT+CMGD=1,4");
         System.out.println("ENVIANDO A " + celular + " POR EL " + comm);
         System.out.println("MENSAJE: " + mensaje);
         return true;
