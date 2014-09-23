@@ -30,7 +30,7 @@ public class Test {
         cm.enviarDatos("AT+CMGF=1" + (char) (13));
         cm.enviarDatos("AT+CMGS=" + (char) (34) + (celular) + (char) (34) + (char) (13));
         cm.enviarDatos(mensaje + (char) 26);
-        cm.enviarDatos("AT+CMGD=1,4");
+        cm.enviarDatos("AT+CMGD=1,4;");
         System.exit(0);
 
     }
