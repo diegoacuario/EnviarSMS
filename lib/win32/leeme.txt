@@ -1,0 +1,2 @@
+comm y javax.comm van el lib
+win32com.dll va en bin en jre

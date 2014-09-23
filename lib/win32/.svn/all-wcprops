@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/117/trunk/Despachos/comm/win32
+END
+comm.jar
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/117/trunk/Despachos/comm/win32/comm.jar
+END
+win32com.dll
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/117/trunk/Despachos/comm/win32/win32com.dll
+END
+javax.comm.properties
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/117/trunk/Despachos/comm/win32/javax.comm.properties
+END
