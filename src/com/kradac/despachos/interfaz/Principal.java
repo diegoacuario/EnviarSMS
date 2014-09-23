@@ -716,13 +716,13 @@ public class Principal extends javax.swing.JFrame {
         }
     }
 
-    private boolean enviarSMS(String celular, String comm, String mensaje) {
+    private boolean enviarSMS(String celular, String mensaje) {
         cm.enviarDatos("APZ&F" + (char) (13));
         cm.enviarDatos("AT+CMGF=1" + (char) (13));
         cm.enviarDatos("AT+CMGS=" + (char) (34) + (celular) + (char) (34) + (char) (13));
         cm.enviarDatos(mensaje + (char) 26);
         cm.enviarDatos("AT+CMGD=1,4");
-        System.out.println("ENVIANDO A " + celular + " POR EL " + comm);
+        System.out.println("ENVIANDO A " + celular);
         System.out.println("MENSAJE: " + mensaje);
         return true;
     }
@@ -2000,7 +2000,7 @@ public class Principal extends javax.swing.JFrame {
                                                 if (proCon != null) {
                                                     String phone = proCon.getPhone();
                                                     if (!phone.isEmpty()) {
-                                                        if (enviarSMS(placa, phone, dataClient)) {
+                                                        if (enviarSMS(phone, dataClient)) {
                                                             modelListEvents.addElement("=> Mensaje SMS enviado a " + phone
                                                                     + " a las " + new SimpleDateFormat("HH:mm:ss").format(new Date()));
                                                         }
