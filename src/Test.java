@@ -12,7 +12,7 @@ import javax.swing.JOptionPane;
 
 /**
  *
- * @author KRADAC
+ * @author DIEGO ROMERO
  */
 public class Test {
 
